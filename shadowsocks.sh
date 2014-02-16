@@ -5,13 +5,13 @@ export PATH
 #   System Required:  CentOS5.x (32bit/64bit) or CentOS6.x (32bit/64bit)
 #   Description:  Install Shadowsocks(Python) for CentOS
 #   Author: Teddysun <i@teddysun.com>
-#   Intro:  http://teddysun.com/lamp
+#   Intro:  http://teddysun.com/342.html
 #===============================================================================================
 
 clear
 echo "#############################################################"
 echo "# Install Shadowsocks(Python) for CentOS5.x (32bit/64bit) or CentOS6.x (32bit/64bit)"
-echo "# Intro: http://teddysun.com/lamp"
+echo "# Intro: http://teddysun.com/342.html"
 echo "#"
 echo "# Author: Teddysun <i@teddysun.com>"
 echo "#"
@@ -106,7 +106,7 @@ function iptables_set(){
     if [ $? -eq 0 ]; then
         /sbin/iptables -A INPUT -m state --state NEW -m tcp -p tcp --dport 8989 -j ACCEPT
         /etc/rc.d/init.d/iptables save
-        etc/init.d/iptables restart
+        /sbin/service iptables restart
     fi
 }
 
@@ -128,9 +128,9 @@ function install(){
     echo -e "Your Server Port: \033[41;37m 8989 \033[0m"
     echo -e "Your Password: \033[41;37m ${shadowsockspwd} \033[0m"
     echo -e "Your Proxy Port: \033[41;37m 1080 \033[0m"
-    echo "";
     echo ""
-    echo "Welcome to visit:http://teddysun.com/lamp"
+    echo ""
+    echo "Welcome to visit:http://teddysun.com/342.html"
     echo "Enjoy it! ^_^"
     echo ""
     echo ""
