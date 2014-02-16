@@ -106,7 +106,7 @@ function iptables_set(){
     if [ $? -eq 0 ]; then
         /sbin/iptables -A INPUT -m state --state NEW -m tcp -p tcp --dport 8989 -j ACCEPT
         /etc/rc.d/init.d/iptables save
-        /sbin/service iptables restart
+        /etc/init.d/iptables restart
     fi
 }
 
