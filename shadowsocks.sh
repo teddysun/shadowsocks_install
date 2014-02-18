@@ -79,7 +79,7 @@ function download_files(){
     else
         echo "ez_setup.py not found!!!download now......"
         if ! wget --no-check-certificate https://bitbucket.org/pypa/setuptools/raw/bootstrap/ez_setup.py;then
-            echo "Failed to ez_setup.py!"
+            echo "Failed to download ez_setup.py!"
             exit 1
         fi
     fi
@@ -114,6 +114,7 @@ function iptables_set(){
 # Install 
 function install(){
     yum install -y wget openssl-devel gcc swig python python-devel python-setuptools autoconf libtool libevent
+    yum install -y automake make curl curl-devel zlib-devel openssl-devel perl perl-devel cpio expat-devel gettext-devel
     python ez_setup.py install
     easy_install pip
     pip install shadowsocks
