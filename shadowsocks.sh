@@ -74,7 +74,10 @@ function pre_install(){
 
 # Download files
 function download_files(){
-    if [ -s ez_setup.py ]; then
+    #Current folder
+    cur_dir=`pwd`
+    cd $cur_dir
+    if [ -f ez_setup.py ]; then
         echo "ez_setup.py [found]"
     else
         echo "ez_setup.py not found!!!download now......"
@@ -117,24 +120,36 @@ function install(){
     yum install -y automake make curl curl-devel zlib-devel openssl-devel perl perl-devel cpio expat-devel gettext-devel
     python ez_setup.py install
     easy_install pip
-    pip install shadowsocks
-    pip install M2Crypto
-    pip install greenlet
-    pip install gevent
-    nohup ssserver -c /etc/config.json > /dev/null 2>&1 &
-    clear
-    echo ""
-    echo "Congratulations, shadowsocks install completed!"
-    echo -e "Your Server IP: \033[41;37m ${IP} \033[0m"
-    echo -e "Your Server Port: \033[41;37m 8989 \033[0m"
-    echo -e "Your Password: \033[41;37m ${shadowsockspwd} \033[0m"
-    echo -e "Your Proxy Port: \033[41;37m 1080 \033[0m"
-    echo ""
-    echo ""
-    echo "Welcome to visit:http://teddysun.com/342.html"
-    echo "Enjoy it! ^_^"
-    echo ""
-    echo ""
+    if [ -f /usr/bin/pip ]; then
+        pip install shadowsocks
+        pip install M2Crypto
+        pip install greenlet
+        pip install gevent
+        if [ -f /usr/bin/ssserver ]; then
+            nohup ssserver -c /etc/config.json > /dev/null 2>&1 &
+        else
+            echo ""
+            echo "Shadowsocks install failed! Please visit http://teddysun.com/342.html and contact."
+            echo ""
+        fi
+        clear
+        echo ""
+        echo "Congratulations, shadowsocks install completed!"
+        echo -e "Your Server IP: \033[41;37m ${IP} \033[0m"
+        echo -e "Your Server Port: \033[41;37m 8989 \033[0m"
+        echo -e "Your Password: \033[41;37m ${shadowsockspwd} \033[0m"
+        echo -e "Your Proxy Port: \033[41;37m 1080 \033[0m"
+        echo ""
+        echo ""
+        echo "Welcome to visit:http://teddysun.com/342.html"
+        echo "Enjoy it! ^_^"
+        echo ""
+        echo ""
+    else
+        echo ""
+        echo "pip install failed! Please visit http://teddysun.com/342.html and contact."
+        echo ""
+    fi
 }
 
 # Uninstall Shadowsocks
