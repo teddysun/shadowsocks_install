@@ -169,6 +169,7 @@ uninstall)
     uninstall_shadowsocks
     ;;
 *)
-    echo "Usage: `basename $0` {install|uninstall)}"
+    echo "Arguments error! [${action} ]"
+    echo "Usage: `basename $0` {install|uninstall}"
     ;;
 esac
