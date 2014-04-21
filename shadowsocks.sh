@@ -155,6 +155,8 @@ function install(){
 # Uninstall Shadowsocks
 function uninstall_shadowsocks(){
     killall ssserver
+    # delete config file
+    rm -f /etc/config.json
     pip uninstall shadowsocks
 }
 
