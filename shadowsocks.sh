@@ -133,7 +133,7 @@ function install(){
         else
             echo ""
             echo "Shadowsocks install failed! Please visit http://teddysun.com/342.html and contact."
-            echo ""
+            exit 1
         fi
         clear
         echo ""
@@ -151,7 +151,7 @@ function install(){
     else
         echo ""
         echo "pip install failed! Please visit http://teddysun.com/342.html and contact."
-        echo ""
+        exit 1
     fi
 }
 
