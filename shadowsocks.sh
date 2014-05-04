@@ -95,10 +95,12 @@ function config_shadowsocks(){
 {
     "server":"${IP}",
     "server_port":8989,
+    "local_address": "127.0.0.1",
     "local_port":1080,
     "password":"${shadowsockspwd}",
     "timeout":600,
-    "method":"aes-256-cfb"
+    "method":"aes-256-cfb",
+    "fast_open":false
 }
 EOF
 }
