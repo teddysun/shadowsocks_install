@@ -107,9 +107,12 @@ EOF
 function iptables_set(){
     /sbin/service iptables status 1>/dev/null 2>&1
     if [ $? -eq 0 ]; then
-        /sbin/iptables -A INPUT -m state --state NEW -m tcp -p tcp --dport 8989 -j ACCEPT
-        /etc/rc.d/init.d/iptables save
-        /etc/init.d/iptables restart
+        /etc/init.d/iptables status | grep '8989' | grep 'ACCEPT'
+        if [ $? -ne 0 ]; then
+            /sbin/iptables -A INPUT -m state --state NEW -m tcp -p tcp --dport 8989 -j ACCEPT
+            /etc/rc.d/init.d/iptables save
+            /etc/init.d/iptables restart
+        fi
     fi
 }
 
