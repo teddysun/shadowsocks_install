@@ -132,6 +132,16 @@ function install(){
         pip install gevent
         if [ -f /usr/bin/ssserver ]; then
             nohup ssserver -c /etc/config.json > /dev/null 2>&1 &
+            if [ $? -eq 0 ]; then
+                echo "Shadowsocks start success!"
+            else
+                echo "Shadowsocks start failure!"
+            fi
+            # Add run on system start up
+            cat /etc/rc.d/rc.local | grep 'ssserver' > /dev/null 2>&1
+            if [ $? -ne 0 ]; then
+                echo "nohup ssserver -c /etc/config.json > /dev/null 2>&1 &" >> /etc/rc.d/rc.local
+            fi
         else
             echo ""
             echo "Shadowsocks install failed! Please visit http://teddysun.com/342.html and contact."
@@ -162,7 +172,7 @@ function uninstall_shadowsocks(){
     killall ssserver
     # delete config file
     rm -f /etc/config.json
-    pip uninstall shadowsocks
+    pip uninstall -y shadowsocks
 }
 
 # Initialization step
