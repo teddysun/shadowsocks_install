@@ -5,14 +5,14 @@ shadowsocks_install
 
 * shadowsocks.sh
 
-Description: Auto Install `Shadowsocks(Python)` for CentOS/Redhat/Fedora
-
-Intro: http://teddysun.com/342.html
+> Description: Auto Install `Shadowsocks(Python)` for CentOS/Redhat/Fedora
+> 
+> Intro: http://teddysun.com/342.html
 
 * shadowsocks-nodejs.sh
 
-Description: Auto Install `Shadowsocks(Nodejs)` for CentOS/Redhat/Fedora
-
-Intro: http://teddysun.com/355.html
+> Description: Auto Install `Shadowsocks(Nodejs)` for CentOS/Redhat/Fedora
+> 
+> Intro: http://teddysun.com/355.html
 
 * Author: Teddysun <i@teddysun.com>
