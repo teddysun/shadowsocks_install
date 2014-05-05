@@ -104,7 +104,7 @@ function config_shadowsocks(){
 {
     "server":"${IP}",
     "server_port":8989,
-    "local_address": "127.0.0.1",
+    "local_address":"127.0.0.1",
     "local_port":1080,
     "password":"${shadowsockspwd}",
     "timeout":600,
@@ -154,7 +154,11 @@ function install(){
         else
             echo "Shadowsocks-nodejs start failure!"
         fi
-        echo "nohup ssserver -c /etc/config.json > /dev/null 2>&1 &" >> /etc/rc.d/rc.local
+        # Add run on system start up
+        cat /etc/rc.d/rc.local | grep 'ssserver' > /dev/null 2>&1
+        if [ $? -ne 0 ]; then
+            echo "nohup ssserver -c /etc/config.json > /dev/null 2>&1 &" >> /etc/rc.d/rc.local
+        fi
     else
         echo ""
         echo "Shadowsocks-nodejs install failed! Please visit http://teddysun.com/355.html and contact."
