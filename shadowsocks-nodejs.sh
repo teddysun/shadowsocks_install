@@ -67,7 +67,7 @@ function pre_install(){
         dd if=/dev/tty bs=1 count=1 2> /dev/null
         stty -raw
         stty echo
-        stty 1SAVEDSTTY
+        stty $SAVEDSTTY
     }
     echo ""
     echo "Press any key to start...or Press Ctrl+C to cancel"
