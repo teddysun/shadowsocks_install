@@ -5,13 +5,13 @@ export PATH
 #   System Required:  CentOS5.x (32bit/64bit) or CentOS6.x (32bit/64bit)
 #   Description:  Install Shadowsocks(Nodejs) for CentOS
 #   Author: Teddysun <i@teddysun.com>
-#   Intro:  http://teddysun.com/342.html
+#   Intro:  http://teddysun.com/355.html
 #===============================================================================================
 
 clear
 echo "#############################################################"
 echo "# Install Shadowsocks(Nodejs) for CentOS5.x (32bit/64bit) or CentOS6.x (32bit/64bit)"
-echo "# Intro: http://teddysun.com/342.html"
+echo "# Intro: http://teddysun.com/355.html"
 echo "#"
 echo "# Author: Teddysun <i@teddysun.com>"
 echo "#"
@@ -91,7 +91,7 @@ function download_files(){
             cd $cur_dir/node-${NODEJS_VER}/
         else
             echo ""
-            echo "Untar Nodejs failed! Please visit http://teddysun.com/342.html and contact."
+            echo "Untar Nodejs failed! Please visit http://teddysun.com/355.html and contact."
             exit 1
         fi
     fi
@@ -143,15 +143,21 @@ function install(){
         npm install -g shadowsocks
     else
         echo ""
-        echo "Nodejs install failed! Please visit http://teddysun.com/342.html and contact."
+        echo "Nodejs install failed! Please visit http://teddysun.com/355.html and contact."
         exit 1
     fi
     # Run it in the background
     if [ -s /usr/local/bin/ssserver ]; then
         nohup ssserver -c /etc/config.json > /dev/null 2>&1 &
+        if [ $? -eq 0 ]; then
+            echo "Shadowsocks-nodejs start success!"
+        else
+            echo "Shadowsocks-nodejs start failure!"
+        fi
+        echo "nohup ssserver -c /etc/config.json > /dev/null 2>&1 &" >> /etc/rc.d/rc.local
     else
         echo ""
-        echo "Shadowsocks-nodejs install failed! Please visit http://teddysun.com/342.html and contact."
+        echo "Shadowsocks-nodejs install failed! Please visit http://teddysun.com/355.html and contact."
         exit 1
     fi
     # Delete Nodejs untar floder
@@ -167,7 +173,7 @@ function install(){
     echo -e "Your Proxy Port: \033[41;37m 1080 \033[0m"
     echo ""
     echo ""
-    echo "Welcome to visit:http://teddysun.com/342.html"
+    echo "Welcome to visit:http://teddysun.com/355.html"
     echo "Enjoy it! ^_^"
 }
 
