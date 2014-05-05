@@ -1,7 +1,7 @@
 shadowsocks_install
 ===================
 
-# About shadowsocks install shell script
+### About shadowsocks install shell script
 
 * shadowsocks.sh
 Description: Auto Install Shadowsocks(Python) for CentOS/Redhat/Fedora
