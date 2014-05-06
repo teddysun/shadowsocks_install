@@ -21,7 +21,7 @@ echo ""
 # Get IP address(Default No.1)
 IP=`ifconfig | grep 'inet addr:'| grep -v '127.0.0.*' | cut -d: -f2 | awk '{ print $1}' | head -1`;
 # Get Nodejs latest version
-NODEJS_VER=`curl -s http://nodejs.org/download/ | grep 'Current version' | awk -F'>' '{print $3}' | awk -F'<' '{print $1}'`
+NODEJS_VER=`curl -s http://nodejs.org/download/ | awk -F'<b>' '/Current version/{print $2}' | cut -d '<' -f 1`
 
 # Install Shadowsocks-nodejs
 function install_shadowsocks_nodejs(){
