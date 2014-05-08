@@ -70,13 +70,16 @@ function pre_install(){
     echo ""
     echo "Press any key to start...or Press Ctrl+C to cancel"
     char=`get_char`
+    #Install necessary dependencies
+    yum install -y wget unzip openssl-devel gcc swig python python-devel python-setuptools autoconf libtool libevent
+    yum install -y automake make curl curl-devel zlib-devel openssl-devel perl perl-devel cpio expat-devel gettext-devel
+    #Current folder
+    cur_dir=`pwd`
+    cd $cur_dir
 }
 
 # Download files
 function download_files(){
-    #Current folder
-    cur_dir=`pwd`
-    cd $cur_dir
     if [ -f ez_setup.py ]; then
         echo "ez_setup.py [found]"
     else
@@ -121,8 +124,6 @@ function iptables_set(){
 
 # Install 
 function install(){
-    yum install -y wget openssl-devel gcc swig python python-devel python-setuptools autoconf libtool libevent
-    yum install -y automake make curl curl-devel zlib-devel openssl-devel perl perl-devel cpio expat-devel gettext-devel
     python ez_setup.py install
     easy_install pip
     if [ -f /usr/bin/pip ]; then
