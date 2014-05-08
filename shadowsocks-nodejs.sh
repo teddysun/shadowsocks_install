@@ -72,13 +72,16 @@ function pre_install(){
     echo ""
     echo "Press any key to start...or Press Ctrl+C to cancel"
     char=`get_char`
+    #Install necessary dependencies
+    yum install -y wget unzip openssl-devel gcc swig python python-devel python-setuptools autoconf libtool libevent
+    yum install -y automake make curl curl-devel zlib-devel openssl-devel perl perl-devel cpio expat-devel gettext-devel
+    #Current folder
+    cur_dir=`pwd`
+    cd $cur_dir
 }
 
 # Download latest NodeJS
 function download_files(){
-    #Current folder
-    cur_dir=`pwd`
-    cd $cur_dir
     if [ -f node-${NODEJS_VER}.tar.gz ];then
         echo "node-${NODEJS_VER}.tar.gz [found]"
     else
@@ -129,8 +132,6 @@ function iptables_set(){
 
 # Install 
 function install(){
-    yum install -y wget openssl-devel gcc swig python python-devel python-setuptools autoconf libtool libevent
-    yum install -y automake make curl curl-devel zlib-devel openssl-devel perl perl-devel cpio expat-devel gettext-devel
     # Build and Install Nodejs
     if [ ! -s /usr/local/bin/npm ];then
         ./configure
