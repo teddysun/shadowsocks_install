@@ -15,4 +15,10 @@ shadowsocks_install
 > 
 > Intro: http://teddysun.com/355.html
 
+* shadowsocks-libev.sh
+
+> Description: Auto Install `Shadowsocks(libev)` for CentOS/Redhat/Fedora
+> 
+> Intro: http://teddysun.com/357.html
+
 * Author: Teddysun <i@teddysun.com>
