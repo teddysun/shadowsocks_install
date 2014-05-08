@@ -5,13 +5,13 @@ export PATH
 #   System Required:  CentOS5.x (32bit/64bit) or CentOS6.x (32bit/64bit)
 #   Description:  Install Shadowsocks(libev) for CentOS
 #   Author: Teddysun <i@teddysun.com>
-#   Intro:  http://teddysun.com/355.html
+#   Intro:  http://teddysun.com/357.html
 #===============================================================================================
 
 clear
 echo "#############################################################"
 echo "# Install Shadowsocks(libev) for CentOS5.x (32bit/64bit) or CentOS6.x (32bit/64bit)"
-echo "# Intro: http://teddysun.com/355.html"
+echo "# Intro: http://teddysun.com/357.html"
 echo "#"
 echo "# Author: Teddysun <i@teddysun.com>"
 echo "#"
@@ -92,7 +92,7 @@ function download_files(){
             cd $cur_dir/shadowsocks-libev-master/
         else
             echo ""
-            echo "Unzip shadowsocks-libev failed! Please visit http://teddysun.com/355.html and contact."
+            echo "Unzip shadowsocks-libev failed! Please visit http://teddysun.com/357.html and contact."
             exit 1
         fi
     fi
@@ -154,7 +154,7 @@ function install(){
         fi
     else
         echo ""
-        echo "Shadowsocks-libev install failed! Please visit http://teddysun.com/355.html and contact."
+        echo "Shadowsocks-libev install failed! Please visit http://teddysun.com/357.html and contact."
         exit 1
     fi
     cd $cur_dir
@@ -171,7 +171,7 @@ function install(){
     echo -e "Your Proxy Port: \033[41;37m 1080 \033[0m"
     echo ""
     echo ""
-    echo "Welcome to visit:http://teddysun.com/355.html"
+    echo "Welcome to visit:http://teddysun.com/357.html"
     echo "Enjoy it! ^_^"
 }
 
