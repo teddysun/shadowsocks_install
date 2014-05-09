@@ -177,7 +177,10 @@ function install(){
 
 # Uninstall Shadowsocks-libev
 function uninstall_shadowsocks_libev(){
-    /etc/init.d/shadowsocks stop
+    ps -ef | grep -v grep | grep -v ps | grep -i ss-server > /dev/null 2>&1
+    if [ $? -eq 0 ]; then
+        /etc/init.d/shadowsocks stop
+    fi
     # delete config file
     rm -f /etc/shadowsocks/config.json
     # delete shadowsocks
@@ -187,6 +190,7 @@ function uninstall_shadowsocks_libev(){
     rm -f /usr/local/bin/ss-redir
     rm -f /usr/local/share/man/man8/shadowsocks.8
     rm -f /etc/init.d/shadowsocks
+    echo "Shadowsocks-libev uninstall success!"
 }
 
 # Initialization step
