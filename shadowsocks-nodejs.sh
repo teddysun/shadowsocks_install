@@ -184,13 +184,21 @@ function install(){
 
 # Uninstall Shadowsocks-nodejs
 function uninstall_shadowsocks_nodejs(){
-    killall node
+    NODE_PID=`ps -ef | grep -v grep | grep -v ps | grep -i 'node /usr/local/bin/ssserver' | awk '{print $2}'`
+    if [ ! -z $NODE_PID ]; then
+        for pid in $NODE_PID
+        do
+            kill -9 $pid
+            echo "Shadowsocks-nodejs process[$pid] has been killed"
+        done
+    fi
     # delete config file
     rm -f /etc/config.json
     cd /usr/local/lib/node_modules/
     npm uninstall shadowsocks
     rm -f /usr/local/bin/sslocal
     rm -f /usr/local/bin/ssserver
+    echo "Shadowsocks-nodejs uninstall success!"
 }
 
 # Initialization step
