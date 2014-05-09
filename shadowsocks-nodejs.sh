@@ -189,6 +189,8 @@ function uninstall_shadowsocks_nodejs(){
     rm -f /etc/config.json
     cd /usr/local/lib/node_modules/
     npm uninstall shadowsocks
+    rm -f /usr/local/bin/sslocal
+    rm -f /usr/local/bin/ssserver
 }
 
 # Initialization step
