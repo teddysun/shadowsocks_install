@@ -21,4 +21,10 @@ shadowsocks_install
 > 
 > Intro: http://teddysun.com/357.html
 
+* shadowsocks-libev.sh
+
+> Description: Auto Install `Shadowsocks(libev)` for Debian/Ubuntu
+> 
+> Intro: http://teddysun.com/358.html
+
 * Author: Teddysun <i@teddysun.com>
