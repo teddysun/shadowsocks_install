@@ -87,14 +87,14 @@ function download_files(){
             echo "Failed to download shadowsocks-libev.zip"
             exit 1
         fi
-        unzip shadowsocks-libev.zip
-        if [ $? -eq 0 ];then
-            cd $cur_dir/shadowsocks-libev-master/
-        else
-            echo ""
-            echo "Unzip shadowsocks-libev failed! Please visit http://teddysun.com/357.html and contact."
-            exit 1
-        fi
+    fi
+    unzip shadowsocks-libev.zip
+    if [ $? -eq 0 ];then
+        cd $cur_dir/shadowsocks-libev-master/
+    else
+        echo ""
+        echo "Unzip shadowsocks-libev failed! Please visit http://teddysun.com/357.html and contact."
+        exit 1
     fi
 }
 
