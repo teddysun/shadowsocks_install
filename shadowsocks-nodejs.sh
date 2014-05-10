@@ -190,7 +190,9 @@ function uninstall_shadowsocks_nodejs(){
         for pid in $NODE_PID
         do
             kill -9 $pid
-            echo "Shadowsocks-nodejs process[$pid] has been killed"
+            if [ $? -eq 0 ]; then
+                echo "Shadowsocks-nodejs process[$pid] has been killed"
+            fi
         done
     fi
     # delete config file
