@@ -89,14 +89,15 @@ function download_files(){
             echo "Failed to download node-${NODEJS_VER}.tar.gz"
             exit 1
         fi
-        tar -zxf node-${NODEJS_VER}.tar.gz
-        if [ $? -eq 0 ];then
-            cd $cur_dir/node-${NODEJS_VER}/
-        else
-            echo ""
-            echo "Untar Nodejs failed! Please visit http://teddysun.com/355.html and contact."
-            exit 1
-        fi
+    fi
+    # Untar Nodejs file
+    tar -zxf node-${NODEJS_VER}.tar.gz
+    if [ $? -eq 0 ];then
+        cd $cur_dir/node-${NODEJS_VER}/
+    else
+        echo ""
+        echo "Untar Nodejs failed! Please visit http://teddysun.com/355.html and contact."
+        exit 1
     fi
 }
 
