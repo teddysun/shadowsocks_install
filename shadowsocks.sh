@@ -174,6 +174,11 @@ function uninstall_shadowsocks(){
     # delete config file
     rm -f /etc/config.json
     pip uninstall -y shadowsocks
+    if [ $? -eq 0 ]; then
+        echo "Shadowsocks uninstall success!"
+    else
+        echo "Shadowsocks uninstall failed!"
+    fi
 }
 
 # Initialization step
