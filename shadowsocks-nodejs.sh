@@ -138,10 +138,10 @@ function install(){
         ./configure
         make && make install
     fi
+    cd $cur_dir
     # Install shadowsocks-Nodejs
     which npm > /dev/null 2>&1
     if [ $? -eq 0 ]; then
-        cd $cur_dir
         npm install -g shadowsocks
     else
         echo ""
