@@ -124,13 +124,16 @@ function iptables_set(){
 
 # Install 
 function install(){
-    python ez_setup.py install
-    easy_install pip
+    which pip > /dev/null 2>&1
+    if [ $? -ne 0 ]; then
+        python ez_setup.py install
+        easy_install pip
+    fi
     if [ -f /usr/bin/pip ]; then
-        pip install shadowsocks
         pip install M2Crypto
         pip install greenlet
         pip install gevent
+        pip install shadowsocks
         if [ -f /usr/bin/ssserver ]; then
             nohup ssserver -c /etc/config.json > /dev/null 2>&1 &
             if [ $? -eq 0 ]; then
@@ -170,7 +173,7 @@ function install(){
 
 # Uninstall Shadowsocks
 function uninstall_shadowsocks(){
-    NODE_PID=`ps -ef | grep -v grep | grep -v ps | grep -i 'ssserver' | awk '{print $2}'`
+    NODE_PID=`ps -ef | grep -v grep | grep -v ps | grep -i '/usr/bin/python /usr/bin/ssserver' | awk '{print $2}'`
     if [ ! -z $NODE_PID ]; then
         for pid in $NODE_PID
         do
