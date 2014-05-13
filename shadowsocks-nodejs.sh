@@ -151,6 +151,8 @@ function install(){
     # Run it in the background
     if [ -s /usr/local/bin/ssserver ]; then
         nohup ssserver -c /etc/config.json > /dev/null 2>&1 &
+        # Run success or not
+        ps -ef | grep -v grep | grep -v ps | grep -i 'node /usr/local/bin/ssserver' > /dev/null 2>&1
         if [ $? -eq 0 ]; then
             echo "Shadowsocks-nodejs start success!"
         else

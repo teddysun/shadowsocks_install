@@ -129,8 +129,10 @@ function install(){
         if [ $? -ne 0 ]; then
             echo "nohup /usr/local/bin/ss-server -c /etc/shadowsocks/config.json > /dev/null 2>&1 &" >> /etc/rc.local
         fi
-        # Start shadowsocks
+        # Run shadowsocks in the background
         nohup /usr/local/bin/ss-server -c /etc/shadowsocks/config.json > /dev/null 2>&1 &
+        # Run success or not
+        ps -ef | grep -v grep | grep -v ps | grep -i '/usr/local/bin/ss-server' > /dev/null 2>&1
         if [ $? -eq 0 ]; then
             echo "Shadowsocks-libev start success!"
         else

@@ -135,7 +135,10 @@ function install(){
         pip install gevent
         pip install shadowsocks
         if [ -f /usr/bin/ssserver ]; then
+            # Run shadowsocks in the background
             nohup ssserver -c /etc/config.json > /dev/null 2>&1 &
+            # Run success or not
+            ps -ef | grep -v grep | grep -v ps | grep -i '/usr/bin/python /usr/bin/ssserver' > /dev/null 2>&1
             if [ $? -eq 0 ]; then
                 echo "Shadowsocks start success!"
             else
