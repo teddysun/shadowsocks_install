@@ -170,7 +170,16 @@ function install(){
 
 # Uninstall Shadowsocks
 function uninstall_shadowsocks(){
-    killall ssserver
+    NODE_PID=`ps -ef | grep -v grep | grep -v ps | grep -i 'ssserver' | awk '{print $2}'`
+    if [ ! -z $NODE_PID ]; then
+        for pid in $NODE_PID
+        do
+            kill -9 $pid
+            if [ $? -eq 0 ]; then
+                echo "Shadowsocks process[$pid] has been killed"
+            fi
+        done
+    fi
     # delete config file
     rm -f /etc/config.json
     pip uninstall -y shadowsocks
