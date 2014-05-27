@@ -177,10 +177,11 @@ function install(){
 
 # Uninstall Shadowsocks-libev
 function uninstall_shadowsocks_libev(){
-    ps -ef | grep -v grep | grep -v ps | grep -i ss-server > /dev/null 2>&1
+    ps -ef | grep -v grep | grep -v ps | grep -i "ss-server" > /dev/null 2>&1
     if [ $? -eq 0 ]; then
         /etc/init.d/shadowsocks stop
     fi
+    chkconfig shadowsocks off
     # delete config file
     rm -f /etc/shadowsocks/config.json
     # delete shadowsocks
