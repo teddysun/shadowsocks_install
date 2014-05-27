@@ -151,8 +151,9 @@ function install(){
     # Run it in the background
     if [ -s /usr/local/bin/ssserver ]; then
         nohup ssserver -c /etc/config.json > /dev/null 2>&1 &
+        sleep 1
         # Run success or not
-        ps -ef | grep -v grep | grep -v ps | grep -i 'node /usr/local/bin/ssserver' > /dev/null 2>&1
+        ps -ef | grep -v grep | grep -v ps | grep -i '/usr/local/bin/ssserver' > /dev/null 2>&1
         if [ $? -eq 0 ]; then
             echo "Shadowsocks-nodejs start success!"
         else
@@ -161,7 +162,8 @@ function install(){
         # Add run on system start up
         cat /etc/rc.d/rc.local | grep 'ssserver' > /dev/null 2>&1
         if [ $? -ne 0 ]; then
-            echo "nohup ssserver -c /etc/config.json > /dev/null 2>&1 &" >> /etc/rc.d/rc.local
+            cp /etc/rc.d/rc.local /etc/rc.d/rc.local.bak
+            echo "nohup /usr/local/bin/node /usr/local/bin/ssserver -c /etc/config.json > /dev/null 2>&1 &" >> /etc/rc.d/rc.local
         fi
     else
         echo ""
@@ -187,7 +189,7 @@ function install(){
 
 # Uninstall Shadowsocks-nodejs
 function uninstall_shadowsocks_nodejs(){
-    NODE_PID=`ps -ef | grep -v grep | grep -v ps | grep -i 'node /usr/local/bin/ssserver' | awk '{print $2}'`
+    NODE_PID=`ps -ef | grep -v grep | grep -v ps | grep -i '/usr/local/bin/ssserver' | awk '{print $2}'`
     if [ ! -z $NODE_PID ]; then
         for pid in $NODE_PID
         do
@@ -203,6 +205,10 @@ function uninstall_shadowsocks_nodejs(){
     npm uninstall shadowsocks
     rm -f /usr/local/bin/sslocal
     rm -f /usr/local/bin/ssserver
+    if [ -f /etc/rc.d/rc.local.bak ];then
+        rm -f /etc/rc.d/rc.local
+        mv /etc/rc.d/rc.local.bak /etc/rc.d/rc.local
+    fi
     echo "Shadowsocks-nodejs uninstall success!"
 }
 
