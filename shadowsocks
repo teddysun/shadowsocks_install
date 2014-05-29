@@ -1,0 +1,82 @@
+#!/bin/sh
+# chkconfig: 2345
+# description: Start or stop the Shadowsocks server
+#
+### BEGIN INIT INFO
+# Provides: Shadowsocks
+# Required-Start: $network $syslog
+# Required-Stop: $network
+# Default-Start: 2 3 4 5
+# Default-Stop: 0 1 6
+# Description: Start or stop the Shadowsocks server
+### END INIT INFO
+
+conf=/etc/config.json
+pid=/var/run/shadowsocks.pid
+name='shadowsocks'
+
+start(){
+    nohup /usr/bin/python /usr/bin/ssserver -c $conf > /dev/null 2>&1 &
+    RETVAL=$?
+    REPID=$!
+    if [ "$RETVAL" = "0" ]; then
+        echo $REPID > $pid 2>&1
+        echo "$name start success"
+    else
+        echo "$name start failed"
+    fi
+}
+
+stop(){
+    if [ -s $pid ]; then
+        kill `cat $pid`
+        RETVAL=$?
+        if [ "$RETVAL" = "0" ]; then
+            rm -f $pid
+        fi
+        echo "$name stop success"
+    else
+        echo "$name is not running"
+        RETVAL=1
+    fi
+}
+
+status(){
+    if [ -s $pid ]; then
+        pidno=`cat $pid`
+        kill -0 $pidno >/dev/null 2>&1
+        if [ "$?" = "0" ]; then
+            echo "$name (pid $pidno) is running"
+            RETVAL=0
+        else
+            echo "$name is stopped"
+            RETVAL=1
+        fi
+    else
+        echo "$name is stopped"
+        RETVAL=1
+    fi
+}
+
+case "$1" in
+'start')
+    start
+    ;;
+'stop')
+    stop
+    ;;
+'status')
+    status
+    ;;
+'restart')
+    stop
+    start
+    RETVAL=$?
+    ;;
+*)
+    echo "Usage: $0 { start | stop | restart | status }"
+    RETVAL=1
+    ;;
+esac
+exit $RETVAL
+
