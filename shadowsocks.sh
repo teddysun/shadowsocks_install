@@ -84,10 +84,16 @@ function download_files(){
         echo "ez_setup.py [found]"
     else
         echo "ez_setup.py not found!!!download now......"
-        if ! wget --no-check-certificate https://bitbucket.org/pypa/setuptools/raw/bootstrap/ez_setup.py;then
+        if ! wget --no-check-certificate https://bitbucket.org/pypa/setuptools/raw/bootstrap/ez_setup.py; then
             echo "Failed to download ez_setup.py!"
             exit 1
         fi
+    fi
+    # Download chkconfig file
+    echo "download shadowsocks chkconfig file......"
+    if ! wget --no-check-certificate https://raw.githubusercontent.com/teddysun/shadowsocks_install/master/shadowsocks; then
+        echo "Failed to download shadowsocks chkconfig file!"
+        exit 1
     fi
 }
 
@@ -122,7 +128,6 @@ function iptables_set(){
     fi
 }
 
-
 # Install 
 function install(){
     which pip > /dev/null 2>&1
@@ -137,7 +142,12 @@ function install(){
         pip install shadowsocks
         if [ -f /usr/bin/ssserver ]; then
             # Run shadowsocks in the background
-            nohup ssserver -c /etc/shadowsocks.json > /dev/null 2>&1 &
+            mv shadowsocks /etc/init.d/
+            chmod +x /etc/init.d/shadowsocks
+            # Add run on system start up
+            chkconfig --add shadowsocks
+            chkconfig shadowsocks on
+            /etc/init.d/shadowsocks start
             sleep 1
             # Run success or not
             ps -ef | grep -v grep | grep -v ps | grep -i '/usr/bin/python /usr/bin/ssserver' > /dev/null 2>&1
@@ -145,12 +155,6 @@ function install(){
                 echo "Shadowsocks start success!"
             else
                 echo "Shadowsocks start failure!"
-            fi
-            # Add run on system start up
-            cat /etc/rc.d/rc.local | grep 'ssserver' > /dev/null 2>&1
-            if [ $? -ne 0 ]; then
-                cp /etc/rc.d/rc.local /etc/rc.d/rc.local.bak
-                echo "nohup /usr/bin/python /usr/bin/ssserver -c /etc/shadowsocks.json > /dev/null 2>&1 &" >> /etc/rc.d/rc.local
             fi
         else
             echo ""
@@ -191,10 +195,8 @@ function uninstall_shadowsocks(){
     fi
     # delete config file
     rm -f /etc/shadowsocks.json
-    if [ -f /etc/rc.d/rc.local.bak ];then
-        rm -f /etc/rc.d/rc.local
-        mv /etc/rc.d/rc.local.bak /etc/rc.d/rc.local
-    fi
+    rm -f /var/run/shadowsocks.pid
+    rm -f /etc/init.d/shadowsocks
     pip uninstall -y shadowsocks
     if [ $? -eq 0 ]; then
         echo "Shadowsocks uninstall success!"
