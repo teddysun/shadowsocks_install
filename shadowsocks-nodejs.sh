@@ -103,8 +103,8 @@ function download_files(){
 
 # Config shadowsocks
 function config_shadowsocks(){
-    touch /etc/config.json
-    cat >>/etc/config.json<<-EOF
+    touch /etc/shadowsocks.json
+    cat >>/etc/shadowsocks.json<<-EOF
 {
     "server":"${IP}",
     "server_port":8989,
@@ -150,7 +150,7 @@ function install(){
     fi
     # Run it in the background
     if [ -s /usr/local/bin/ssserver ]; then
-        nohup ssserver -c /etc/config.json > /dev/null 2>&1 &
+        nohup ssserver -c /etc/shadowsocks.json > /dev/null 2>&1 &
         sleep 1
         # Run success or not
         ps -ef | grep -v grep | grep -v ps | grep -i '/usr/local/bin/ssserver' > /dev/null 2>&1
@@ -163,7 +163,7 @@ function install(){
         cat /etc/rc.d/rc.local | grep 'ssserver' > /dev/null 2>&1
         if [ $? -ne 0 ]; then
             cp /etc/rc.d/rc.local /etc/rc.d/rc.local.bak
-            echo "nohup /usr/local/bin/node /usr/local/bin/ssserver -c /etc/config.json > /dev/null 2>&1 &" >> /etc/rc.d/rc.local
+            echo "nohup /usr/local/bin/node /usr/local/bin/ssserver -c /etc/shadowsocks.json > /dev/null 2>&1 &" >> /etc/rc.d/rc.local
         fi
     else
         echo ""
@@ -200,7 +200,7 @@ function uninstall_shadowsocks_nodejs(){
         done
     fi
     # delete config file
-    rm -f /etc/config.json
+    rm -f /etc/shadowsocks.json
     cd /usr/local/lib/node_modules/
     npm uninstall shadowsocks
     rm -f /usr/local/bin/sslocal
