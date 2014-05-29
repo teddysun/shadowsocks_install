@@ -93,8 +93,8 @@ function download_files(){
 
 # Config shadowsocks
 function config_shadowsocks(){
-    touch /etc/config.json
-    cat >>/etc/config.json<<-EOF
+    touch /etc/shadowsocks.json
+    cat >>/etc/shadowsocks.json<<-EOF
 {
     "server":"${IP}",
     "server_port":8989,
@@ -103,7 +103,8 @@ function config_shadowsocks(){
     "password":"${shadowsockspwd}",
     "timeout":600,
     "method":"aes-256-cfb",
-    "fast_open":false
+    "fast_open":false,
+    "workers":1
 }
 EOF
 }
@@ -136,7 +137,7 @@ function install(){
         pip install shadowsocks
         if [ -f /usr/bin/ssserver ]; then
             # Run shadowsocks in the background
-            nohup ssserver -c /etc/config.json > /dev/null 2>&1 &
+            nohup ssserver -c /etc/shadowsocks.json > /dev/null 2>&1 &
             sleep 1
             # Run success or not
             ps -ef | grep -v grep | grep -v ps | grep -i '/usr/bin/python /usr/bin/ssserver' > /dev/null 2>&1
@@ -149,7 +150,7 @@ function install(){
             cat /etc/rc.d/rc.local | grep 'ssserver' > /dev/null 2>&1
             if [ $? -ne 0 ]; then
                 cp /etc/rc.d/rc.local /etc/rc.d/rc.local.bak
-                echo "nohup /usr/bin/python /usr/bin/ssserver -c /etc/config.json > /dev/null 2>&1 &" >> /etc/rc.d/rc.local
+                echo "nohup /usr/bin/python /usr/bin/ssserver -c /etc/shadowsocks.json > /dev/null 2>&1 &" >> /etc/rc.d/rc.local
             fi
         else
             echo ""
@@ -189,7 +190,7 @@ function uninstall_shadowsocks(){
         done
     fi
     # delete config file
-    rm -f /etc/config.json
+    rm -f /etc/shadowsocks.json
     if [ -f /etc/rc.d/rc.local.bak ];then
         rm -f /etc/rc.d/rc.local
         mv /etc/rc.d/rc.local.bak /etc/rc.d/rc.local
