@@ -11,7 +11,7 @@
 # Description: Start or stop the Shadowsocks server
 ### END INIT INFO
 
-conf=/etc/config.json
+conf=/etc/shadowsocks.json
 pid=/var/run/shadowsocks.pid
 name='shadowsocks'
 
