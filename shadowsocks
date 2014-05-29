@@ -33,8 +33,10 @@ stop(){
         RETVAL=$?
         if [ "$RETVAL" = "0" ]; then
             rm -f $pid
+            echo "$name stop success"
+        else
+            echo "$name stop failed"
         fi
-        echo "$name stop success"
     else
         echo "$name is not running"
         RETVAL=1
