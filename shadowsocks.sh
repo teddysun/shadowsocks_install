@@ -173,25 +173,32 @@ function install(){
 
 # Uninstall Shadowsocks
 function uninstall_shadowsocks(){
-    NODE_PID=`ps -ef | grep -v grep | grep -v ps | grep -i '/usr/bin/python /usr/bin/ssserver' | awk '{print $2}'`
-    if [ ! -z $NODE_PID ]; then
-        for pid in $NODE_PID
-        do
-            kill -9 $pid
-            if [ $? -eq 0 ]; then
-                echo "Shadowsocks process[$pid] has been killed"
-            fi
-        done
-    fi
-    # delete config file
-    rm -f /etc/shadowsocks.json
-    rm -f /var/run/shadowsocks.pid
-    rm -f /etc/init.d/shadowsocks
-    pip uninstall -y shadowsocks
-    if [ $? -eq 0 ]; then
-        echo "Shadowsocks uninstall success!"
+    printf "Are you sure uninstall Shadowsocks? (y/n) : "
+    read answer
+    printf "\n"
+    if [ "$answer" = "y" ]; then
+        NODE_PID=`ps -ef | grep -v grep | grep -v ps | grep -i '/usr/bin/python /usr/bin/ssserver' | awk '{print $2}'`
+        if [ ! -z $NODE_PID ]; then
+            for pid in $NODE_PID
+            do
+                kill -9 $pid
+                if [ $? -eq 0 ]; then
+                    echo "Shadowsocks process[$pid] has been killed"
+                fi
+            done
+        fi
+        # delete config file
+        rm -f /etc/shadowsocks.json
+        rm -f /var/run/shadowsocks.pid
+        rm -f /etc/init.d/shadowsocks
+        pip uninstall -y shadowsocks
+        if [ $? -eq 0 ]; then
+            echo "Shadowsocks uninstall success!"
+        else
+            echo "Shadowsocks uninstall failed!"
+        fi
     else
-        echo "Shadowsocks uninstall failed!"
+        echo "uninstall cancelled, Nothing to do"
     fi
 }
 
