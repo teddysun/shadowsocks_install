@@ -189,7 +189,7 @@ function install(){
 
 # Uninstall Shadowsocks-nodejs
 function uninstall_shadowsocks_nodejs(){
-    printf "Are you sure uninstall Shadowsocks-nodejs? (y/n) : "
+    printf "Are you sure uninstall Shadowsocks-nodejs? (y/n) "
     printf "\n"
     read -p "(Default: n):" answer
     if [ -z $answer ]; then
