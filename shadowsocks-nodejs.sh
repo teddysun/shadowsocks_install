@@ -189,27 +189,34 @@ function install(){
 
 # Uninstall Shadowsocks-nodejs
 function uninstall_shadowsocks_nodejs(){
-    NODE_PID=`ps -ef | grep -v grep | grep -v ps | grep -i '/usr/local/bin/ssserver' | awk '{print $2}'`
-    if [ ! -z $NODE_PID ]; then
-        for pid in $NODE_PID
-        do
-            kill -9 $pid
-            if [ $? -eq 0 ]; then
-                echo "Shadowsocks-nodejs process[$pid] has been killed"
-            fi
-        done
+    printf "Are you sure uninstall Shadowsocks-nodejs? (y/n) : "
+    read answer
+    printf "\n"
+    if [ "$answer" = "y" ]; then
+        NODE_PID=`ps -ef | grep -v grep | grep -v ps | grep -i '/usr/local/bin/ssserver' | awk '{print $2}'`
+        if [ ! -z $NODE_PID ]; then
+            for pid in $NODE_PID
+            do
+                kill -9 $pid
+                if [ $? -eq 0 ]; then
+                    echo "Shadowsocks-nodejs process[$pid] has been killed"
+                fi
+            done
+        fi
+        # delete config file
+        rm -f /etc/shadowsocks.json
+        cd /usr/local/lib/node_modules/
+        npm uninstall shadowsocks
+        rm -f /usr/local/bin/sslocal
+        rm -f /usr/local/bin/ssserver
+        if [ -f /etc/rc.d/rc.local.bak ];then
+            rm -f /etc/rc.d/rc.local
+            mv /etc/rc.d/rc.local.bak /etc/rc.d/rc.local
+        fi
+        echo "Shadowsocks-nodejs uninstall success!"
+    else
+        echo "uninstall cancelled, Nothing to do"
     fi
-    # delete config file
-    rm -f /etc/shadowsocks.json
-    cd /usr/local/lib/node_modules/
-    npm uninstall shadowsocks
-    rm -f /usr/local/bin/sslocal
-    rm -f /usr/local/bin/ssserver
-    if [ -f /etc/rc.d/rc.local.bak ];then
-        rm -f /etc/rc.d/rc.local
-        mv /etc/rc.d/rc.local.bak /etc/rc.d/rc.local
-    fi
-    echo "Shadowsocks-nodejs uninstall success!"
 }
 
 # Initialization step
