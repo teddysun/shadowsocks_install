@@ -163,25 +163,32 @@ function install(){
 
 # Uninstall Shadowsocks-libev
 function uninstall_shadowsocks_libev(){
-    NODE_PID=`ps -ef | grep -v grep | grep -v ps | grep -i '/usr/local/bin/ss-server' | awk '{print $2}'`
-    if [ ! -z $NODE_PID ]; then
-        for pid in $NODE_PID
-        do
-            kill -9 $pid
-            if [ $? -eq 0 ]; then
-                echo "Shadowsocks-libev process[$pid] has been killed"
-            fi
-        done
+    printf "Are you sure uninstall Shadowsocks-libev? (y/n) : "
+    read answer
+    printf "\n"
+    if [ "$answer" = "y" ]; then
+        NODE_PID=`ps -ef | grep -v grep | grep -v ps | grep -i '/usr/local/bin/ss-server' | awk '{print $2}'`
+        if [ ! -z $NODE_PID ]; then
+            for pid in $NODE_PID
+            do
+                kill -9 $pid
+                if [ $? -eq 0 ]; then
+                    echo "Shadowsocks-libev process[$pid] has been killed"
+                fi
+            done
+        fi
+        # delete config file
+        rm -f /etc/shadowsocks/config.json
+        # delete shadowsocks
+        rm -f /usr/local/bin/ss-local
+        rm -f /usr/local/bin/ss-tunnel
+        rm -f /usr/local/bin/ss-server
+        rm -f /usr/local/bin/ss-redir
+        rm -f /usr/local/share/man/man8/shadowsocks.8
+        echo "Shadowsocks-libev uninstall success!"
+    else
+        echo "uninstall cancelled, Nothing to do"
     fi
-    # delete config file
-    rm -f /etc/shadowsocks/config.json
-    # delete shadowsocks
-    rm -f /usr/local/bin/ss-local
-    rm -f /usr/local/bin/ss-tunnel
-    rm -f /usr/local/bin/ss-server
-    rm -f /usr/local/bin/ss-redir
-    rm -f /usr/local/share/man/man8/shadowsocks.8
-    echo "Shadowsocks-libev uninstall success!"
 }
 
 # Initialization step
