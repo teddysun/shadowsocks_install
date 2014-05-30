@@ -177,21 +177,28 @@ function install(){
 
 # Uninstall Shadowsocks-libev
 function uninstall_shadowsocks_libev(){
-    ps -ef | grep -v grep | grep -v ps | grep -i "ss-server" > /dev/null 2>&1
-    if [ $? -eq 0 ]; then
-        /etc/init.d/shadowsocks stop
+    printf "Are you sure uninstall shadowsocks_libev? (y/n) : "
+    read answer
+    printf "\n"
+    if [ "$answer" = "y" ]; then
+        ps -ef | grep -v grep | grep -v ps | grep -i "ss-server" > /dev/null 2>&1
+        if [ $? -eq 0 ]; then
+            /etc/init.d/shadowsocks stop
+        fi
+        chkconfig shadowsocks off
+        # delete config file
+        rm -f /etc/shadowsocks/config.json
+        # delete shadowsocks
+        rm -f /usr/local/bin/ss-local
+        rm -f /usr/local/bin/ss-tunnel
+        rm -f /usr/local/bin/ss-server
+        rm -f /usr/local/bin/ss-redir
+        rm -f /usr/local/share/man/man8/shadowsocks.8
+        rm -f /etc/init.d/shadowsocks
+        echo "Shadowsocks-libev uninstall success!"
+    else
+        echo "uninstall cancelled, Nothing to do"
     fi
-    chkconfig shadowsocks off
-    # delete config file
-    rm -f /etc/shadowsocks/config.json
-    # delete shadowsocks
-    rm -f /usr/local/bin/ss-local
-    rm -f /usr/local/bin/ss-tunnel
-    rm -f /usr/local/bin/ss-server
-    rm -f /usr/local/bin/ss-redir
-    rm -f /usr/local/share/man/man8/shadowsocks.8
-    rm -f /etc/init.d/shadowsocks
-    echo "Shadowsocks-libev uninstall success!"
 }
 
 # Initialization step
