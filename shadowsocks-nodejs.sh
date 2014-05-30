@@ -190,8 +190,11 @@ function install(){
 # Uninstall Shadowsocks-nodejs
 function uninstall_shadowsocks_nodejs(){
     printf "Are you sure uninstall Shadowsocks-nodejs? (y/n) : "
-    read answer
     printf "\n"
+    read -p "(Default: n):" answer
+    if [ -z $answer ]; then
+        answer="n"
+    fi
     if [ "$answer" = "y" ]; then
         NODE_PID=`ps -ef | grep -v grep | grep -v ps | grep -i '/usr/local/bin/ssserver' | awk '{print $2}'`
         if [ ! -z $NODE_PID ]; then

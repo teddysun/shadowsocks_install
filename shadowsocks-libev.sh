@@ -178,8 +178,11 @@ function install(){
 # Uninstall Shadowsocks-libev
 function uninstall_shadowsocks_libev(){
     printf "Are you sure uninstall shadowsocks_libev? (y/n) : "
-    read answer
     printf "\n"
+    read -p "(Default: n):" answer
+    if [ -z $answer ]; then
+        answer="n"
+    fi
     if [ "$answer" = "y" ]; then
         ps -ef | grep -v grep | grep -v ps | grep -i "ss-server" > /dev/null 2>&1
         if [ $? -eq 0 ]; then
