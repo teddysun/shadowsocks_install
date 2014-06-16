@@ -190,6 +190,7 @@ function uninstall_shadowsocks(){
                 fi
             done
         fi
+        chkconfig --del shadowsocks
         # delete config file
         rm -f /etc/shadowsocks.json
         rm -f /var/run/shadowsocks.pid
