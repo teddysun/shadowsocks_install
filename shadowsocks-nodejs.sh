@@ -103,8 +103,7 @@ function download_files(){
 
 # Config shadowsocks
 function config_shadowsocks(){
-    touch /etc/shadowsocks.json
-    cat >>/etc/shadowsocks.json<<-EOF
+    cat > /etc/shadowsocks.json<<-EOF
 {
     "server":"${IP}",
     "server_port":8989,
