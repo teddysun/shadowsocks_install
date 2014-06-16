@@ -101,8 +101,7 @@ function config_shadowsocks(){
     if [ ! -d /etc/shadowsocks ];then
         mkdir /etc/shadowsocks
     fi
-    touch /etc/shadowsocks/config.json
-    cat >>/etc/shadowsocks/config.json<<-EOF
+    cat > /etc/shadowsocks/config.json<<-EOF
 {
     "server":"${IP}",
     "server_port":8989,
@@ -118,30 +117,32 @@ EOF
 # Install 
 function install(){
     # Build and Install shadowsocks-libev
-    if [ ! -f /usr/local/bin/ss-server ];then
+    if [ -s /usr/local/bin/ss-server ];then
+        echo "shadowsocks-libev has been installed!"
+        exit 0
+    else
         ./configure
         make && make install
-    fi
-    # Run shadowsocks-libev
-    if [ -s /usr/local/bin/ss-server ]; then
-        # Add run on system start up
-        cat /etc/rc.local | grep 'ss-server' > /dev/null 2>&1
-        if [ $? -ne 0 ]; then
-            echo "nohup /usr/local/bin/ss-server -c /etc/shadowsocks/config.json > /dev/null 2>&1 &" >> /etc/rc.local
-        fi
-        # Run shadowsocks in the background
-        nohup /usr/local/bin/ss-server -c /etc/shadowsocks/config.json > /dev/null 2>&1 &
-        # Run success or not
-        ps -ef | grep -v grep | grep -v ps | grep -i '/usr/local/bin/ss-server' > /dev/null 2>&1
         if [ $? -eq 0 ]; then
-            echo "Shadowsocks-libev start success!"
+            # Add run on system start up
+            cat /etc/rc.local | grep 'ss-server' > /dev/null 2>&1
+            if [ $? -ne 0 ]; then
+                echo "nohup /usr/local/bin/ss-server -c /etc/shadowsocks/config.json > /dev/null 2>&1 &" >> /etc/rc.local
+            fi
+            # Run shadowsocks in the background
+            nohup /usr/local/bin/ss-server -c /etc/shadowsocks/config.json > /dev/null 2>&1 &
+            # Run success or not
+            ps -ef | grep -v grep | grep -v ps | grep -i '/usr/local/bin/ss-server' > /dev/null 2>&1
+            if [ $? -eq 0 ]; then
+                echo "Shadowsocks-libev start success!"
+            else
+                echo "Shadowsocks-libev start failure!"
+            fi
         else
-            echo "Shadowsocks-libev start failure!"
+            echo ""
+            echo "Shadowsocks-libev install failed! Please visit http://teddysun.com/358.html and contact."
+            exit 1
         fi
-    else
-        echo ""
-        echo "Shadowsocks-libev install failed! Please visit http://teddysun.com/358.html and contact."
-        exit 1
     fi
     cd $cur_dir
     # Delete shadowsocks-libev floder

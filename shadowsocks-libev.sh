@@ -103,8 +103,7 @@ function config_shadowsocks(){
     if [ ! -d /etc/shadowsocks ];then
         mkdir /etc/shadowsocks
     fi
-    touch /etc/shadowsocks/config.json
-    cat >>/etc/shadowsocks/config.json<<-EOF
+    cat > /etc/shadowsocks/config.json<<-EOF
 {
     "server":"${IP}",
     "server_port":8989,
@@ -134,28 +133,30 @@ function iptables_set(){
 # Install 
 function install(){
     # Build and Install shadowsocks-libev
-    if [ ! -f /usr/local/bin/ss-server ];then
+    if [ -s /usr/local/bin/ss-server ];then
+        echo "shadowsocks-libev has been installed!"
+        exit 0
+    else
         ./configure
         make && make install
-    fi
-    # Run shadowsocks-libev
-    if [ -s /usr/local/bin/ss-server ]; then
-        cp -f $cur_dir/shadowsocks-libev-master/rpm/SOURCES/etc/init.d/shadowsocks /etc/init.d/
-        chmod +x /etc/init.d/shadowsocks
-        # Add run on system start up
-        chkconfig --add shadowsocks
-        chkconfig shadowsocks on
-        # Start shadowsocks
-        /etc/init.d/shadowsocks start
         if [ $? -eq 0 ]; then
-            echo "Shadowsocks-libev start success!"
+            cp -f $cur_dir/shadowsocks-libev-master/rpm/SOURCES/etc/init.d/shadowsocks /etc/init.d/
+            chmod +x /etc/init.d/shadowsocks
+            # Add run on system start up
+            chkconfig --add shadowsocks
+            chkconfig shadowsocks on
+            # Start shadowsocks
+            /etc/init.d/shadowsocks start
+            if [ $? -eq 0 ]; then
+                echo "Shadowsocks-libev start success!"
+            else
+                echo "Shadowsocks-libev start failure!"
+            fi
         else
-            echo "Shadowsocks-libev start failure!"
+            echo ""
+            echo "Shadowsocks-libev install failed! Please visit http://teddysun.com/357.html and contact."
+            exit 1
         fi
-    else
-        echo ""
-        echo "Shadowsocks-libev install failed! Please visit http://teddysun.com/357.html and contact."
-        exit 1
     fi
     cd $cur_dir
     # Delete shadowsocks-libev floder
