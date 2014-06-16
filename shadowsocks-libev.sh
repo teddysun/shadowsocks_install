@@ -188,9 +188,9 @@ function uninstall_shadowsocks_libev(){
         if [ $? -eq 0 ]; then
             /etc/init.d/shadowsocks stop
         fi
-        chkconfig shadowsocks off
+        chkconfig --del shadowsocks
         # delete config file
-        rm -f /etc/shadowsocks/config.json
+        rm -rf /etc/shadowsocks
         # delete shadowsocks
         rm -f /usr/local/bin/ss-local
         rm -f /usr/local/bin/ss-tunnel
