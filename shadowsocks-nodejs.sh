@@ -2,7 +2,7 @@
 PATH=/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin:/usr/local/sbin:~/bin
 export PATH
 #===============================================================================================
-#   System Required:  CentOS5.x (32bit/64bit) or CentOS6.x (32bit/64bit)
+#   System Required:  CentOS6.x (32bit/64bit)
 #   Description:  Install Shadowsocks(Nodejs) for CentOS
 #   Author: Teddysun <i@teddysun.com>
 #   Intro:  http://teddysun.com/355.html
@@ -10,7 +10,7 @@ export PATH
 
 clear
 echo "#############################################################"
-echo "# Install Shadowsocks(Nodejs) for CentOS5.x (32bit/64bit) or CentOS6.x (32bit/64bit)"
+echo "# Install Shadowsocks(Nodejs) for CentOS6.x (32bit/64bit)"
 echo "# Intro: http://teddysun.com/355.html"
 echo "#"
 echo "# Author: Teddysun <i@teddysun.com>"
