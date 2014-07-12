@@ -18,8 +18,6 @@ echo "#"
 echo "#############################################################"
 echo ""
 
-# Get IP address(Default No.1)
-IP=`ifconfig | grep 'inet addr:'| grep -v '127.0.0.*' | cut -d: -f2 | awk '{ print $1}' | head -1`;
 # Get Nodejs latest version
 NODEJS_VER=`curl -s http://nodejs.org/download/ | awk -F'<b>' '/Current version/{print $2}' | cut -d '<' -f 1`
 
@@ -75,6 +73,12 @@ function pre_install(){
     #Install necessary dependencies
     yum install -y wget unzip openssl-devel gcc swig python python-devel python-setuptools autoconf libtool libevent
     yum install -y automake make curl curl-devel zlib-devel openssl-devel perl perl-devel cpio expat-devel gettext-devel
+    # Get IP address
+    echo "Getting Public IP address, Please wait a moment..."
+    IP=`curl -s checkip.dyndns.com | cut -d' ' -f 6  | cut -d'<' -f 1`
+    if [ -z $IP ]; then
+        IP=`curl -s ifconfig.me/ip`
+    fi
     #Current folder
     cur_dir=`pwd`
     cd $cur_dir

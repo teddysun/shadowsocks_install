@@ -18,9 +18,6 @@ echo "#"
 echo "#############################################################"
 echo ""
 
-# Get IP address(Default No.1)
-IP=`ifconfig | grep 'inet addr:'| grep -v '127.0.0.*' | cut -d: -f2 | awk '{ print $1}' | head -1`;
-
 # Install Shadowsocks-libev
 function install_shadowsocks_libev(){
     rootness
@@ -70,7 +67,13 @@ function pre_install(){
     echo "Press any key to start...or Press Ctrl+C to cancel"
     char=`get_char`
     #Install necessary dependencies
-    apt-get install -y wget unzip build-essential autoconf libtool libssl-dev
+    apt-get install -y wget unzip curl build-essential autoconf libtool libssl-dev
+    # Get IP address
+    echo "Getting Public IP address, Please wait a moment..."
+    IP=`curl -s checkip.dyndns.com | cut -d' ' -f 6  | cut -d'<' -f 1`
+    if [ -z $IP ]; then
+        IP=`curl -s ifconfig.me/ip`
+    fi
     #Current folder
     cur_dir=`pwd`
     cd $cur_dir
