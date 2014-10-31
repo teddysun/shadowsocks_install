@@ -130,7 +130,7 @@ function install(){
             # Add run on system start up
             cat /etc/rc.local | grep 'ss-server' > /dev/null 2>&1
             if [ $? -ne 0 ]; then
-                cp -f /etc/rc.local /etc/rc.local_bak
+                cp -rpf /etc/rc.local /opt/rc.local_bak
                 col=`awk 'END{print NR}' /etc/rc.local`
                 sed -i ''"$col"'i nohup /usr/local/bin/ss-server -c /etc/shadowsocks/config.json > /dev/null 2>&1 &' /etc/rc.local
             fi
@@ -189,9 +189,9 @@ function uninstall_shadowsocks_libev(){
             done
         fi
         # restore /etc/rc.local
-        if [[ -s /etc/rc.local_bak ]]; then
+        if [[ -s /opt/rc.local_bak ]]; then
             rm -f /etc/rc.local
-            mv /etc/rc.local_bak /etc/rc.local
+            mv /opt/rc.local_bak /etc/rc.local
         fi
         # delete config file
         rm -rf /etc/shadowsocks
