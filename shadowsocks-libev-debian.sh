@@ -130,7 +130,8 @@ function install(){
             # Add run on system start up
             cat /etc/rc.local | grep 'ss-server' > /dev/null 2>&1
             if [ $? -ne 0 ]; then
-                echo "nohup /usr/local/bin/ss-server -c /etc/shadowsocks/config.json > /dev/null 2>&1 &" >> /etc/rc.local
+                col=`awk '/exit 0/ {print NR}' /etc/rc.local`
+                sed -i ''"$col"'i nohup /usr/local/bin/ss-server -c /etc/shadowsocks/config.json > /dev/null 2>&1 &' /etc/rc.local
             fi
             # Run shadowsocks in the background
             nohup /usr/local/bin/ss-server -c /etc/shadowsocks/config.json > /dev/null 2>&1 &
