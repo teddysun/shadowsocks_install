@@ -143,7 +143,7 @@ function install(){
         ./configure
         make && make install
         if [ $? -eq 0 ]; then
-            cp -f $cur_dir/shadowsocks-libev-master/rpm/SOURCES/etc/init.d/shadowsocks /etc/init.d/
+            cp -f $cur_dir/shadowsocks-libev-master/rpm/SOURCES/etc/init.d/shadowsocks-libev /etc/init.d/shadowsocks
             chmod +x /etc/init.d/shadowsocks
             # Add run on system start up
             chkconfig --add shadowsocks
