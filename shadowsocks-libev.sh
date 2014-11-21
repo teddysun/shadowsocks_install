@@ -103,10 +103,10 @@ function download_files(){
 
 # Config shadowsocks
 function config_shadowsocks(){
-    if [ ! -d /etc/shadowsocks ];then
-        mkdir /etc/shadowsocks
+    if [ ! -d /etc/shadowsocks-libev ];then
+        mkdir /etc/shadowsocks-libev
     fi
-    cat > /etc/shadowsocks/config.json<<-EOF
+    cat > /etc/shadowsocks-libev/config.json<<-EOF
 {
     "server":"${IP}",
     "server_port":8989,
