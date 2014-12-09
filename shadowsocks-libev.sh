@@ -37,6 +37,27 @@ if [[ $EUID -ne 0 ]]; then
 fi
 }
 
+# Get version
+function getversion(){
+    if [[ -s /etc/redhat-release ]];then
+        grep -oE  "[0-9.]+" /etc/redhat-release
+    else    
+        grep -oE  "[0-9.]+" /etc/issue
+    fi    
+}
+
+# CentOS version
+function centosversion(){
+    local code=$1
+    local version="`getversion`"
+    local main_ver=${version%%.*}
+    if [ $main_ver == $code ];then
+        return 0
+    else
+        return 1
+    fi        
+}
+
 # Disable selinux
 function disable_selinux(){
 if [ -s /etc/selinux/config ] && grep 'SELINUX=enforcing' /etc/selinux/config; then
@@ -47,6 +68,14 @@ fi
 
 # Pre-installation settings
 function pre_install(){
+    # Not support CentOS 5.x and 7.x
+    if centosversion 5; then
+        echo "Not support CentOS 5.x, please change to CentOS 6.x and try again."
+        exit 1
+    elif centosversion 7; then
+        echo "Not support CentOS 7.x, please change to CentOS 6.x and try again."
+        exit 1
+    fi
     #Set shadowsocks-libev config password
     echo "Please input password for shadowsocks-libev:"
     read -p "(Default password: teddysun.com):" shadowsockspwd
