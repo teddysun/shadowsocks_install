@@ -66,7 +66,9 @@ function pre_install(){
     echo ""
     echo "Press any key to start...or Press Ctrl+C to cancel"
     char=`get_char`
-    #Install necessary dependencies
+    # Update System
+    apt-get -y update
+    # Install necessary dependencies
     apt-get install -y wget unzip curl build-essential autoconf libtool libssl-dev
     # Get IP address
     echo "Getting Public IP address, Please wait a moment..."
