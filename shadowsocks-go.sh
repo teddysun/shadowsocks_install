@@ -5,13 +5,13 @@ export PATH
 #   System Required:  CentOS6.x (32bit/64bit)
 #   Description:  Install Shadowsocks(go) for CentOS
 #   Author: Teddysun <i@teddysun.com>
-#   Intro:  http://teddysun.com/357.html
+#   Intro:  http://teddysun.com/392.html
 #===============================================================================================
 
 clear
 echo "#############################################################"
 echo "# Install Shadowsocks(go) for CentOS 6.x (32bit/64bit)"
-echo "# Intro: http://teddysun.com/357.html"
+echo "# Intro: http://teddysun.com/392.html"
 echo "#"
 echo "# Author: Teddysun <i@teddysun.com>"
 echo "#"
@@ -219,7 +219,7 @@ function install(){
     echo -e "Your Local Port: \033[41;37m 1080 \033[0m"
     echo -e "Your Encryption Method: \033[41;37m aes-256-cfb \033[0m"
     echo ""
-    echo "Welcome to visit:http://teddysun.com/357.html"
+    echo "Welcome to visit:http://teddysun.com/392.html"
     echo "Enjoy it!"
     echo ""
 }
