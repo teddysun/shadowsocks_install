@@ -207,7 +207,7 @@ function install(){
         fi
     else
         echo "shadowsocks-go install failed!"
-        exit 0
+        exit 1
     fi
     cd $cur_dir
     clear
@@ -222,6 +222,7 @@ function install(){
     echo "Welcome to visit:http://teddysun.com/392.html"
     echo "Enjoy it!"
     echo ""
+    exit 0
 }
 
 # Uninstall Shadowsocks-go
