@@ -192,6 +192,7 @@ function install(){
     # Install shadowsocks-go
     if [ -s /usr/bin/shadowsocks-server ];then
         echo "shadowsocks-go install success!"
+        chmod +x /usr/bin/shadowsocks-server
         mv $cur_dir/shadowsocks-go /etc/init.d/shadowsocks
         chmod +x /etc/init.d/shadowsocks
         # Add run on system start up
