@@ -27,4 +27,10 @@ shadowsocks_install
 > 
 > Intro: http://teddysun.com/358.html
 
+* shadowsocks-go.sh
+
+> Description: Auto Install `Shadowsocks(go)` for CentOS/Redhat/Fedora
+> 
+> Intro: http://teddysun.com/392.html
+
 * Author: Teddysun <i@teddysun.com>
