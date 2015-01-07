@@ -10,7 +10,7 @@ export PATH
 
 clear
 echo "#############################################################"
-echo "# Install Shadowsocks(libev) for CentOS6.x (32bit/64bit)"
+echo "# Install Shadowsocks(libev) for CentOS 6 or 7 (32bit/64bit)"
 echo "# Intro: http://teddysun.com/357.html"
 echo "#"
 echo "# Author: Teddysun <i@teddysun.com>"
