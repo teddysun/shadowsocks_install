@@ -2,7 +2,7 @@
 PATH=/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin:/usr/local/sbin:~/bin
 export PATH
 #===============================================================================================
-#   System Required:  CentOS6.x (32bit/64bit)
+#   System Required:  CentOS 5.x & 6.x & 7 (32bit/64bit)
 #   Description:  Install Shadowsocks(go) for CentOS
 #   Author: Teddysun <i@teddysun.com>
 #   Intro:  http://teddysun.com/392.html
@@ -10,7 +10,7 @@ export PATH
 
 clear
 echo "#############################################################"
-echo "# Install Shadowsocks(go) for CentOS 6.x (32bit/64bit)"
+echo "# Install Shadowsocks(go) for CentOS 5.x & 6.x & 7 (32bit/64bit)"
 echo "# Intro: http://teddysun.com/392.html"
 echo "#"
 echo "# Author: Teddysun <i@teddysun.com>"
