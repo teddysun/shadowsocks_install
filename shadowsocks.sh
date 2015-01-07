@@ -18,17 +18,6 @@ echo "#"
 echo "#############################################################"
 echo ""
 
-# Install Shadowsocks
-function install_shadowsocks(){
-    rootness
-    disable_selinux
-    pre_install
-    download_files
-    config_shadowsocks
-    iptables_set
-    install
-}
-
 # Make sure only root can run our script
 function rootness(){
 if [[ $EUID -ne 0 ]]; then
@@ -68,12 +57,9 @@ fi
 
 # Pre-installation settings
 function pre_install(){
-    # Not support CentOS 5.x and 7.x
+    # Not support CentOS 5
     if centosversion 5; then
-        echo "Not support CentOS 5.x, please change to CentOS 6.x and try again."
-        exit 1
-    elif centosversion 7; then
-        echo "Not support CentOS 7.x, please change to CentOS 6.x and try again."
+        echo "Not support CentOS 5.x, please change to CentOS 6 or 7 and try again."
         exit 1
     fi
     #Set shadowsocks config password
@@ -105,6 +91,8 @@ function pre_install(){
     if [ -z $IP ]; then
         IP=`curl -s ifconfig.me/ip`
     fi
+    echo -e "Your main public IP is\t\033[32m$IP\033[0m"
+    echo ""
     #Current folder
     cur_dir=`pwd`
     cd $cur_dir
@@ -147,14 +135,19 @@ EOF
 
 # iptables set
 function iptables_set(){
+    echo "iptables start setting..."
     /sbin/service iptables status 1>/dev/null 2>&1
     if [ $? -eq 0 ]; then
         /etc/init.d/iptables status | grep '8989' | grep 'ACCEPT' >/dev/null 2>&1
         if [ $? -ne 0 ]; then
             /sbin/iptables -A INPUT -m state --state NEW -m tcp -p tcp --dport 8989 -j ACCEPT
-            /etc/rc.d/init.d/iptables save
+            /etc/init.d/iptables save
             /etc/init.d/iptables restart
+        else
+            echo "port 8989 has been set up."
         fi
+    else
+        echo "iptables looks like shutdown, please manually set it if necessary."
     fi
 }
 
@@ -195,6 +188,7 @@ function install(){
         echo "Welcome to visit:http://teddysun.com/342.html"
         echo "Enjoy it!"
         echo ""
+        exit 0
     else
         echo ""
         echo "pip install failed! Please visit http://teddysun.com/342.html and contact."
@@ -235,6 +229,19 @@ function uninstall_shadowsocks(){
     else
         echo "uninstall cancelled, Nothing to do"
     fi
+}
+
+# Install Shadowsocks-python
+function install_shadowsocks(){
+    rootness
+    disable_selinux
+    pre_install
+    download_files
+    config_shadowsocks
+    if ! centosversion 7; then
+        iptables_set
+    fi
+    install
 }
 
 # Initialization step
