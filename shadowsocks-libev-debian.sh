@@ -169,6 +169,7 @@ function install(){
     echo "Welcome to visit:http://teddysun.com/358.html"
     echo "Enjoy it!"
     echo ""
+    exit 0
 }
 
 # Uninstall Shadowsocks-libev
@@ -202,6 +203,10 @@ function uninstall_shadowsocks_libev(){
         rm -f /usr/local/bin/ss-tunnel
         rm -f /usr/local/bin/ss-server
         rm -f /usr/local/bin/ss-redir
+        rm -f /usr/local/lib/libshadowsocks.a
+        rm -f /usr/local/lib/libshadowsocks.la
+        rm -f /usr/local/include/shadowsocks.h
+        rm -rf /usr/local/lib/pkgconfig
         rm -f /usr/local/share/man/man8/shadowsocks.8
         echo "Shadowsocks-libev uninstall success!"
     else
