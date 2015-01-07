@@ -143,6 +143,7 @@ EOF
 
 # iptables set
 function iptables_set(){
+    echo "iptables start setting..."
     /sbin/service iptables status 1>/dev/null 2>&1
     if [ $? -eq 0 ]; then
         /etc/init.d/iptables status | grep '8989' | grep 'ACCEPT' >/dev/null 2>&1
@@ -150,7 +151,11 @@ function iptables_set(){
             /sbin/iptables -A INPUT -m state --state NEW -m tcp -p tcp --dport 8989 -j ACCEPT
             /etc/init.d/iptables save
             /etc/init.d/iptables restart
+        else
+            echo "port 8989 has been set up."
         fi
+    else
+        echo "iptables looks like shutdown, please manually set it if necessary."
     fi
 }
 
