@@ -18,17 +18,6 @@ echo "#"
 echo "#############################################################"
 echo ""
 
-# Install Shadowsocks-libev
-function install_shadowsocks_libev(){
-    rootness
-    disable_selinux
-    pre_install
-    download_files
-    config_shadowsocks
-    iptables_set
-    install
-}
-
 # Make sure only root can run our script
 function rootness(){
 if [[ $EUID -ne 0 ]]; then
@@ -68,12 +57,9 @@ fi
 
 # Pre-installation settings
 function pre_install(){
-    # Not support CentOS 5.x and 7.x
+    # Not support CentOS 5
     if centosversion 5; then
-        echo "Not support CentOS 5.x, please change to CentOS 6.x and try again."
-        exit 1
-    elif centosversion 7; then
-        echo "Not support CentOS 7.x, please change to CentOS 6.x and try again."
+        echo "Not support CentOS 5, please change to CentOS 6 or 7 and try again."
         exit 1
     fi
     #Set shadowsocks-libev config password
@@ -105,6 +91,8 @@ function pre_install(){
     if [ -z $IP ]; then
         IP=`curl -s ifconfig.me/ip`
     fi
+    echo -e "Your main public IP is\t\033[32m$IP\033[0m"
+    echo ""
     #Current folder
     cur_dir=`pwd`
     cd $cur_dir
@@ -165,7 +153,6 @@ function iptables_set(){
         fi
     fi
 }
-
 
 # Install 
 function install(){
@@ -247,6 +234,19 @@ function uninstall_shadowsocks_libev(){
     else
         echo "uninstall cancelled, Nothing to do"
     fi
+}
+
+# Install Shadowsocks-libev
+function install_shadowsocks_libev(){
+    rootness
+    disable_selinux
+    pre_install
+    download_files
+    config_shadowsocks
+    if ! centosversion 7; then
+        iptables_set
+    fi
+    install
 }
 
 # Initialization step
