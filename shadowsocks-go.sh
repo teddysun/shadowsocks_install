@@ -10,7 +10,7 @@ export PATH
 
 clear
 echo "#############################################################"
-echo "# Install Shadowsocks(go) for CentOS 5.x & 6.x & 7 (32bit/64bit)"
+echo "# Install Shadowsocks(go) for CentOS 5 or 6 or 7 (32bit/64bit)"
 echo "# Intro: http://teddysun.com/392.html"
 echo "#"
 echo "# Author: Teddysun <i@teddysun.com>"
