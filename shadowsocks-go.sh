@@ -18,17 +18,6 @@ echo "#"
 echo "#############################################################"
 echo ""
 
-# Install Shadowsocks-go
-function install_shadowsocks_go(){
-    rootness
-    disable_selinux
-    pre_install
-    download_files
-    config_shadowsocks
-    iptables_set
-    install
-}
-
 # Make sure only root can run our script
 function rootness(){
 if [[ $EUID -ne 0 ]]; then
@@ -77,14 +66,6 @@ fi
 
 # Pre-installation settings
 function pre_install(){
-    # Not support CentOS 5.x and 7.x
-    if centosversion 5; then
-        echo "Not support CentOS 5.x, please change to CentOS 6.x and try again."
-        exit 1
-    elif centosversion 7; then
-        echo "Not support CentOS 7.x, please change to CentOS 6.x and try again."
-        exit 1
-    fi
     # Set shadowsocks-go config password
     echo "Please input password for shadowsocks-go:"
     read -p "(Default password: teddysun.com):" shadowsockspwd
@@ -106,14 +87,15 @@ function pre_install(){
     echo "Press any key to start...or Press Ctrl+C to cancel"
     char=`get_char`
     #Install necessary dependencies
-    yum install -y wget unzip gzip openssl-devel gcc swig python python-devel python-setuptools autoconf libtool libevent
-    yum install -y automake make curl curl-devel zlib-devel openssl-devel perl perl-devel cpio expat-devel gettext-devel
+    yum install -y wget unzip gzip curl
     # Get IP address
     echo "Getting Public IP address, Please wait a moment..."
     IP=`curl -s checkip.dyndns.com | cut -d' ' -f 6  | cut -d'<' -f 1`
     if [ -z $IP ]; then
         IP=`curl -s ifconfig.me/ip`
     fi
+    echo -e "Your main public IP is\t\033[32m$IP\033[0m"
+    echo ""
     #Current folder
     cur_dir=`pwd`
 }
@@ -175,6 +157,7 @@ EOF
 
 # iptables set
 function iptables_set(){
+    echo "iptables start setting..."
     /sbin/service iptables status 1>/dev/null 2>&1
     if [ $? -eq 0 ]; then
         /etc/init.d/iptables status | grep '8989' | grep 'ACCEPT' >/dev/null 2>&1
@@ -182,10 +165,13 @@ function iptables_set(){
             /sbin/iptables -A INPUT -m state --state NEW -m tcp -p tcp --dport 8989 -j ACCEPT
             /etc/init.d/iptables save
             /etc/init.d/iptables restart
+        else
+            echo "port 8989 has been set up."
         fi
+    else
+        echo "iptables looks like shutdown, please manually set it if necessary."
     fi
 }
-
 
 # Install 
 function install(){
@@ -248,6 +234,19 @@ function uninstall_shadowsocks_go(){
     else
         echo "Uninstall cancelled, Nothing to do"
     fi
+}
+
+# Install Shadowsocks-go
+function install_shadowsocks_go(){
+    rootness
+    disable_selinux
+    pre_install
+    download_files
+    config_shadowsocks
+    if ! centosversion 7; then
+        iptables_set
+    fi
+    install
 }
 
 # Initialization step
