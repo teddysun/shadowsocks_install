@@ -1,26 +1,28 @@
 #!/bin/bash
 # Start/stop shadowsocks.
 #
-### BEGIN INIT INFO
-# Provides:          shadowsocks
-# Required-Start:
-# Required-Stop:
-# Should-Start:
-# Should-Stop:
-# Default-Start:     2 3 4 5
-# Default-Stop:      0 1 6
-# Short-Description: shadowsocks is a lightweight tunneling proxy
-# Description:       Modified from Linode's nginx fastcgi startup script
-### END INIT INFO
+#====================================================================
+# Run level information:
+# chkconfig: 2345 99 99
+# Description: lightweight secured scoks5 proxy
+# processname: shadowsocks-server
+# Run "/sbin/chkconfig --add shadowsocks" to add the Run levels.
+#====================================================================
 
 # Note: this script requires sudo in order to run shadowsocks as the specified
 # user. 
 
+# Source function library
+. /etc/rc.d/init.d/functions
+
+# Check that networking is up.
+[ ${NETWORKING} ="yes" ] || exit 0
+
 BIN=/usr/bin/shadowsocks-server
 CONFIG_FILE=/etc/shadowsocks/config.json
 #LOG_FILE=/var/log/shadowsocks
-USER=nobody
-GROUP=nobody
+#USER=nobody
+#GROUP=nobody
 PID_DIR=/var/run
 PID_FILE=$PID_DIR/shadowsocks.pid
 RET_VAL=0
@@ -60,8 +62,6 @@ do_status() {
 do_start() {
   if [[ ! -d $PID_DIR ]]; then
     mkdir $PID_DIR || echo "failed creating PID directory $PID_DIR"; exit 1
-    chown $USER:$GROUP $PID_DIR || echo "failed creating PID directory $PID_DIR"; exit 1
-    chmod 0770 $PID_DIR
   fi
   if check_running; then
     echo "shadowsocks-go already running with PID $PID"
@@ -73,7 +73,7 @@ do_start() {
   fi
   echo "starting shadowsocks-go"
   # sudo will set the group to the primary group of $USER
-  sudo -u $USER $BIN -c $CONFIG_FILE &
+  $BIN -c $CONFIG_FILE &
   PID=$!
   echo $PID > $PID_FILE
   sleep 0.3
