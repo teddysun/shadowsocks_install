@@ -4,7 +4,7 @@
 #====================================================================
 # Run level information:
 # chkconfig: 2345 99 99
-# Description: lightweight secured scoks5 proxy
+# Description: lightweight secured socks5 proxy
 # processname: shadowsocks-server
 # Run "/sbin/chkconfig --add shadowsocks" to add the Run levels.
 #====================================================================

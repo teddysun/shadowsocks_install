@@ -1,14 +1,13 @@
 #!/bin/bash
 #
 # Script to run Shadowsocks in daemon mode at boot time.
-# ScriptAuthor: icyboy
-# Revision 1.0 - 14th Sep 2013
+# Revision 1.0 
 #====================================================================
 # Run level information:
 # chkconfig: 2345 99 99
-# Description: lightweight secured scoks5 proxy
+# Description: lightweight secured socks5 proxy
 # processname: ss-server
-# Author: Max Lv <max.c.lv@gmail.com>;
+# Author: Teddysun <i@teddysun.com>
 # Run "/sbin/chkconfig --add shadowsocks" to add the Run levels.
 #====================================================================
 
