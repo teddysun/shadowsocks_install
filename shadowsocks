@@ -12,15 +12,13 @@
 ### END INIT INFO
 
 conf=/etc/shadowsocks.json
-pid=/var/run/shadowsocks.pid
+#pid=/var/run/shadowsocks.pid
 name='shadowsocks'
 
 start(){
-    nohup /usr/bin/python /usr/bin/ssserver -c $conf > /dev/null 2>&1 &
+    /usr/bin/ssserver -c $conf -d start
     RETVAL=$?
-    REPID=$!
     if [ "$RETVAL" = "0" ]; then
-        echo $REPID > $pid 2>&1
         echo "$name start success"
     else
         echo "$name start failed"
@@ -28,11 +26,11 @@ start(){
 }
 
 stop(){
-    if [ -s $pid ]; then
-        kill `cat $pid`
+    pid=`ps -ef | grep -v grep | grep -v ps | grep -i '/usr/bin/python /usr/bin/ssserver' | awk '{print $2}'`
+    if [ ! -z $pid ]; then
+        /usr/bin/ssserver -c $conf -d stop
         RETVAL=$?
         if [ "$RETVAL" = "0" ]; then
-            rm -f $pid
             echo "$name stop success"
         else
             echo "$name stop failed"
@@ -44,19 +42,13 @@ stop(){
 }
 
 status(){
-    if [ -s $pid ]; then
-        pidno=`cat $pid`
-        kill -0 $pidno >/dev/null 2>&1
-        if [ "$?" = "0" ]; then
-            echo "$name (pid $pidno) is running"
-            RETVAL=0
-        else
-            echo "$name is stopped"
-            RETVAL=1
-        fi
-    else
-        echo "$name is stopped"
+    pid=`ps -ef | grep -v grep | grep -v ps | grep -i '/usr/bin/python /usr/bin/ssserver' | awk '{print $2}'`
+    if [ -z $pid ]; then
+        echo "$name is not running"
         RETVAL=1
+    else
+        echo "$name is running with PID $pid"
+        RETVAL=0
     fi
 }
 
