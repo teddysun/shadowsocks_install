@@ -104,7 +104,7 @@ function download_files(){
         echo "ez_setup.py [found]"
     else
         echo "ez_setup.py not found!!!download now......"
-        if ! wget --no-check-certificate https://bitbucket.org/pypa/setuptools/raw/bootstrap/ez_setup.py; then
+        if ! wget --no-check-certificate https://bootstrap.pypa.io/ez_setup.py; then
             echo "Failed to download ez_setup.py!"
             exit 1
         fi
@@ -125,10 +125,9 @@ function config_shadowsocks(){
     "local_address": "127.0.0.1",
     "local_port":1080,
     "password":"${shadowsockspwd}",
-    "timeout":600,
+    "timeout":300,
     "method":"aes-256-cfb",
-    "fast_open":false,
-    "workers":1
+    "fast_open":false
 }
 EOF
 }
