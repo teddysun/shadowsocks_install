@@ -108,7 +108,7 @@ function config_shadowsocks(){
     fi
     cat > /etc/shadowsocks/config.json<<-EOF
 {
-    "server":"${IP}",
+    "server":"0.0.0.0",
     "server_port":8989,
     "local_address":"127.0.0.1",
     "local_port":1080,
