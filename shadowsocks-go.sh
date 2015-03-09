@@ -105,7 +105,7 @@ function pre_install(){
     if [ "$OS" == 'CentOS' ];then
         yum install -y wget unzip gzip curl
     else
-        apt-get update
+        apt-get -y update
         apt-get install -y wget unzip gzip curl
     fi
     # Get IP address
