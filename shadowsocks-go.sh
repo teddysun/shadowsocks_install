@@ -2,15 +2,16 @@
 PATH=/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin:/usr/local/sbin:~/bin
 export PATH
 #===============================================================================================
-#   System Required:  CentOS 5.x & 6.x & 7 (32bit/64bit)
-#   Description:  Install Shadowsocks(go) for CentOS
+#   System Required:  CentOS, Debian, Ubuntu
+#   Description:  One click Install Shadowsocks(go)
 #   Author: Teddysun <i@teddysun.com>
 #   Intro:  http://teddysun.com/392.html
 #===============================================================================================
 
 clear
+echo ""
 echo "#############################################################"
-echo "# Install Shadowsocks(go) for CentOS 5 or 6 or 7 (32bit/64bit)"
+echo "# One click Install Shadowsocks(go)"
 echo "# Intro: http://teddysun.com/392.html"
 echo "#"
 echo "# Author: Teddysun <i@teddysun.com>"
@@ -20,10 +21,24 @@ echo ""
 
 # Make sure only root can run our script
 function rootness(){
-if [[ $EUID -ne 0 ]]; then
-   echo "Error:This script must be run as root!" 1>&2
-   exit 1
-fi
+    if [[ $EUID -ne 0 ]]; then
+       echo "Error:This script must be run as root!" 1>&2
+       exit 1
+    fi
+}
+
+# Check OS
+function checkos(){
+    if [ -f /etc/redhat-release ];then
+        OS=CentOS
+    elif [ ! -z "`cat /etc/issue | grep bian`" ];then
+        OS=Debian
+    elif [ ! -z "`cat /etc/issue | grep Ubuntu`" ];then
+        OS=Ubuntu
+    else
+        echo "Not supported OS, Please reinstall OS and retry!"
+        exit 1
+    fi
 }
 
 # Get version
@@ -87,12 +102,17 @@ function pre_install(){
     echo "Press any key to start...or Press Ctrl+C to cancel"
     char=`get_char`
     #Install necessary dependencies
-    yum install -y wget unzip gzip curl
+    if [ "$OS" == 'CentOS' ];then
+        yum install -y wget unzip gzip curl
+    else
+        apt-get update
+        apt-get install -y wget unzip gzip curl
+    fi
     # Get IP address
     echo "Getting Public IP address, Please wait a moment..."
-    IP=`curl -s checkip.dyndns.com | cut -d' ' -f 6  | cut -d'<' -f 1`
+    IP=$(curl -s checkip.dyndns.com | cut -d' ' -f 6  | cut -d'<' -f 1)
     if [ $? -ne 0 -o -z $IP ]; then
-        IP=`curl -s -4 ipinfo.io | grep "ip" | awk -F\" '{print $4}'`
+        IP=$(curl -s -4 ipinfo.io | grep "ip" | awk -F\" '{print $4}')
     fi
     echo -e "Your main public IP is\t\033[32m$IP\033[0m"
     echo ""
@@ -132,9 +152,16 @@ function download_files(){
     fi
 
     # Download start script
-    if ! wget --no-check-certificate https://raw.githubusercontent.com/teddysun/shadowsocks_install/master/shadowsocks-go; then
-        echo "Failed to download shadowsocks-go start script!"
-        exit 1
+    if [ "$OS" == 'CentOS' ];then
+        if ! wget --no-check-certificate https://raw.githubusercontent.com/teddysun/shadowsocks_install/master/shadowsocks-go; then
+            echo "Failed to download shadowsocks-go start script!"
+            exit 1
+        fi
+    else
+        if ! wget --no-check-certificate -O shadowsocks-go https://raw.githubusercontent.com/teddysun/shadowsocks_install/master/shadowsocks-go-debian; then
+            echo "Failed to download shadowsocks-go start script!"
+            exit 1
+        fi
     fi
 }
 
@@ -174,16 +201,20 @@ function iptables_set(){
 }
 
 # Install 
-function install(){
+function install_go(){
     # Install shadowsocks-go
-    if [ -s /usr/bin/shadowsocks-server ];then
+    if [ -s /usr/bin/shadowsocks-server ]; then
         echo "shadowsocks-go install success!"
         chmod +x /usr/bin/shadowsocks-server
         mv $cur_dir/shadowsocks-go /etc/init.d/shadowsocks
         chmod +x /etc/init.d/shadowsocks
         # Add run on system start up
-        chkconfig --add shadowsocks
-        chkconfig shadowsocks on
+        if [ "$OS" == 'CentOS' ]; then
+            chkconfig --add shadowsocks
+            chkconfig shadowsocks on
+        else
+            update-rc.d shadowsocks defaults
+        fi
         # Start shadowsocks
         /etc/init.d/shadowsocks start
         if [ $? -eq 0 ]; then
@@ -192,6 +223,7 @@ function install(){
             echo "Shadowsocks-go start failure!"
         fi
     else
+        echo ""
         echo "shadowsocks-go install failed!"
         exit 1
     fi
@@ -224,7 +256,12 @@ function uninstall_shadowsocks_go(){
         if [ $? -eq 0 ]; then
             /etc/init.d/shadowsocks stop
         fi
-        chkconfig --del shadowsocks
+        checkos
+        if [ "$OS" == 'CentOS' ]; then
+            chkconfig --del shadowsocks
+        else
+            update-rc.d -f shadowsocks remove
+        fi
         # delete config file
         rm -rf /etc/shadowsocks
         # delete shadowsocks
@@ -238,15 +275,18 @@ function uninstall_shadowsocks_go(){
 
 # Install Shadowsocks-go
 function install_shadowsocks_go(){
+    checkos
     rootness
     disable_selinux
     pre_install
     download_files
     config_shadowsocks
-    if ! centosversion 7; then
-        iptables_set
+    if [ "$OS" == 'CentOS' ]; then
+        if ! centosversion 7; then
+            iptables_set
+        fi
     fi
-    install
+    install_go
 }
 
 # Initialization step
