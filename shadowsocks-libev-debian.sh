@@ -9,6 +9,7 @@ export PATH
 #===============================================================================================
 
 clear
+echo ""
 echo "#############################################################"
 echo "# Install Shadowsocks(libev) for Debian or Ubuntu (32bit/64bit)"
 echo "# Intro: http://teddysun.com/358.html"
@@ -25,7 +26,7 @@ function install_shadowsocks_libev(){
     pre_install
     download_files
     config_shadowsocks
-    install
+    install_libev
 }
 
 # Make sure only root can run our script
@@ -72,10 +73,12 @@ function pre_install(){
     apt-get install -y wget unzip curl build-essential autoconf libtool libssl-dev
     # Get IP address
     echo "Getting Public IP address, Please wait a moment..."
-    IP=`curl -s checkip.dyndns.com | cut -d' ' -f 6  | cut -d'<' -f 1`
+    IP=$(curl -s checkip.dyndns.com | cut -d' ' -f 6  | cut -d'<' -f 1)
     if [ $? -ne 0 -o -z $IP ]; then
-        IP=`curl -s -4 ipinfo.io | grep "ip" | awk -F\" '{print $4}'`
+        IP=$(curl -s -4 ipinfo.io | grep "ip" | awk -F\" '{print $4}')
     fi
+    echo -e "Your main public IP is\t\033[32m$IP\033[0m"
+    echo ""
     #Current folder
     cur_dir=`pwd`
     cd $cur_dir
@@ -94,6 +97,10 @@ function download_files(){
     unzip shadowsocks-libev.zip
     if [ $? -eq 0 ];then
         cd $cur_dir/shadowsocks-libev-master/
+        if ! wget --no-check-certificate https://raw.githubusercontent.com/teddysun/shadowsocks_install/master/shadowsocks-libev-debian; then
+            echo "Failed to download shadowsocks-libev start script!"
+            exit 1
+        fi
     else
         echo ""
         echo "Unzip shadowsocks-libev failed! Please visit http://teddysun.com/358.html and contact."
@@ -103,10 +110,10 @@ function download_files(){
 
 # Config shadowsocks
 function config_shadowsocks(){
-    if [ ! -d /etc/shadowsocks ];then
-        mkdir /etc/shadowsocks
+    if [ ! -d /etc/shadowsocks-libev ];then
+        mkdir /etc/shadowsocks-libev
     fi
-    cat > /etc/shadowsocks/config.json<<-EOF
+    cat > /etc/shadowsocks-libev/config.json<<-EOF
 {
     "server":"0.0.0.0",
     "server_port":8989,
@@ -120,7 +127,7 @@ EOF
 }
 
 # Install 
-function install(){
+function install_libev(){
     # Build and Install shadowsocks-libev
     if [ -s /usr/local/bin/ss-server ];then
         echo "shadowsocks-libev has been installed!"
@@ -130,16 +137,12 @@ function install(){
         make && make install
         if [ $? -eq 0 ]; then
             # Add run on system start up
-            cat /etc/rc.local | grep 'ss-server' > /dev/null 2>&1
-            if [ $? -ne 0 ]; then
-                cp -rpf /etc/rc.local /opt/rc.local_bak
-                col=`awk 'END{print NR}' /etc/rc.local`
-                sed -i ''"$col"'i nohup /usr/local/bin/ss-server -c /etc/shadowsocks/config.json > /dev/null 2>&1 &' /etc/rc.local
-            fi
+            mv $cur_dir/shadowsocks-libev-master/shadowsocks-libev-debian /etc/init.d/shadowsocks
+            chmod +x /etc/init.d/shadowsocks
+            update-rc.d shadowsocks defaults
             # Run shadowsocks in the background
-            nohup /usr/local/bin/ss-server -c /etc/shadowsocks/config.json > /dev/null 2>&1 &
+            /etc/init.d/shadowsocks start
             # Run success or not
-            ps -ef | grep -v grep | grep -v ps | grep -i '/usr/local/bin/ss-server' > /dev/null 2>&1
             if [ $? -eq 0 ]; then
                 echo "Shadowsocks-libev start success!"
             else
@@ -191,13 +194,10 @@ function uninstall_shadowsocks_libev(){
                 fi
             done
         fi
-        # restore /etc/rc.local
-        if [[ -s /opt/rc.local_bak ]]; then
-            rm -f /etc/rc.local
-            mv /opt/rc.local_bak /etc/rc.local
-        fi
+        # remove auto start script
+        update-rc.d -f shadowsocks remove
         # delete config file
-        rm -rf /etc/shadowsocks
+        rm -rf /etc/shadowsocks-libev
         # delete shadowsocks
         rm -f /usr/local/bin/ss-local
         rm -f /usr/local/bin/ss-tunnel
