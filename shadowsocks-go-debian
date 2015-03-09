@@ -2,9 +2,9 @@
 # Start/stop shadowsocks.
 #
 ### BEGIN INIT INFO
-# Provides:          shadowsocks
-# Required-Start:
-# Required-Stop:
+# Provides:          shadowsocks-go
+# Required-Start:    $network $local_fs $remote_fs
+# Required-Stop:     $remote_fs
 # Should-Start:
 # Should-Stop:
 # Default-Start:     2 3 4 5
@@ -17,9 +17,6 @@
 
 BIN=/usr/bin/shadowsocks-server
 CONFIG_FILE=/etc/shadowsocks/config.json
-#LOG_FILE=/var/log/shadowsocks
-#USER=nobody
-#GROUP=nobody
 PID_DIR=/var/run
 PID_FILE=$PID_DIR/shadowsocks.pid
 RET_VAL=0
@@ -70,7 +67,7 @@ do_start() {
   fi
   echo "starting shadowsocks-go"
   # sudo will set the group to the primary group of $USER
-  $BIN -c $CONFIG_FILE &
+  $BIN -c $CONFIG_FILE > /dev/null 2>&1 &
   PID=$!
   echo $PID > $PID_FILE
   sleep 0.3
