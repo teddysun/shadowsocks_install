@@ -69,7 +69,7 @@ do_start() {
   fi
   echo "starting $NAME"
   # sudo will set the group to the primary group of $USER
-  $BIN -c $CONFIG_FILE &
+  $BIN -u -c $CONFIG_FILE &
   PID=$!
   echo $PID > $PID_FILE
   sleep 0.3
