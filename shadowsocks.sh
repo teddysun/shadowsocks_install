@@ -2,15 +2,16 @@
 PATH=/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin:/usr/local/sbin:~/bin
 export PATH
 #===============================================================================================
-#   System Required:  CentOS6.x (32bit/64bit)
-#   Description:  Install Shadowsocks(Python) for CentOS
+#   System Required:  CentOS 6,7, Debian, Ubuntu
+#   Description:  One click Install Shadowsocks(Python)
 #   Author: Teddysun <i@teddysun.com>
 #   Intro:  http://teddysun.com/342.html
 #===============================================================================================
 
 clear
+echo ""
 echo "#############################################################"
-echo "# Install Shadowsocks(Python) for CentOS 6 or 7 (32bit/64bit)"
+echo "# One click Install Shadowsocks(Python)"
 echo "# Intro: http://teddysun.com/342.html"
 echo "#"
 echo "# Author: Teddysun <i@teddysun.com>"
@@ -20,10 +21,24 @@ echo ""
 
 # Make sure only root can run our script
 function rootness(){
-if [[ $EUID -ne 0 ]]; then
-   echo "Error:This script must be run as root!" 1>&2
-   exit 1
-fi
+    if [[ $EUID -ne 0 ]]; then
+       echo "Error:This script must be run as root!" 1>&2
+       exit 1
+    fi
+}
+
+# Check OS
+function checkos(){
+    if [ -f /etc/redhat-release ];then
+        OS=CentOS
+    elif [ ! -z "`cat /etc/issue | grep bian`" ];then
+        OS=Debian
+    elif [ ! -z "`cat /etc/issue | grep Ubuntu`" ];then
+        OS=Ubuntu
+    else
+        echo "Not support OS, Please reinstall OS and retry!"
+        exit 1
+    fi
 }
 
 # Get version
@@ -59,7 +74,7 @@ fi
 function pre_install(){
     # Not support CentOS 5
     if centosversion 5; then
-        echo "Not support CentOS 5.x, please change to CentOS 6 or 7 and try again."
+        echo "Not support CentOS 5.x, please change to CentOS 6,7 or Debian or Ubuntu and try again."
         exit 1
     fi
     #Set shadowsocks config password
@@ -83,13 +98,18 @@ function pre_install(){
     echo "Press any key to start...or Press Ctrl+C to cancel"
     char=`get_char`
     #Install necessary dependencies
-    yum install -y wget unzip openssl-devel gcc swig python python-devel python-setuptools autoconf libtool libevent
-    yum install -y automake make curl curl-devel zlib-devel openssl-devel perl perl-devel cpio expat-devel gettext-devel
+    if [ "$OS" == 'CentOS' ]; then
+        yum install -y wget unzip openssl-devel gcc swig python python-devel python-setuptools autoconf libtool libevent
+        yum install -y automake make curl curl-devel zlib-devel perl perl-devel cpio expat-devel gettext-devel
+    else
+        apt-get -y update
+        apt-get -y install python python-dev python-pip curl wget unzip gcc swig automake make perl cpio
+    fi
     # Get IP address
     echo "Getting Public IP address, Please wait a moment..."
-    IP=`curl -s checkip.dyndns.com | cut -d' ' -f 6  | cut -d'<' -f 1`
+    IP=$(curl -s checkip.dyndns.com | cut -d' ' -f 6  | cut -d'<' -f 1)
     if [ $? -ne 0 -o -z $IP ]; then
-        IP=`curl -s -4 ipinfo.io | grep "ip" | awk -F\" '{print $4}'`
+        IP=$(curl -s -4 ipinfo.io | grep "ip" | awk -F\" '{print $4}')
     fi
     echo -e "Your main public IP is\t\033[32m$IP\033[0m"
     echo ""
@@ -100,19 +120,21 @@ function pre_install(){
 
 # Download files
 function download_files(){
-    if [ -f ez_setup.py ]; then
-        echo "ez_setup.py [found]"
-    else
-        echo "ez_setup.py not found!!!download now......"
-        if ! wget --no-check-certificate https://bootstrap.pypa.io/ez_setup.py; then
+    if [ "$OS" == 'CentOS' ]; then
+        if ! wget --no-check-certificate -O ez_setup.py https://bootstrap.pypa.io/ez_setup.py; then
             echo "Failed to download ez_setup.py!"
             exit 1
         fi
-    fi
-    # Download shadowsocks chkconfig file
-    if ! wget --no-check-certificate https://raw.githubusercontent.com/teddysun/shadowsocks_install/master/shadowsocks -O /etc/init.d/shadowsocks; then
-        echo "Failed to download shadowsocks chkconfig file!"
-        exit 1
+        # Download shadowsocks chkconfig file
+        if ! wget --no-check-certificate https://raw.githubusercontent.com/teddysun/shadowsocks_install/master/shadowsocks -O /etc/init.d/shadowsocks; then
+            echo "Failed to download shadowsocks chkconfig file!"
+            exit 1
+        fi
+    else
+        if ! wget --no-check-certificate https://raw.githubusercontent.com/teddysun/shadowsocks_install/master/shadowsocks-debian -O /etc/init.d/shadowsocks; then
+            echo "Failed to download shadowsocks chkconfig file!"
+            exit 1
+        fi
     fi
 }
 
@@ -150,23 +172,29 @@ function iptables_set(){
     fi
 }
 
-# Install 
-function install(){
+# Install Shadowsocks
+function install_ss(){
     which pip > /dev/null 2>&1
     if [ $? -ne 0 ]; then
-        python ez_setup.py install
-        easy_install pip
+        if [ "$OS" == 'CentOS' ]; then
+            python ez_setup.py install
+            easy_install pip
+        fi
     fi
     if [ -f /usr/bin/pip ]; then
         pip install M2Crypto
         pip install greenlet
         pip install gevent
         pip install shadowsocks
-        if [ -f /usr/bin/ssserver ]; then
+        if [ -f /usr/bin/ssserver ] || [ -f /usr/local/bin/ssserver ]; then
             chmod +x /etc/init.d/shadowsocks
             # Add run on system start up
-            chkconfig --add shadowsocks
-            chkconfig shadowsocks on
+            if [ "$OS" == 'CentOS' ]; then
+                chkconfig --add shadowsocks
+                chkconfig shadowsocks on
+            else
+                update-rc.d shadowsocks defaults
+            fi
             # Run shadowsocks in the background
             /etc/init.d/shadowsocks start
         else
@@ -214,7 +242,12 @@ function uninstall_shadowsocks(){
                 fi
             done
         fi
-        chkconfig --del shadowsocks
+        checkos
+        if [ "$OS" == 'CentOS' ]; then
+            chkconfig --del shadowsocks
+        else
+            update-rc.d -f shadowsocks remove
+        fi
         # delete config file
         rm -f /etc/shadowsocks.json
         rm -f /var/run/shadowsocks.pid
@@ -232,15 +265,18 @@ function uninstall_shadowsocks(){
 
 # Install Shadowsocks-python
 function install_shadowsocks(){
+    checkos
     rootness
     disable_selinux
     pre_install
     download_files
     config_shadowsocks
-    if ! centosversion 7; then
-        iptables_set
+    if [ "$OS" == 'CentOS' ]; then
+        if ! centosversion 7; then
+            iptables_set
+        fi
     fi
-    install
+    install_ss
 }
 
 # Initialization step
