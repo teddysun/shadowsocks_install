@@ -17,7 +17,7 @@ conf=/etc/shadowsocks.json
 #pid=/var/run/shadowsocks.pid
 
 start(){
-    /usr/bin/ssserver -c $conf -d start
+    $BIN -c $conf -d start
     RETVAL=$?
     if [ "$RETVAL" = "0" ]; then
         echo "$name start success"
@@ -27,9 +27,9 @@ start(){
 }
 
 stop(){
-    pid=`ps -ef | grep -v grep | grep -v ps | grep -i '/usr/bin/python /usr/bin/ssserver' | awk '{print $2}'`
+    pid=`ps -ef | grep -v grep | grep -v ps | grep -i "/usr/bin/python ${BIN}" | awk '{print $2}'`
     if [ ! -z $pid ]; then
-        /usr/bin/ssserver -c $conf -d stop
+        $BIN -c $conf -d stop
         RETVAL=$?
         if [ "$RETVAL" = "0" ]; then
             echo "$name stop success"
@@ -43,7 +43,7 @@ stop(){
 }
 
 status(){
-    pid=`ps -ef | grep -v grep | grep -v ps | grep -i '/usr/bin/python /usr/bin/ssserver' | awk '{print $2}'`
+    pid=`ps -ef | grep -v grep | grep -v ps | grep -i "/usr/bin/python ${BIN}" | awk '{print $2}'`
     if [ -z $pid ]; then
         echo "$name is not running"
         RETVAL=1
