@@ -232,9 +232,9 @@ function uninstall_shadowsocks(){
         answer="n"
     fi
     if [ "$answer" = "y" ]; then
-        NODE_PID=`ps -ef | grep -v grep | grep -v ps | grep -i '/usr/bin/python /usr/bin/ssserver' | awk '{print $2}'`
-        if [ ! -z $NODE_PID ]; then
-            for pid in $NODE_PID
+        pid_ss=`ps -ef | grep -v grep | grep -v ps | grep -i "ssserver" | awk '{print $2}'`
+        if [ ! -z $pid_ss ]; then
+            for pid in $pid_ss
             do
                 kill -9 $pid
                 if [ $? -eq 0 ]; then
