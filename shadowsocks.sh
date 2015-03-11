@@ -232,15 +232,9 @@ function uninstall_shadowsocks(){
         answer="n"
     fi
     if [ "$answer" = "y" ]; then
-        pid_ss=`ps -ef | grep -v grep | grep -v ps | grep -i "ssserver" | awk '{print $2}'`
-        if [ ! -z $pid_ss ]; then
-            for pid in $pid_ss
-            do
-                kill -9 $pid
-                if [ $? -eq 0 ]; then
-                    echo "Shadowsocks process[$pid] has been killed"
-                fi
-            done
+        ps -ef | grep -v grep | grep -v ps | grep -i "ssserver" > /dev/null 2>&1
+        if [ $? -eq 0 ]; then
+            /etc/init.d/shadowsocks stop
         fi
         checkos
         if [ "$OS" == 'CentOS' ]; then
