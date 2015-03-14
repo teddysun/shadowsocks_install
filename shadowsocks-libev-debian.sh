@@ -184,15 +184,9 @@ function uninstall_shadowsocks_libev(){
         answer="n"
     fi
     if [ "$answer" = "y" ]; then
-        NODE_PID=`ps -ef | grep -v grep | grep -v ps | grep -i '/usr/local/bin/ss-server' | awk '{print $2}'`
-        if [ ! -z $NODE_PID ]; then
-            for pid in $NODE_PID
-            do
-                kill -9 $pid
-                if [ $? -eq 0 ]; then
-                    echo "Shadowsocks-libev process[$pid] has been killed"
-                fi
-            done
+        ps -ef | grep -v grep | grep -v ps | grep -i "ss-server" > /dev/null 2>&1
+        if [ $? -eq 0 ]; then
+            /etc/init.d/shadowsocks stop
         fi
         # remove auto start script
         update-rc.d -f shadowsocks remove
