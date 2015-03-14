@@ -1,6 +1,7 @@
 #!/bin/bash
+# Start/stop shadowsocks.
 #
-# Script to run Shadowsocks in daemon mode at boot time.
+
 
 ### BEGIN INIT INFO
 # Provides:          shadowsocks-libev
@@ -19,8 +20,8 @@
 NAME=shadowsocks-libev
 BIN=/usr/local/bin/ss-server
 CONFIG_FILE=/etc/shadowsocks-libev/config.json
-PID_DIR=/var/run/$NAME
-PID_FILE=$PID_DIR/pid
+PID_DIR=/var/run
+PID_FILE=$PID_DIR/shadowsocks.pid
 RET_VAL=0
 
 [ -x $BIN ] || exit 0
