@@ -12,9 +12,10 @@
 # Short-Description: shadowsocks is a lightweight tunneling proxy
 ### END INIT INFO
 
-# Note: this script requires sudo in order to run shadowsocks as the specified
-# user. 
+# Author: Teddysun <i@teddysun.com>
 
+# Daemon 
+NAME=shadowsocks-go
 BIN=/usr/bin/shadowsocks-server
 CONFIG_FILE=/etc/shadowsocks/config.json
 PID_DIR=/var/run
@@ -41,13 +42,13 @@ do_status() {
   check_running
   case $? in
     0)
-      echo "shadowsocks-go running with PID $PID"
+      echo "$NAME running with PID $PID"
       ;;
     1)
-      echo "shadowsocks-go not running, remove PID file $PID_FILE"
+      echo "$NAME not running, remove PID file $PID_FILE"
       ;;
     2)
-      echo "Could not find PID file $PID_FILE, shadowsocks-go does not appear to be running"
+      echo "Could not find PID file $PID_FILE, $NAME does not appear to be running"
       ;;
   esac
   return 0
@@ -58,14 +59,14 @@ do_start() {
     mkdir $PID_DIR || echo "failed creating PID directory $PID_DIR"; exit 1
   fi
   if check_running; then
-    echo "shadowsocks-go already running with PID $PID"
+    echo "$NAME already running with PID $PID"
     return 0
   fi
   if [[ ! -r $CONFIG_FILE ]]; then
     echo "config file $CONFIG_FILE not found"
     return 1
   fi
-  echo "starting shadowsocks-go"
+  echo "starting $NAME"
   # sudo will set the group to the primary group of $USER
   $BIN -c $CONFIG_FILE > /dev/null 2>&1 &
   PID=$!
@@ -75,13 +76,13 @@ do_start() {
     echo "start failed"
     return 1
   fi
-  echo "shadowsocks-go running with PID $PID"
+  echo "$NAME running with PID $PID"
   return 0
 }
 
 do_stop() {
   if check_running; then
-    echo "stopping shadowsocks-go with PID $PID"
+    echo "stopping $NAME with PID $PID"
     kill $PID
     rm -f $PID_FILE
   else
