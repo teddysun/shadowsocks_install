@@ -5,11 +5,11 @@ shadowsocks_install
 
 * shadowsocks.sh
 
-> Description: Auto Install `Shadowsocks(Python)` for CentOS/Redhat/Fedora
+> Description: Auto Install `Shadowsocks(Python)` for CentOS/Redhat/Fedora/Debian/Ubuntu
 > 
 > Intro: http://teddysun.com/342.html
 
-* shadowsocks-nodejs.sh
+* shadowsocks-nodejs.sh (Deprecated)
 
 > Description: Auto Install `Shadowsocks(Nodejs)` for CentOS/Redhat/Fedora
 > 
@@ -29,7 +29,7 @@ shadowsocks_install
 
 * shadowsocks-go.sh
 
-> Description: Auto Install `Shadowsocks(go)` for CentOS/Redhat/Fedora
+> Description: Auto Install `Shadowsocks(go)` for CentOS/Redhat/Fedora/Debian/Ubuntu
 > 
 > Intro: http://teddysun.com/392.html
 
