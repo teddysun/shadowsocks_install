@@ -107,7 +107,7 @@ function pre_install(){
     fi
     # Get IP address
     echo "Getting Public IP address, Please wait a moment..."
-    IP=$(wget -qO- ipv4.icanhazip.com)
+    IP=$(curl -4 icanhazip.com)
     if [[ "$IP" = "" ]]; then
         IP=$(curl -s -4 ipinfo.io | grep "ip" | awk -F\" '{print $4}')
     fi
