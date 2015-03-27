@@ -36,4 +36,4 @@ shadowsocks-go.sh
 > 
 > Intro: http://teddysun.com/392.html
 
-Copyright 2015 Teddysun <i@teddysun.com>
+Copyright 2015 Teddysun
