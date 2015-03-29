@@ -161,7 +161,7 @@ function iptables_set(){
     if [ $? -eq 0 ]; then
         /etc/init.d/iptables status | grep '8989' | grep 'ACCEPT' >/dev/null 2>&1
         if [ $? -ne 0 ]; then
-            /sbin/iptables -A INPUT -m state --state NEW -m tcp -p tcp --dport 8989 -j ACCEPT
+            /sbin/iptables -I INPUT -m state --state NEW -m tcp -p tcp --dport 8989 -j ACCEPT
             /etc/init.d/iptables save
             /etc/init.d/iptables restart
         else
