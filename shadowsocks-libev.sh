@@ -87,7 +87,7 @@ function pre_install(){
     yum install -y automake make curl curl-devel zlib-devel openssl-devel perl perl-devel cpio expat-devel gettext-devel
     # Get IP address
     echo "Getting Public IP address, Please wait a moment..."
-    IP=$(curl -4 icanhazip.com)
+    IP=$(curl -s -4 icanhazip.com)
     if [[ "$IP" = "" ]]; then
         IP=`curl -s -4 ipinfo.io | grep "ip" | awk -F\" '{print $4}'`
     fi
