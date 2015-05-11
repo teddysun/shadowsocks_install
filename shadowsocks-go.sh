@@ -124,31 +124,31 @@ function pre_install(){
 function download_files(){
     cd $cur_dir
     if is_64bit; then
-        if ! wget -c http://lamp.teddysun.com/shadowsocks/shadowsocks-server-linux64-1.1.3.gz;then
-            echo "Failed to download shadowsocks-server-linux64-1.1.3.gz"
+        if ! wget -c http://lamp.teddysun.com/shadowsocks/shadowsocks-server-linux64-1.1.4.gz;then
+            echo "Failed to download shadowsocks-server-linux64-1.1.4.gz"
             exit 1
         fi
-        gzip -d shadowsocks-server-linux64-1.1.3.gz
+        gzip -d shadowsocks-server-linux64-1.1.4.gz
         if [ $? -eq 0 ];then
-            echo "Decompress shadowsocks-server-linux64-1.1.3.gz success."
+            echo "Decompress shadowsocks-server-linux64-1.1.4.gz success."
         else
-            echo "Decompress shadowsocks-server-linux64-1.1.3.gz failed! Please check gzip command."
+            echo "Decompress shadowsocks-server-linux64-1.1.4.gz failed! Please check gzip command."
             exit 1
         fi
-        mv -f shadowsocks-server-linux64-1.1.3 /usr/bin/shadowsocks-server
+        mv -f shadowsocks-server-linux64-1.1.4 /usr/bin/shadowsocks-server
     else
-        if ! wget -c http://lamp.teddysun.com/shadowsocks/shadowsocks-server-linux32-1.1.3.gz;then
-            echo "Failed to download shadowsocks-server-linux32-1.1.3.gz"
+        if ! wget -c http://lamp.teddysun.com/shadowsocks/shadowsocks-server-linux32-1.1.4.gz;then
+            echo "Failed to download shadowsocks-server-linux32-1.1.4.gz"
             exit 1
         fi
-        gzip -d shadowsocks-server-linux32-1.1.3.gz
+        gzip -d shadowsocks-server-linux32-1.1.4.gz
         if [ $? -eq 0 ];then
-            echo "Decompress shadowsocks-server-linux32-1.1.3.gz success."
+            echo "Decompress shadowsocks-server-linux32-1.1.4.gz success."
         else
-            echo "Decompress shadowsocks-server-linux32-1.1.3.gz failed! Please check gzip command."
+            echo "Decompress shadowsocks-server-linux32-1.1.4.gz failed! Please check gzip command."
             exit 1
         fi
-        mv -f shadowsocks-server-linux32-1.1.3 /usr/bin/shadowsocks-server
+        mv -f shadowsocks-server-linux32-1.1.4 /usr/bin/shadowsocks-server
     fi
 
     # Download start script
