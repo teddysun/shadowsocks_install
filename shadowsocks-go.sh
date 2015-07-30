@@ -11,11 +11,9 @@ export PATH
 clear
 echo ""
 echo "#############################################################"
-echo "# One click Install Shadowsocks(go)"
-echo "# Intro: http://teddysun.com/392.html"
-echo "#"
-echo "# Author: Teddysun <i@teddysun.com>"
-echo "#"
+echo "# One click Install Shadowsocks-go server                   #"
+echo "# Intro: http://teddysun.com/392.html                       #"
+echo "# Author: Teddysun <i@teddysun.com>                         #"
 echo "#############################################################"
 echo ""
 
@@ -84,11 +82,34 @@ function pre_install(){
     # Set shadowsocks-go config password
     echo "Please input password for shadowsocks-go:"
     read -p "(Default password: teddysun.com):" shadowsockspwd
-    if [ "$shadowsockspwd" = "" ]; then
-        shadowsockspwd="teddysun.com"
+    [ -z "$shadowsockspwd" ] && shadowsockspwd="teddysun.com"
+    echo ""
+    echo "---------------------------"
+    echo "password = $shadowsockspwd"
+    echo "---------------------------"
+    echo ""
+    # Set shadowsocks-go config port
+    while true
+    do
+    echo -e "Please input port for shadowsocks-go [1024-65535]:"
+    read -p "(Default port: 8989):" shadowsocksport
+    [ -z "$shadowsocksport" ] && shadowsocksport="8989"
+    expr $shadowsocksport + 0 &>/dev/null
+    if [ $? -eq 0 ]; then
+        if [ $shadowsocksport -ge 1024 ] && [ $shadowsocksport -le 65535 ]; then
+            echo ""
+            echo "---------------------------"
+            echo "port = $shadowsocksport"
+            echo "---------------------------"
+            echo ""
+            break
+        else
+            echo "Input error! Please input correct numbers."
+        fi
+    else
+        echo "Input error! Please input correct numbers."
     fi
-    echo "password:$shadowsockspwd"
-    echo "####################################"
+    done
     get_char(){
         SAVEDSTTY=`stty -g`
         stty -echo
@@ -173,7 +194,7 @@ function config_shadowsocks(){
     cat > /etc/shadowsocks/config.json<<-EOF
 {
     "server":"0.0.0.0",
-    "server_port":8989,
+    "server_port":${shadowsocksport},
     "local_port":1080,
     "password":"${shadowsockspwd}",
     "method":"aes-256-cfb",
@@ -187,13 +208,13 @@ function iptables_set(){
     echo "iptables start setting..."
     /sbin/service iptables status 1>/dev/null 2>&1
     if [ $? -eq 0 ]; then
-        /etc/init.d/iptables status | grep '8989' | grep 'ACCEPT' >/dev/null 2>&1
+        /etc/init.d/iptables status | grep '${shadowsocksport}' | grep 'ACCEPT' >/dev/null 2>&1
         if [ $? -ne 0 ]; then
-            /sbin/iptables -I INPUT -m state --state NEW -m tcp -p tcp --dport 8989 -j ACCEPT
+            /sbin/iptables -I INPUT -m state --state NEW -m tcp -p tcp --dport ${shadowsocksport} -j ACCEPT
             /etc/init.d/iptables save
             /etc/init.d/iptables restart
         else
-            echo "port 8989 has been set up."
+            echo "port ${shadowsocksport} has been set up."
         fi
     else
         echo "iptables looks like shutdown, please manually set it if necessary."
@@ -232,7 +253,7 @@ function install_go(){
     echo ""
     echo "Congratulations, shadowsocks-go install completed!"
     echo -e "Your Server IP: \033[41;37m ${IP} \033[0m"
-    echo -e "Your Server Port: \033[41;37m 8989 \033[0m"
+    echo -e "Your Server Port: \033[41;37m ${shadowsocksport} \033[0m"
     echo -e "Your Password: \033[41;37m ${shadowsockspwd} \033[0m"
     echo -e "Your Local Port: \033[41;37m 1080 \033[0m"
     echo -e "Your Encryption Method: \033[41;37m aes-256-cfb \033[0m"
