@@ -3,17 +3,19 @@ PATH=/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin:/usr/local/sbin:~/bin
 export PATH
 #===============================================================================================
 #   System Required:  CentOS 6,7, Debian, Ubuntu
-#   Description:  One click Install Shadowsocks(Python)
+#   Description: One click Install Shadowsocks-Python server
 #   Author: Teddysun <i@teddysun.com>
+#   Thanks: @clowwindy <https://twitter.com/clowwindy>
 #   Intro:  http://teddysun.com/342.html
 #===============================================================================================
 
 clear
 echo ""
 echo "#############################################################"
-echo "# One click Install Shadowsocks-python server               #"
+echo "# One click Install Shadowsocks-Python server               #"
 echo "# Intro: http://teddysun.com/342.html                       #"
 echo "# Author: Teddysun <i@teddysun.com>                         #"
+echo "# Thanks: @clowwindy <https://twitter.com/clowwindy>        #"
 echo "#############################################################"
 echo ""
 

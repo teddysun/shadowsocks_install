@@ -3,8 +3,9 @@ PATH=/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin:/usr/local/sbin:~/bin
 export PATH
 #===============================================================================================
 #   System Required:  Debian or Ubuntu (32bit/64bit)
-#   Description:  Install Shadowsocks(libev) for Debian or Ubuntu
+#   Description: Install Shadowsocks-libev server for Debian or Ubuntu
 #   Author: Teddysun <i@teddysun.com>
+#   Thanks: @m0d8ye <https://twitter.com/m0d8ye>
 #   Intro:  http://teddysun.com/358.html
 #===============================================================================================
 
@@ -14,6 +15,7 @@ echo "#############################################################"
 echo "# Install Shadowsocks-libev server for Debian or Ubuntu     #"
 echo "# Intro: http://teddysun.com/358.html                       #"
 echo "# Author: Teddysun <i@teddysun.com>                         #"
+echo "# Thanks: @m0d8ye <https://twitter.com/m0d8ye>              #"
 echo "#############################################################"
 echo ""
 

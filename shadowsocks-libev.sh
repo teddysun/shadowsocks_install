@@ -3,8 +3,9 @@ PATH=/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin:/usr/local/sbin:~/bin
 export PATH
 #===============================================================================================
 #   System Required:  CentOS6.x (32bit/64bit)
-#   Description:  Install Shadowsocks(libev) for CentOS
+#   Description: Install Shadowsocks-libev server for CentOS 6 or 7
 #   Author: Teddysun <i@teddysun.com>
+#   Thanks: @m0d8ye <https://twitter.com/m0d8ye>
 #   Intro:  http://teddysun.com/357.html
 #===============================================================================================
 
@@ -13,6 +14,7 @@ echo "#############################################################"
 echo "# Install Shadowsocks-libev server for CentOS 6 or 7        #"
 echo "# Intro: http://teddysun.com/357.html                       #"
 echo "# Author: Teddysun <i@teddysun.com>                         #"
+echo "# Thanks: @m0d8ye <https://twitter.com/m0d8ye>              #"
 echo "#############################################################"
 echo ""
 
