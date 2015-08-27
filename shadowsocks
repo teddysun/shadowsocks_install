@@ -28,7 +28,7 @@ start(){
 }
 
 stop(){
-    pid=`ps -ef | grep -v grep | grep -v ps | grep -i "/usr/bin/python ${BIN}" | awk '{print $2}'`
+    pid=`ps -ef | grep -v grep | grep -v ps | grep -i "${BIN}" | awk '{print $2}'`
     if [ ! -z $pid ]; then
         $BIN -c $conf -d stop
         RETVAL=$?
@@ -44,7 +44,7 @@ stop(){
 }
 
 status(){
-    pid=`ps -ef | grep -v grep | grep -v ps | grep -i "/usr/bin/python ${BIN}" | awk '{print $2}'`
+    pid=`ps -ef | grep -v grep | grep -v ps | grep -i "${BIN}" | awk '{print $2}'`
     if [ -z $pid ]; then
         echo "$name is not running"
         RETVAL=1
