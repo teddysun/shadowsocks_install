@@ -7,6 +7,8 @@
 name=Shadowsocks
 # log path
 path=/var/log
+# check log path
+[[ ! -d $path ]] && mkdir -p $path
 # log file
 log=$path/shadowsocks-crond.log
 # shadowsocks-python bin path(centos)
@@ -33,11 +35,6 @@ if [ $? -eq 0 ]; then
             fi
         fi
     fi
-fi
-
-# check log path
-if [ ! -d $path ]; then
-    mkdir -p $path
 fi
 
 # check status & auto start
