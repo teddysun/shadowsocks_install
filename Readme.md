@@ -24,6 +24,12 @@
 > 
 > Intro: https://teddysun.com/392.html
 
+## shadowsocks-crond.sh
+
+> Description: Check Shadowsocks(All version) is running or not, if not running, start it
+> 
+> Intro: https://shadowsocks.be/6.html
+
 ## shadowsocks-nodejs.sh (Deprecated)
 
 > Description: Auto Install Shadowsocks(NodeJS) for CentOS/Redhat/Fedora
