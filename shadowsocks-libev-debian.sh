@@ -6,14 +6,14 @@ export PATH
 #   Description: Install Shadowsocks-libev server for Debian or Ubuntu
 #   Author: Teddysun <i@teddysun.com>
 #   Thanks: @m0d8ye <https://twitter.com/m0d8ye>
-#   Intro:  http://teddysun.com/358.html
+#   Intro:  https://teddysun.com/358.html
 #===============================================================================================
 
 clear
 echo ""
 echo "#############################################################"
 echo "# Install Shadowsocks-libev server for Debian or Ubuntu     #"
-echo "# Intro: http://teddysun.com/358.html                       #"
+echo "# Intro: https://teddysun.com/358.html                      #"
 echo "# Author: Teddysun <i@teddysun.com>                         #"
 echo "# Thanks: @m0d8ye <https://twitter.com/m0d8ye>              #"
 echo "#############################################################"
@@ -126,7 +126,7 @@ function download_files(){
         fi
     else
         echo ""
-        echo "Unzip shadowsocks-libev failed! Please visit http://teddysun.com/358.html and contact."
+        echo "Unzip shadowsocks-libev failed! Please visit https://teddysun.com/358.html and contact."
         exit 1
     fi
 }
@@ -173,7 +173,7 @@ function install_libev(){
             fi
         else
             echo ""
-            echo "Shadowsocks-libev install failed! Please visit http://teddysun.com/358.html and contact."
+            echo "Shadowsocks-libev install failed! Please visit https://teddysun.com/358.html and contact."
             exit 1
         fi
     fi
@@ -192,7 +192,7 @@ function install_libev(){
     echo -e "Your Local Port: \033[41;37m 1080 \033[0m"
     echo -e "Your Encryption Method: \033[41;37m aes-256-cfb \033[0m"
     echo ""
-    echo "Welcome to visit:http://teddysun.com/358.html"
+    echo "Welcome to visit:https://teddysun.com/358.html"
     echo "Enjoy it!"
     echo ""
     exit 0

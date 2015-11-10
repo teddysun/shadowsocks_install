@@ -6,14 +6,14 @@ export PATH
 #   Description: One click Install Shadowsocks-Python server
 #   Author: Teddysun <i@teddysun.com>
 #   Thanks: @clowwindy <https://twitter.com/clowwindy>
-#   Intro:  http://teddysun.com/342.html
+#   Intro:  https://teddysun.com/342.html
 #===============================================================================================
 
 clear
 echo ""
 echo "#############################################################"
 echo "# One click Install Shadowsocks-Python server               #"
-echo "# Intro: http://teddysun.com/342.html                       #"
+echo "# Intro: https://teddysun.com/342.html                      #"
 echo "# Author: Teddysun <i@teddysun.com>                         #"
 echo "# Thanks: @clowwindy <https://twitter.com/clowwindy>        #"
 echo "#############################################################"
@@ -222,7 +222,7 @@ function install_ss(){
             /etc/init.d/shadowsocks start
         else
             echo ""
-            echo "Shadowsocks install failed! Please visit http://teddysun.com/342.html and contact."
+            echo "Shadowsocks install failed! Please visit https://teddysun.com/342.html and contact."
             exit 1
         fi
         clear
@@ -235,13 +235,13 @@ function install_ss(){
         echo -e "Your Local Port: \033[41;37m 1080 \033[0m"
         echo -e "Your Encryption Method: \033[41;37m aes-256-cfb \033[0m"
         echo ""
-        echo "Welcome to visit:http://teddysun.com/342.html"
+        echo "Welcome to visit:https://teddysun.com/342.html"
         echo "Enjoy it!"
         echo ""
         exit 0
     else
         echo ""
-        echo "pip install failed! Please visit http://teddysun.com/342.html and contact."
+        echo "pip install failed! Please visit https://teddysun.com/342.html and contact."
         exit 1
     fi
 }

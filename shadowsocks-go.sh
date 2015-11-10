@@ -6,14 +6,14 @@ export PATH
 #   Description: One click Install Shadowsocks-go server
 #   Author: Teddysun <i@teddysun.com>
 #   Thanks: @cyfdecyf <https://twitter.com/cyfdecyf>
-#   Intro:  http://teddysun.com/392.html
+#   Intro:  https://teddysun.com/392.html
 #===============================================================================================
 
 clear
 echo ""
 echo "#############################################################"
 echo "# One click Install Shadowsocks-go server                   #"
-echo "# Intro: http://teddysun.com/392.html                       #"
+echo "# Intro: https://teddysun.com/392.html                      #"
 echo "# Author: Teddysun <i@teddysun.com>                         #"
 echo "# Thanks: @cyfdecyf <https://twitter.com/cyfdecyf>          #"
 echo "#############################################################"
@@ -260,7 +260,7 @@ function install_go(){
     echo -e "Your Local Port: \033[41;37m 1080 \033[0m"
     echo -e "Your Encryption Method: \033[41;37m aes-256-cfb \033[0m"
     echo ""
-    echo "Welcome to visit:http://teddysun.com/392.html"
+    echo "Welcome to visit:https://teddysun.com/392.html"
     echo "Enjoy it!"
     echo ""
     exit 0
