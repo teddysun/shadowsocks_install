@@ -144,7 +144,7 @@ function pre_install(){
 # Download files
 function download_files(){
     if [ "$OS" == 'CentOS' ]; then
-        if ! wget --no-check-certificate -O ez_setup.py https://bootstrap.pypa.io/ez_setup.py; then
+        if ! wget -t3 -T30 http://lamp.teddysun.com/ez_setup.py; then
             echo "Failed to download ez_setup.py!"
             exit 1
         fi
