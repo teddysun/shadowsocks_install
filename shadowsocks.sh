@@ -180,7 +180,7 @@ EOF
 # iptables set
 function iptables_set(){
     echo "iptables start setting..."
-    /sbin/service iptables status 1>/dev/null 2>&1
+    /etc/init.d/iptables status 1>/dev/null 2>&1
     if [ $? -eq 0 ]; then
         /etc/init.d/iptables status | grep '${shadowsocksport}' | grep 'ACCEPT' >/dev/null 2>&1
         if [ $? -ne 0 ]; then
