@@ -134,7 +134,7 @@ function pre_install(){
         yum install -y m2crypto automake make curl curl-devel zlib-devel perl perl-devel cpio expat-devel gettext-devel
     else
         apt-get -y update
-        apt-get -y install python python-dev python-pip m2crypto curl wget unzip gcc swig automake make perl cpio build-essential
+        apt-get -y install python python-dev python-pip python-m2crypto curl wget unzip gcc swig automake make perl cpio build-essential
     fi
     cd $cur_dir
 }
@@ -267,7 +267,7 @@ function uninstall_shadowsocks(){
         fi
         rm -f /etc/shadowsocks.json
         rm -f /etc/init.d/shadowsocks
-        rm -rf /etc/local/shadowsocks
+        rm -rf /usr/local/shadowsocks
         echo "ShadowsocksR uninstall success!"
     else
         echo "uninstall cancelled, Nothing to do"
