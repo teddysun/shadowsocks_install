@@ -6,14 +6,14 @@ export PATH
 #   Description: One click Install ShadowsocksR Server            #
 #   Author: Teddysun <i@teddysun.com>                             #
 #   Thanks: @breakwa11 <https://twitter.com/breakwa11>            #
-#   Intro:  https://shadowsocks.be/8.html                         #
+#   Intro:  https://shadowsocks.be/9.html                         #
 #=================================================================#
 
 clear
 echo ""
 echo "#############################################################"
 echo "# One click Install ShadowsocksR Server                     #"
-echo "# Intro: https://shadowsocks.be/8.html                      #"
+echo "# Intro: https://shadowsocks.be/9.html                      #"
 echo "# Author: Teddysun <i@teddysun.com>                         #"
 echo "# Thanks: @breakwa11 <https://twitter.com/breakwa11>        #"
 echo "#############################################################"
@@ -223,7 +223,7 @@ function install_ss(){
         echo -e "obfs: \033[41;37m plain \033[0m"
         echo -e "Encryption Method: \033[41;37m aes-256-cfb \033[0m"
         echo ""
-        echo "Welcome to visit:https://shadowsocks.be/8.html"
+        echo "Welcome to visit:https://shadowsocks.be/9.html"
         echo "If you want to change protocol & obfs, reference URL:"
         echo "https://github.com/breakwa11/shadowsocks-rss/wiki/Server-Setup"
         echo ""
