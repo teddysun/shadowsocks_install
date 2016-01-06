@@ -34,7 +34,7 @@
 
 > Description: Auto Install ShadowsocksR for CentOS/Redhat/Fedora/Debian/Ubuntu
 > 
-> Intro: https://shadowsocks.be/8.html
+> Intro: https://shadowsocks.be/9.html
 
 ## shadowsocks-nodejs.sh (Deprecated)
 
