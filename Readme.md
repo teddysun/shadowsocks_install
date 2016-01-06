@@ -30,10 +30,16 @@
 > 
 > Intro: https://shadowsocks.be/6.html
 
+## shadowsocksR.sh
+
+> Description: Auto Install ShadowsocksR for CentOS/Redhat/Fedora/Debian/Ubuntu
+> 
+> Intro: https://shadowsocks.be/8.html
+
 ## shadowsocks-nodejs.sh (Deprecated)
 
 > Description: Auto Install Shadowsocks(NodeJS) for CentOS/Redhat/Fedora
 > 
 > Intro: https://teddysun.com/355.html
 
-Copyright (C) 2015 Teddysun <i@teddysun.com>
+Copyright (C) 2014-2016 Teddysun <i@teddysun.com>
