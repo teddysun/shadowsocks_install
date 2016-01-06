@@ -197,6 +197,7 @@ function install_ss(){
     ./configure && make && make install
     ldconfig
     # Install ShadowsocksR
+    cd $cur_dir
     unzip -q manyuser.zip
     mv shadowsocks-manyuser/shadowsocks /usr/local/
     if [ -f /usr/local/shadowsocks/server.py ]; then
@@ -230,9 +231,19 @@ function install_ss(){
         echo ""
     else
         echo "Shadowsocks install failed! Please Email to Teddysun <i@teddysun.com> and contact."
+        install_cleanup
         exit 1
     fi
 }
+
+# Install cleanup
+function install_cleanup(){
+    cd $cur_dir
+    rm -f manyuser.zip
+    rm -f libsodium-1.0.8.tar.gz
+    rm -rf libsodium-1.0.8
+}
+
 
 # Uninstall ShadowsocksR
 function uninstall_shadowsocks(){
@@ -271,6 +282,7 @@ function install_shadowsocks(){
     download_files
     config_shadowsocks
     install_ss
+    install_cleanup
 }
 
 # Initialization step
