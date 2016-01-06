@@ -240,6 +240,7 @@ function install_ss(){
 function install_cleanup(){
     cd $cur_dir
     rm -f manyuser.zip
+    rm -rf shadowsocks-manyuser
     rm -f libsodium-1.0.8.tar.gz
     rm -rf libsodium-1.0.8
 }
