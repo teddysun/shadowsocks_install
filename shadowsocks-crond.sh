@@ -1,7 +1,7 @@
 #!/bin/bash
-# Check Shadowsocks running or not
+# Check Shadowsocks Server is running or not
 # Author: Teddysun <i@teddysun.com>
-# Visit: https://shadowsocks.be
+# Visit: https://shadowsocks.be/6.html
 
 # name
 name=Shadowsocks
@@ -11,14 +11,16 @@ path=/var/log
 [[ ! -d $path ]] && mkdir -p $path
 # log file
 log=$path/shadowsocks-crond.log
-# shadowsocks-python bin path(centos)
+# shadowsocks-python path(centos)
 bin1=/usr/bin/ssserver
-# shadowsocks-python bin path(debian)
+# shadowsocks-python path(debian)
 bin2=/usr/local/bin/ssserver
-# shadowsocks-go bin path
+# shadowsocks-go path
 bin3=/usr/bin/shadowsocks-server
-# shadowsocks-libev bin path
+# shadowsocks-libev path
 bin4=/usr/local/bin/ss-server
+# shadowsocksR path
+bin5=/usr/local/shadowsocks/server.py
 # default pid value
 pid=""
 
@@ -32,6 +34,9 @@ if [ $? -eq 0 ]; then
             pid=`ps -ef | grep -v grep | grep -v ps | grep -i "${bin3}" | awk '{print $2}'` 
             if [ -z $pid ]; then
                 pid=`ps -ef | grep -v grep | grep -v ps | grep -i "${bin4}" | awk '{print $2}'` 
+                if [ -z $pid ]; then
+                    pid=`ps -ef | grep -v grep | grep -v ps | grep -i "${bin5}" | awk '{print $2}'` 
+                fi
             fi
         fi
     fi
