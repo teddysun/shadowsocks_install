@@ -26,8 +26,8 @@ start(){
 }
 
 stop(){
-    pid=`ps -ef | grep -v grep | grep -v ps | grep -i "${BIN}" | awk '{print $2}'`
-    if [ ! -z $pid ]; then
+    pid=`ps -ef | grep -v grep | grep -i "${BIN}" | awk '{print $2}'`
+    if [[ ! -z $pid ]]; then
         $BIN -c $conf -d stop
         RETVAL=$?
         if [ "$RETVAL" = "0" ]; then
@@ -42,8 +42,8 @@ stop(){
 }
 
 status(){
-    pid=`ps -ef | grep -v grep | grep -v ps | grep -i "${BIN}" | awk '{print $2}'`
-    if [ -z $pid ]; then
+    pid=`ps -ef | grep -v grep | grep -i "${BIN}" | awk '{print $2}'`
+    if [[ -z $pid ]]; then
         echo "$name is not running"
         RETVAL=1
     else
