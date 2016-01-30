@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 ### BEGIN INIT INFO
 # Provides:          shadowsocks
 # Required-Start:    $network $local_fs $remote_fs

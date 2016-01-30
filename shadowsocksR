@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 # chkconfig: 2345 90 10
 # description: start or stop the ShadowsocksR server
 #
