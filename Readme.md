@@ -36,6 +36,12 @@
 > 
 > Intro: https://shadowsocks.be/9.html
 
+## haproxy.sh
+
+> Description: Auto Install haproxy for Shadowsocks Server
+> 
+> Intro: https://shadowsocks.be/10.html
+
 ## shadowsocks-nodejs.sh (Deprecated)
 
 > Description: Auto Install Shadowsocks(NodeJS) Server for CentOS/Redhat/Fedora
