@@ -25,12 +25,20 @@ rootness(){
 }
 
 checkos(){
-    if [ -f /etc/redhat-release ];then
+    if [[ -f /etc/redhat-release ]];then
         OS=CentOS
-    elif [ ! -z "`cat /etc/issue | grep bian`" ];then
+    elif cat /etc/issue | grep -q -E -i "debian";then
         OS=Debian
-    elif [ ! -z "`cat /etc/issue | grep Ubuntu`" ];then
+    elif cat /etc/issue | grep -q -E -i "ubuntu";then
         OS=Ubuntu
+    elif cat /etc/issue | grep -q -E -i "centos|red hat|redhat";then
+        OS=CentOS
+    elif cat /proc/version | grep -q -E -i "debian";then
+        OS=Debian
+    elif cat /proc/version | grep -q -E -i "ubuntu";then
+        OS=Ubuntu
+    elif cat /proc/version | grep -q -E -i "centos|red hat|redhat";then
+        OS=CentOS
     else
         echo "Not supported OS, Please reinstall OS and try again."
         exit 1
@@ -165,7 +173,7 @@ EOF
 
 install(){
     # Install haproxy
-    if [ "$OS" == 'CentOS' ];then
+    if [ "${OS}" == 'CentOS' ];then
         yum install -y haproxy
     else
         apt-get -y update
@@ -179,7 +187,7 @@ install(){
         config_haproxy
         echo "Config haproxy completed..."
 
-        if [ "$OS" == 'CentOS' ]; then
+        if [ "${OS}" == 'CentOS' ]; then
             chkconfig --add haproxy
             chkconfig haproxy on
         else
