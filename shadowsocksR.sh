@@ -22,7 +22,7 @@ echo ""
 #Current folder
 cur_dir=`pwd`
 # Get public IP address
-IP=$(ip addr | egrep -o '[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}' | egrep -v "^192\.168|^172\.1[6-9]\.|^172\.2[0-9]\.|^172\.3[0-2]\.|^10\.|^127\.|^255\." | head -n 1)
+IP=$(ip addr | egrep -o '[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}' | egrep -v "^192\.168|^172\.1[6-9]\.|^172\.2[0-9]\.|^172\.3[0-2]\.|^10\.|^127\.|^255\.|^0\." | head -n 1)
 if [[ "$IP" = "" ]]; then
     IP=$(wget -qO- -t1 -T2 ipv4.icanhazip.com)
 fi
@@ -142,7 +142,7 @@ function pre_install(){
 # Download files
 function download_files(){
     # Download libsodium file
-    if ! wget --no-check-certificate -O libsodium-1.0.8.tar.gz https://github.com/jedisct1/libsodium/releases/download/1.0.8/libsodium-1.0.8.tar.gz; then
+    if ! wget --no-check-certificate -O libsodium-1.0.10.tar.gz https://github.com/jedisct1/libsodium/releases/download/1.0.10/libsodium-1.0.10.tar.gz; then
         echo "Failed to download libsodium file!"
         exit 1
     fi
@@ -192,8 +192,8 @@ EOF
 # Install ShadowsocksR
 function install_ss(){
     # Install libsodium
-    tar zxf libsodium-1.0.8.tar.gz
-    cd $cur_dir/libsodium-1.0.8
+    tar zxf libsodium-1.0.10.tar.gz
+    cd $cur_dir/libsodium-1.0.10
     ./configure && make && make install
     echo "/usr/local/lib" > /etc/ld.so.conf.d/local.conf
     ldconfig
@@ -242,8 +242,8 @@ function install_cleanup(){
     cd $cur_dir
     rm -f manyuser.zip
     rm -rf shadowsocks-manyuser
-    rm -f libsodium-1.0.8.tar.gz
-    rm -rf libsodium-1.0.8
+    rm -f libsodium-1.0.10.tar.gz
+    rm -rf libsodium-1.0.10
 }
 
 
