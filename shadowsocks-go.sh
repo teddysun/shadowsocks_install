@@ -210,9 +210,10 @@ function iptables_set(){
     echo "iptables start setting..."
     /sbin/service iptables status 1>/dev/null 2>&1
     if [ $? -eq 0 ]; then
-        /etc/init.d/iptables status | grep '${shadowsocksport}' | grep 'ACCEPT' >/dev/null 2>&1
+        /sbin/iptables -L -n | grep '${shadowsocksport}' | grep 'ACCEPT' >/dev/null 2>&1
         if [ $? -ne 0 ]; then
             /sbin/iptables -I INPUT -m state --state NEW -m tcp -p tcp --dport ${shadowsocksport} -j ACCEPT
+            /sbin/iptables -I INPUT -m state --state NEW -m udp -p udp --dport ${shadowsocksport} -j ACCEPT
             /etc/init.d/iptables save
             /etc/init.d/iptables restart
         else
@@ -304,12 +305,12 @@ function install_shadowsocks_go(){
     pre_install
     download_files
     config_shadowsocks
+    install_go
     if [ "$OS" == 'CentOS' ]; then
-        if ! centosversion 7; then
+        if centosversion 6; then
             iptables_set
         fi
     fi
-    install_go
 }
 
 # Initialization step
