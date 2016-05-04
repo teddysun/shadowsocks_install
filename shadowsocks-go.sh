@@ -1,13 +1,13 @@
 #! /bin/bash
 PATH=/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin:/usr/local/sbin:~/bin
 export PATH
-#===============================================================================================
-#   System Required:  CentOS, Debian, Ubuntu
-#   Description: One click Install Shadowsocks-go server
-#   Author: Teddysun <i@teddysun.com>
-#   Thanks: @cyfdecyf <https://twitter.com/cyfdecyf>
-#   Intro:  https://teddysun.com/392.html
-#===============================================================================================
+#=================================================================#
+#   System Required:  CentOS, Debian, Ubuntu                      #
+#   Description: One click Install Shadowsocks-go server          #
+#   Author: Teddysun <i@teddysun.com>                             #
+#   Thanks: @cyfdecyf <https://twitter.com/cyfdecyf>              #
+#   Intro:  https://teddysun.com/392.html                         #
+#==================================================================
 
 clear
 echo ""
@@ -147,31 +147,31 @@ function pre_install(){
 function download_files(){
     cd $cur_dir
     if is_64bit; then
-        if ! wget -c http://lamp.teddysun.com/shadowsocks/shadowsocks-server-linux64-1.1.4.gz;then
-            echo "Failed to download shadowsocks-server-linux64-1.1.4.gz"
+        if ! wget -c http://lamp.teddysun.com/shadowsocks/shadowsocks-server-linux64-1.1.5.gz;then
+            echo "Failed to download shadowsocks-server-linux64-1.1.5.gz"
             exit 1
         fi
-        gzip -d shadowsocks-server-linux64-1.1.4.gz
+        gzip -d shadowsocks-server-linux64-1.1.5.gz
         if [ $? -eq 0 ];then
-            echo "Decompress shadowsocks-server-linux64-1.1.4.gz success."
+            echo "Decompress shadowsocks-server-linux64-1.1.5.gz success."
         else
-            echo "Decompress shadowsocks-server-linux64-1.1.4.gz failed! Please check gzip command."
+            echo "Decompress shadowsocks-server-linux64-1.1.5.gz failed! Please check gzip command."
             exit 1
         fi
-        mv -f shadowsocks-server-linux64-1.1.4 /usr/bin/shadowsocks-server
+        mv -f shadowsocks-server-linux64-1.1.5 /usr/bin/shadowsocks-server
     else
-        if ! wget -c http://lamp.teddysun.com/shadowsocks/shadowsocks-server-linux32-1.1.4.gz;then
-            echo "Failed to download shadowsocks-server-linux32-1.1.4.gz"
+        if ! wget -c http://lamp.teddysun.com/shadowsocks/shadowsocks-server-linux32-1.1.5.gz;then
+            echo "Failed to download shadowsocks-server-linux32-1.1.5.gz"
             exit 1
         fi
-        gzip -d shadowsocks-server-linux32-1.1.4.gz
+        gzip -d shadowsocks-server-linux32-1.1.5.gz
         if [ $? -eq 0 ];then
-            echo "Decompress shadowsocks-server-linux32-1.1.4.gz success."
+            echo "Decompress shadowsocks-server-linux32-1.1.5.gz success."
         else
-            echo "Decompress shadowsocks-server-linux32-1.1.4.gz failed! Please check gzip command."
+            echo "Decompress shadowsocks-server-linux32-1.1.5.gz failed! Please check gzip command."
             exit 1
         fi
-        mv -f shadowsocks-server-linux32-1.1.4 /usr/bin/shadowsocks-server
+        mv -f shadowsocks-server-linux32-1.1.5 /usr/bin/shadowsocks-server
     fi
 
     # Download start script
