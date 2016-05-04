@@ -126,7 +126,7 @@ function pre_install(){
         yum install -y automake make curl curl-devel zlib-devel perl perl-devel cpio expat-devel gettext-devel which
     else
         apt-get -y update
-        apt-get -y install python python-dev python-pip curl wget unzip gcc swig automake make perl cpio
+        apt-get -y install python python-dev python-pip python-setuptools curl wget unzip gcc swig automake make perl cpio
     fi
     # Get IP address
     echo "Getting Public IP address, Please wait a moment..."
