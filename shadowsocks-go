@@ -70,7 +70,7 @@ do_start() {
   fi
   echo "starting shadowsocks-go"
   # sudo will set the group to the primary group of $USER
-  $BIN -c $CONFIG_FILE > /dev/null 2>&1 &
+  $BIN -c $CONFIG_FILE > /dev/null &
   PID=$!
   echo $PID > $PID_FILE
   sleep 0.3
