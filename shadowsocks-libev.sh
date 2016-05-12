@@ -164,23 +164,43 @@ function config_shadowsocks(){
 EOF
 }
 
-# iptables set
-function iptables_set(){
-    echo "iptables start setting..."
-    /sbin/service iptables status 1>/dev/null 2>&1
-    if [ $? -eq 0 ]; then
-        /sbin/iptables -L -n | grep '${shadowsocksport}' | grep 'ACCEPT' >/dev/null 2>&1
-        if [ $? -ne 0 ]; then
-            /sbin/iptables -I INPUT -m state --state NEW -m tcp -p tcp --dport ${shadowsocksport} -j ACCEPT
-            /sbin/iptables -I INPUT -m state --state NEW -m udp -p udp --dport ${shadowsocksport} -j ACCEPT
-            /etc/init.d/iptables save
-            /etc/init.d/iptables restart
+# firewall set
+function firewall_set(){
+    echo "firewall set start..."
+    if centosversion 6; then
+        /etc/init.d/iptables status > /dev/null 2>&1
+        if [ $? -eq 0 ]; then
+            iptables -L -n | grep '${shadowsocksport}' | grep 'ACCEPT' > /dev/null 2>&1
+            if [ $? -ne 0 ]; then
+                iptables -I INPUT -m state --state NEW -m tcp -p tcp --dport ${shadowsocksport} -j ACCEPT
+                iptables -I INPUT -m state --state NEW -m udp -p udp --dport ${shadowsocksport} -j ACCEPT
+                /etc/init.d/iptables save
+                /etc/init.d/iptables restart
+            else
+                echo "port ${shadowsocksport} has been set up."
+            fi
         else
-            echo "port ${shadowsocksport} has been set up."
+            echo "WARNING: iptables looks like shutdown or not installed, please manually set it if necessary."
         fi
-    else
-        echo "iptables looks like shutdown, please manually set it if necessary."
+    elif centosversion 7; then
+        systemctl status firewalld > /dev/null 2>&1
+        if [ $? -eq 0 ];then
+            firewall-cmd --permanent --zone=public --add-port=${shadowsocksport}/tcp
+            firewall-cmd --permanent --zone=public --add-port=${shadowsocksport}/udp
+            firewall-cmd --reload
+        else
+            echo "Firewalld looks like not running, try to start..."
+            systemctl start firewalld
+            if [ $? -eq 0 ];then
+                firewall-cmd --permanent --zone=public --add-port=${shadowsocksport}/tcp
+                firewall-cmd --permanent --zone=public --add-port=${shadowsocksport}/udp
+                firewall-cmd --reload
+            else
+                echo "WARNING: Try to start firewalld failed. please enable port ${shadowsocksport} manually if necessary."
+            fi
+        fi
     fi
+    echo "firewall set completed..."
 }
 
 # Install 
@@ -279,14 +299,12 @@ function install_shadowsocks_libev(){
     download_files
     config_shadowsocks
     install
-    if centosversion 6; then
-        iptables_set
-    fi
+    firewall_set
 }
 
 # Initialization step
 action=$1
-[  -z $1 ] && action=install
+[ -z $1 ] && action=install
 case "$action" in
 install)
     install_shadowsocks_libev
