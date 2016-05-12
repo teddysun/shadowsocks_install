@@ -10,30 +10,20 @@ export PATH
 #===============================================================================================
 
 clear
-echo ""
+echo
 echo "#############################################################"
 echo "# Install Shadowsocks-libev server for Debian or Ubuntu     #"
 echo "# Intro: https://teddysun.com/358.html                      #"
 echo "# Author: Teddysun <i@teddysun.com>                         #"
 echo "# Thanks: @m0d8ye <https://twitter.com/m0d8ye>              #"
 echo "#############################################################"
-echo ""
-
-# Install Shadowsocks-libev
-function install_shadowsocks_libev(){
-    rootness
-    disable_selinux
-    pre_install
-    download_files
-    config_shadowsocks
-    install_libev
-}
+echo
 
 # Make sure only root can run our script
 function rootness(){
 if [[ $EUID -ne 0 ]]; then
-   echo "Error:This script must be run as root!" 1>&2
-   exit 1
+    echo "Error:This script must be run as root!" 1>&2
+    exit 1
 fi
 }
 
@@ -51,11 +41,11 @@ function pre_install(){
     echo "Please input password for shadowsocks-libev:"
     read -p "(Default password: teddysun.com):" shadowsockspwd
     [ -z "$shadowsockspwd" ] && shadowsockspwd="teddysun.com"
-    echo ""
+    echo
     echo "---------------------------"
     echo "password = $shadowsockspwd"
     echo "---------------------------"
-    echo ""
+    echo
     #Set shadowsocks-libev config port
     while true
     do
@@ -65,11 +55,11 @@ function pre_install(){
     expr $shadowsocksport + 0 &>/dev/null
     if [ $? -eq 0 ]; then
         if [ $shadowsocksport -ge 1 ] && [ $shadowsocksport -le 65535 ]; then
-            echo ""
+            echo
             echo "---------------------------"
             echo "port = $shadowsocksport"
             echo "---------------------------"
-            echo ""
+            echo
             break
         else
             echo "Input error! Please input correct numbers."
@@ -87,7 +77,7 @@ function pre_install(){
         stty echo
         stty $SAVEDSTTY
     }
-    echo ""
+    echo
     echo "Press any key to start...or Press Ctrl+C to cancel"
     char=`get_char`
     # Update System
@@ -101,7 +91,7 @@ function pre_install(){
         IP=$(curl -s -4 ipinfo.io/ip)
     fi
     echo -e "Your main public IP is\t\033[32m$IP\033[0m"
-    echo ""
+    echo
     #Current folder
     cur_dir=`pwd`
     cd $cur_dir
@@ -125,7 +115,7 @@ function download_files(){
             exit 1
         fi
     else
-        echo ""
+        echo
         echo "Unzip shadowsocks-libev failed! Please visit https://teddysun.com/358.html and contact."
         exit 1
     fi
@@ -162,7 +152,7 @@ function install_libev(){
             # Add run on system start up
             mv $cur_dir/shadowsocks-libev-master/shadowsocks-libev-debian /etc/init.d/shadowsocks
             chmod +x /etc/init.d/shadowsocks
-            update-rc.d shadowsocks defaults
+            update-rc.d -f shadowsocks defaults
             # Run shadowsocks in the background
             /etc/init.d/shadowsocks start
             # Run success or not
@@ -172,7 +162,7 @@ function install_libev(){
                 echo "Shadowsocks-libev start failure!"
             fi
         else
-            echo ""
+            echo
             echo "Shadowsocks-libev install failed! Please visit https://teddysun.com/358.html and contact."
             exit 1
         fi
@@ -183,7 +173,7 @@ function install_libev(){
     # Delete shadowsocks-libev zip file
     rm -f shadowsocks-libev.zip
     clear
-    echo ""
+    echo
     echo "Congratulations, shadowsocks-libev install completed!"
     echo -e "Your Server IP: \033[41;37m ${IP} \033[0m"
     echo -e "Your Server Port: \033[41;37m ${shadowsocksport} \033[0m"
@@ -191,11 +181,21 @@ function install_libev(){
     echo -e "Your Local IP: \033[41;37m 127.0.0.1 \033[0m"
     echo -e "Your Local Port: \033[41;37m 1080 \033[0m"
     echo -e "Your Encryption Method: \033[41;37m aes-256-cfb \033[0m"
-    echo ""
+    echo
     echo "Welcome to visit:https://teddysun.com/358.html"
     echo "Enjoy it!"
-    echo ""
+    echo
     exit 0
+}
+
+# Install Shadowsocks-libev
+function install_shadowsocks_libev(){
+    rootness
+    disable_selinux
+    pre_install
+    download_files
+    config_shadowsocks
+    install_libev
 }
 
 # Uninstall Shadowsocks-libev
@@ -240,7 +240,7 @@ function uninstall_shadowsocks_libev(){
 
 # Initialization step
 action=$1
-[  -z $1 ] && action=install
+[ -z $1 ] && action=install
 case "$action" in
 install)
     install_shadowsocks_libev
