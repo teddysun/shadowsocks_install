@@ -10,14 +10,14 @@ export PATH
 #=================================================================#
 
 clear
-echo ""
+echo
 echo "#############################################################"
 echo "# One click Install ShadowsocksR Server                     #"
 echo "# Intro: https://shadowsocks.be/9.html                      #"
 echo "# Author: Teddysun <i@teddysun.com>                         #"
 echo "# Thanks: @breakwa11 <https://twitter.com/breakwa11>        #"
 echo "#############################################################"
-echo ""
+echo
 
 #Current folder
 cur_dir=`pwd`
@@ -82,18 +82,18 @@ fi
 function pre_install(){
     # Not support CentOS 5
     if centosversion 5; then
-        echo "Not support CentOS 5.x, please change OS to CentOS 6,7/Debian/Ubuntu and retry."
+        echo "Not support CentOS 5, please change OS to CentOS 6+/Debian 7+/Ubuntu 12+ and retry."
         exit 1
     fi
     # Set ShadowsocksR config password
     echo "Please input password for ShadowsocksR:"
     read -p "(Default password: teddysun.com):" shadowsockspwd
     [ -z "$shadowsockspwd" ] && shadowsockspwd="teddysun.com"
-    echo ""
+    echo
     echo "---------------------------"
     echo "password = $shadowsockspwd"
     echo "---------------------------"
-    echo ""
+    echo
     # Set ShadowsocksR config port
     while true
     do
@@ -103,11 +103,11 @@ function pre_install(){
     expr $shadowsocksport + 0 &>/dev/null
     if [ $? -eq 0 ]; then
         if [ $shadowsocksport -ge 1 ] && [ $shadowsocksport -le 65535 ]; then
-            echo ""
+            echo
             echo "---------------------------"
             echo "port = $shadowsocksport"
             echo "---------------------------"
-            echo ""
+            echo
             break
         else
             echo "Input error! Please input correct number."
@@ -125,7 +125,7 @@ function pre_install(){
         stty echo
         stty $SAVEDSTTY
     }
-    echo ""
+    echo
     echo "Press any key to start...or Press Ctrl+C to cancel"
     char=`get_char`
     # Install necessary dependencies
@@ -163,6 +163,45 @@ function download_files(){
             exit 1
         fi
     fi
+}
+
+# firewall set
+function firewall_set(){
+    echo "firewall set start..."
+    if centosversion 6; then
+        /etc/init.d/iptables status > /dev/null 2>&1
+        if [ $? -eq 0 ]; then
+            iptables -L -n | grep '${shadowsocksport}' | grep 'ACCEPT' > /dev/null 2>&1
+            if [ $? -ne 0 ]; then
+                iptables -I INPUT -m state --state NEW -m tcp -p tcp --dport ${shadowsocksport} -j ACCEPT
+                iptables -I INPUT -m state --state NEW -m udp -p udp --dport ${shadowsocksport} -j ACCEPT
+                /etc/init.d/iptables save
+                /etc/init.d/iptables restart
+            else
+                echo "port ${shadowsocksport} has been set up."
+            fi
+        else
+            echo "WARNING: iptables looks like shutdown or not installed, please manually set it if necessary."
+        fi
+    elif centosversion 7; then
+        systemctl status firewalld > /dev/null 2>&1
+        if [ $? -eq 0 ];then
+            firewall-cmd --permanent --zone=public --add-port=${shadowsocksport}/tcp
+            firewall-cmd --permanent --zone=public --add-port=${shadowsocksport}/udp
+            firewall-cmd --reload
+        else
+            echo "Firewalld looks like not running, try to start..."
+            systemctl start firewalld
+            if [ $? -eq 0 ];then
+                firewall-cmd --permanent --zone=public --add-port=${shadowsocksport}/tcp
+                firewall-cmd --permanent --zone=public --add-port=${shadowsocksport}/udp
+                firewall-cmd --reload
+            else
+                echo "WARNING: Try to start firewalld failed. please enable port ${shadowsocksport} manually if necessary."
+            fi
+        fi
+    fi
+    echo "firewall set completed..."
 }
 
 # Config ShadowsocksR
@@ -208,12 +247,12 @@ function install_ss(){
             chkconfig --add shadowsocks
             chkconfig shadowsocks on
         else
-            update-rc.d shadowsocks defaults
+            update-rc.d -f shadowsocks defaults
         fi
         # Run ShadowsocksR in the background
         /etc/init.d/shadowsocks start
         clear
-        echo ""
+        echo
         echo "Congratulations, ShadowsocksR install completed!"
         echo -e "Server IP: \033[41;37m ${IP} \033[0m"
         echo -e "Server Port: \033[41;37m ${shadowsocksport} \033[0m"
@@ -223,13 +262,13 @@ function install_ss(){
         echo -e "Protocol: \033[41;37m origin \033[0m"
         echo -e "obfs: \033[41;37m plain \033[0m"
         echo -e "Encryption Method: \033[41;37m aes-256-cfb \033[0m"
-        echo ""
+        echo
         echo "Welcome to visit:https://shadowsocks.be/9.html"
         echo "If you want to change protocol & obfs, reference URL:"
         echo "https://github.com/breakwa11/shadowsocks-rss/wiki/Server-Setup"
-        echo ""
+        echo
         echo "Enjoy it!"
-        echo ""
+        echo
     else
         echo "Shadowsocks install failed! Please Email to Teddysun <i@teddysun.com> and contact."
         install_cleanup
@@ -284,12 +323,15 @@ function install_shadowsocks(){
     download_files
     config_shadowsocks
     install_ss
+    if [ "$OS" == 'CentOS' ]; then
+        firewall_set
+    fi
     install_cleanup
 }
 
 # Initialization step
 action=$1
-[  -z $1 ] && action=install
+[ -z $1 ] && action=install
 case "$action" in
 install)
     install_shadowsocks
