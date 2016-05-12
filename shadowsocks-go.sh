@@ -257,7 +257,7 @@ function install_go(){
             chkconfig --add shadowsocks
             chkconfig shadowsocks on
         else
-            update-rc.d shadowsocks defaults
+            update-rc.d -f shadowsocks defaults
         fi
         # Start shadowsocks
         /etc/init.d/shadowsocks start
@@ -333,7 +333,7 @@ function install_shadowsocks_go(){
 
 # Initialization step
 action=$1
-[  -z $1 ] && action=install
+[ -z $1 ] && action=install
 case "$action" in
 install)
     install_shadowsocks_go
