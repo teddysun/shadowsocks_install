@@ -298,8 +298,8 @@ function install_shadowsocks_libev(){
     pre_install
     download_files
     config_shadowsocks
-    install
     firewall_set
+    install
 }
 
 # Initialization step
