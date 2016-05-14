@@ -316,10 +316,10 @@ function install_shadowsocks(){
     pre_install
     download_files
     config_shadowsocks
-    install_ss
     if [ "$OS" == 'CentOS' ]; then
         firewall_set
     fi
+    install_ss
 }
 
 # Initialization step
