@@ -83,7 +83,7 @@ function pre_install(){
     # Update System
     apt-get -y update
     # Install necessary dependencies
-    apt-get install -y wget unzip curl build-essential autoconf libtool libssl-dev
+    apt-get install -y wget unzip curl build-essential autoconf libtool libssl-dev asciidoc
     apt-get -y --no-install-recommends install xmlto
     # Get IP address
     echo "Getting Public IP address, Please wait a moment..."
