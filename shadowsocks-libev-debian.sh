@@ -82,8 +82,13 @@ function pre_install(){
     do
     echo "ENABLE multi-user or NOT ? (Y/N)"
     read -p "(Default: ENABLE) :" enableMulti
+    [ -z "$enableMulti" ] && enableMulti="Y"
     if [ "$enableMulti" = "Y" ] || ["$enableMulti" = "N"]; then
-        #statements
+        echo
+        echo "---------------------------"
+        echo "multi-user support = $enableMulti"
+        echo "---------------------------"
+        echo
         break
     else
         echo "Input error! Please input Y/N."
@@ -213,7 +218,9 @@ function install_libev(){
     echo -e "Your Local IP: \033[41;37m 127.0.0.1 \033[0m"
     echo -e "Your Local Port: \033[41;37m 1080 \033[0m"
     echo -e "Your Encryption Method: \033[41;37m aes-256-cfb \033[0m"
-    echo
+    if [ "$enableMulti" = "Y" ]; then
+    echo -e "You enabled multi-user support, check /etc/shadowsocks-libev/multi_config.json for detail."
+    fi
     echo "Welcome to visit:https://teddysun.com/358.html"
     echo "Enjoy it!"
     echo
