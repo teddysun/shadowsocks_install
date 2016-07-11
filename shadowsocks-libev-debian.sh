@@ -77,6 +77,24 @@ function pre_install(){
         stty echo
         stty $SAVEDSTTY
     }
+    
+    while true
+    do
+    echo "ENABLE multi-user or NOT ? (Y/N)"
+    read -p "(Default: ENABLE) :" enableMulti
+    [ -z "$enableMulti" ] && enableMulti="Y"
+    if [ "$enableMulti" = "Y" ] || ["$enableMulti" = "N"]; then
+        echo
+        echo "---------------------------"
+        echo "multi-user support = $enableMulti"
+        echo "---------------------------"
+        echo
+        break
+    else
+        echo "Input error! Please input Y/N."
+    fi
+    done
+    
     echo
     echo "Press any key to start...or Press Ctrl+C to cancel"
     char=`get_char`
@@ -111,7 +129,7 @@ function download_files(){
     unzip shadowsocks-libev.zip
     if [ $? -eq 0 ];then
         cd $cur_dir/shadowsocks-libev-master/
-        if ! wget --no-check-certificate https://raw.githubusercontent.com/teddysun/shadowsocks_install/master/shadowsocks-libev-debian; then
+        if ! wget --no-check-certificate https://raw.githubusercontent.com/Jexbat/shadowsocks_install/master/shadowsocks-libev-debian; then
             echo "Failed to download shadowsocks-libev start script!"
             exit 1
         fi
@@ -138,6 +156,18 @@ function config_shadowsocks(){
     "method":"aes-256-cfb"
 }
 EOF
+    cat > /etc/shadowsocks-libev/multi_config.json<<-EOF
+{
+    "server":"0.0.0.0",
+    "port_password":{
+     "${shadowsocksport}":"${shadowsockspwd}"
+    },
+    "local_address":"127.0.0.1",
+    "local_port":1080,
+    "timeout":600,
+    "method":"aes-256-cfb"
+}
+EOF
 }
 
 # Install 
@@ -154,8 +184,14 @@ function install_libev(){
             mv $cur_dir/shadowsocks-libev-master/shadowsocks-libev-debian /etc/init.d/shadowsocks
             chmod +x /etc/init.d/shadowsocks
             update-rc.d -f shadowsocks defaults
+
             # Run shadowsocks in the background
-            /etc/init.d/shadowsocks start
+            if [[ "$enableMulti" = "N" ]]; then   
+                /etc/init.d/shadowsocks start
+            else
+                /etc/init.d/shadowsocks multiStart
+            fi
+
             # Run success or not
             if [ $? -eq 0 ]; then
                 echo "Shadowsocks-libev start success!"
@@ -182,7 +218,9 @@ function install_libev(){
     echo -e "Your Local IP: \033[41;37m 127.0.0.1 \033[0m"
     echo -e "Your Local Port: \033[41;37m 1080 \033[0m"
     echo -e "Your Encryption Method: \033[41;37m aes-256-cfb \033[0m"
-    echo
+    if [ "$enableMulti" = "Y" ]; then
+    echo -e "You enabled multi-user support, check /etc/shadowsocks-libev/multi_config.json for detail."
+    fi
     echo "Welcome to visit:https://teddysun.com/358.html"
     echo "Enjoy it!"
     echo
