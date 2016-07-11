@@ -74,6 +74,22 @@ do_start() {
     echo "config file $CONFIG_FILE not found"
     return 1
   fi
+
+  #iptables 
+  echo "Flush iptables rules"
+  iptables -F INPUT
+  iptables -F OUTPUT
+  iptables -Z
+
+  port=$(cat $CONFIG_FILE | grep -Po '"server_port":\d+' | grep -Po '\d+')
+  if [ "$port" = "" ]; then
+    break
+  else
+    iptables -I INPUT -p tcp --dport $port
+    iptables -I OUTPUT -p tcp --sport $port
+    echo "iptables added new rules on port:$port"
+  fi   
+
   echo "starting $NAME"
   # sudo will set the group to the primary group of $USER
   $BIN -u -c $CONFIG_FILE > /dev/null 2>&1 &
@@ -100,6 +116,8 @@ do_multiStart(){
     echo "config file $MULTICONFIG_FILE not found"
     return 1
   fi
+  
+  #iptables 
   echo "Flush iptables rules"
   iptables -F INPUT
   iptables -F OUTPUT
@@ -116,10 +134,7 @@ do_multiStart(){
     echo "iptables added new rules on port:$port"
     ((linenum+=1))
   fi   
-
   done
-
-
 
   echo "starting $NAME"
   # sudo will set the group to the primary group of $USER
