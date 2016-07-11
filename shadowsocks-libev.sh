@@ -279,13 +279,14 @@ function uninstall_shadowsocks_libev(){
         rm -f /usr/local/lib/libshadowsocks.la
         rm -f /usr/local/include/shadowsocks.h
         rm -f /usr/local/lib/pkgconfig/shadowsocks-libev.pc
-        rm -f /usr/local/share/man/man1/ss-local.1.gz
-        rm -f /usr/local/share/man/man1/ss-tunnel.1.gz
-        rm -f /usr/local/share/man/man1/ss-server.1.gz
-        rm -f /usr/local/share/man/man1/ss-manager.1.gz
-        rm -f /usr/local/share/man/man1/ss-redir.1.gz
-        rm -f /usr/local/share/man/man1/ss-nat.1.gz
-        rm -f /usr/local/share/man/man8/shadowsocks.8.gz
+        rm -f /usr/local/share/man/man1/ss-local.1
+        rm -f /usr/local/share/man/man1/ss-tunnel.1
+        rm -f /usr/local/share/man/man1/ss-server.1
+        rm -f /usr/local/share/man/man1/ss-manager.1
+        rm -f /usr/local/share/man/man1/ss-redir.1
+        rm -f /usr/local/share/man/man1/ss-nat.1
+        rm -f /usr/local/share/man/man8/shadowsocks.8
+        rm -fr /usr/local/share/doc/shadowsocks-libev
         rm -f /etc/init.d/shadowsocks
         echo "Shadowsocks-libev uninstall success!"
     else
