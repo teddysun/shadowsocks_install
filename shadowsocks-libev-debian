@@ -19,7 +19,9 @@
 # Daemon
 NAME=shadowsocks-libev
 BIN=/usr/local/bin/ss-server
+MANAGER=/usr/local/bin/ss-manager
 CONFIG_FILE=/etc/shadowsocks-libev/config.json
+MULTICONFIG_FILE=/etc/shadowsocks-libev/multi_config.json #for multi users
 PID_DIR=/var/run
 PID_FILE=$PID_DIR/shadowsocks.pid
 RET_VAL=0
@@ -44,7 +46,11 @@ do_status() {
   check_running
   case $? in
     0)
+      echo "------------------------------------------"
       echo "$NAME running with PID $PID"
+      echo "------------------------------------------"
+      iptables -n -v -L -t filter
+      echo
       ;;
     1)
       echo "$NAME not running, remove PID file $PID_FILE"
@@ -82,6 +88,53 @@ do_start() {
   return 0
 }
 
+do_multiStart(){
+  if [[ ! -d $PID_DIR ]]; then
+    mkdir -p $PID_DIR || echo "failed creating PID directory $PID_DIR"; exit 1
+  fi
+  if check_running; then
+    echo "$NAME already running with PID $PID"
+    return 0
+  fi
+  if [[ ! -r $MULTICONFIG_FILE ]]; then
+    echo "config file $MULTICONFIG_FILE not found"
+    return 1
+  fi
+  echo "Flush iptables rules"
+  iptables -F INPUT
+  iptables -F OUTPUT
+  iptables -Z
+
+  linenum=1
+  while true; do
+  port=$(cat $MULTICONFIG_FILE | grep -Po '"\d+":"' | grep -Po '\d+' |  awk -v line=$linenum 'NR==line{print}')
+  if [ "$port" = "" ]; then
+    break
+  else
+    iptables -I INPUT -p tcp --dport $port
+    iptables -I OUTPUT -p tcp --sport $port
+    echo "iptables added new rules on port:$port"
+    ((linenum+=1))
+  fi   
+
+  done
+
+
+
+  echo "starting $NAME"
+  # sudo will set the group to the primary group of $USER
+  $MANAGER --manager-address /tmp/manager.sock --executable $BIN -c $MULTICONFIG_FILE > /dev/null 2>&1 &
+  PID=$!
+  echo $PID > $PID_FILE
+  sleep 0.3
+  if ! check_running; then
+    echo "start failed"
+    return 1
+  fi
+  echo "$NAME running with PID $PID"
+  return 0
+}
+
 do_stop() {
   if check_running; then
     echo "stopping $NAME with PID $PID"
@@ -98,7 +151,7 @@ do_restart() {
 }
 
 case "$1" in
-  start|stop|restart|status)
+  start|multiStart|stop|restart|status)
     do_$1
     ;;
   *)
