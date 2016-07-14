@@ -19,7 +19,7 @@ echo "#############################################################"
 echo ""
 
 # Get Nodejs latest version
-NODEJS_VER=`curl -s http://nodejs.org/download/ | awk -F'<b>' '/Current version/{print $2}' | cut -d '<' -f 1`
+NODEJS_VER=`curl -s https://nodejs.org/en/download/ | awk -F'<strong>' '/Current version/{print $2}' | cut -d '<' -f 1`
 
 # Install Shadowsocks-nodejs
 function install_shadowsocks_nodejs(){
@@ -89,7 +89,7 @@ function download_files(){
     if [ -f node-${NODEJS_VER}.tar.gz ];then
         echo "node-${NODEJS_VER}.tar.gz [found]"
     else
-        if ! wget http://nodejs.org/dist/${NODEJS_VER}/node-${NODEJS_VER}.tar.gz;then
+        if ! wget https://nodejs.org/dist/${NODEJS_VER}/node-${NODEJS_VER}.tar.gz;then
             echo "Failed to download node-${NODEJS_VER}.tar.gz"
             exit 1
         fi
@@ -100,7 +100,7 @@ function download_files(){
         cd $cur_dir/node-${NODEJS_VER}/
     else
         echo ""
-        echo "Untar Nodejs failed! Please visit http://teddysun.com/355.html and contact."
+        echo "Untar Nodejs failed! Please visit https://teddysun.com/355.html and contact."
         exit 1
     fi
 }
@@ -148,7 +148,7 @@ function install(){
         npm install -g shadowsocks
     else
         echo ""
-        echo "Nodejs install failed! Please visit http://teddysun.com/355.html and contact."
+        echo "Nodejs install failed! Please visit https://teddysun.com/355.html and contact."
         exit 1
     fi
     # Run it in the background
@@ -170,7 +170,7 @@ function install(){
         fi
     else
         echo ""
-        echo "Shadowsocks-nodejs install failed! Please visit http://teddysun.com/355.html and contact."
+        echo "Shadowsocks-nodejs install failed! Please visit https://teddysun.com/355.html and contact."
         exit 1
     fi
     # Delete Nodejs untar floder
