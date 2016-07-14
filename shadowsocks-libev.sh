@@ -18,6 +18,10 @@ echo "# Thanks: @m0d8ye <https://twitter.com/m0d8ye>              #"
 echo "#############################################################"
 echo ""
 
+#Current folder
+cur_dir=`pwd`
+shadowsocks_libev_ver="shadowsocks-libev-2.4.7"
+
 # Make sure only root can run our script
 function rootness(){
 if [[ $EUID -ne 0 ]]; then
@@ -116,27 +120,24 @@ function pre_install(){
     fi
     echo -e "Your main public IP is\t\033[32m$IP\033[0m"
     echo ""
-    #Current folder
-    cur_dir=`pwd`
-    cd $cur_dir
 }
 
 # Download latest shadowsocks-libev
 function download_files(){
-    if [ -f shadowsocks-libev.zip ];then
-        echo "shadowsocks-libev.zip [found]"
+    if [ -f ${shadowsocks_libev_ver}.zip ];then
+        echo "${shadowsocks_libev_ver}.zip [found]"
     else
-        if ! wget --no-check-certificate https://github.com/shadowsocks/shadowsocks-libev/archive/master.zip -O shadowsocks-libev.zip;then
-            echo "Failed to download shadowsocks-libev.zip"
+        if ! wget --no-check-certificate https://github.com/shadowsocks/shadowsocks-libev/archive/v2.4.7.zip -O ${shadowsocks_libev_ver}.zip;then
+            echo "Failed to download ${shadowsocks_libev_ver}.zip"
             exit 1
         fi
     fi
-    unzip shadowsocks-libev.zip
+    unzip ${shadowsocks_libev_ver}.zip
     if [ $? -eq 0 ];then
-        cd $cur_dir/shadowsocks-libev-master/
+        cd ${cur_dir}/${shadowsocks_libev_ver}/
     else
         echo ""
-        echo "Unzip shadowsocks-libev failed! Please visit https://teddysun.com/357.html and contact."
+        echo "Unzip ${shadowsocks_libev_ver}.zip failed! Please visit https://teddysun.com/357.html and contact."
         exit 1
     fi
     # Download start script
@@ -213,7 +214,7 @@ function install(){
         ./configure
         make && make install
         if [ $? -eq 0 ]; then
-            mv $cur_dir/shadowsocks-libev-master/shadowsocks-libev /etc/init.d/shadowsocks
+            mv ${cur_dir}/${shadowsocks_libev_ver}/shadowsocks-libev /etc/init.d/shadowsocks
             chmod +x /etc/init.d/shadowsocks
             # Add run on system start up
             chkconfig --add shadowsocks
@@ -231,11 +232,11 @@ function install(){
             exit 1
         fi
     fi
-    cd $cur_dir
-    # Delete shadowsocks-libev floder
-    rm -rf $cur_dir/shadowsocks-libev-master/
+    cd ${cur_dir}
+    # Delete shadowsocks-libev folder
+    rm -rf ${cur_dir}/${shadowsocks_libev_ver}/
     # Delete shadowsocks-libev zip file
-    rm -f shadowsocks-libev.zip
+    rm -f ${cur_dir}/${shadowsocks_libev_ver}.zip
     clear
     echo ""
     echo "Congratulations, shadowsocks-libev install completed!"
@@ -286,7 +287,6 @@ function uninstall_shadowsocks_libev(){
         rm -f /usr/local/share/man/man1/ss-redir.1
         rm -f /usr/local/share/man/man1/ss-nat.1
         rm -f /usr/local/share/man/man8/shadowsocks.8
-        rm -fr /usr/local/share/doc/shadowsocks-libev
         rm -f /etc/init.d/shadowsocks
         echo "Shadowsocks-libev uninstall success!"
     else
