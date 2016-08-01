@@ -3,12 +3,12 @@
 
 shadowsocks.sh
 ===============
-* Description: Auto Install Shadowsocks(Python) Server for CentOS/Redhat/Debian/Ubuntu
+* Description: Auto Install Shadowsocks(Python) Server for CentOS/Debian/Ubuntu
 * Intro: https://teddysun.com/342.html
 
 shadowsocks-libev.sh
 ===============
-* Description: Auto Install Shadowsocks(libev) Server for CentOS/Redhat
+* Description: Auto Install Shadowsocks(libev) Server for CentOS
 * Intro: https://teddysun.com/357.html
 
 shadowsocks-libev-debian.sh
@@ -18,7 +18,7 @@ shadowsocks-libev-debian.sh
 
 shadowsocks-go.sh
 ===============
-* Description: Auto Install Shadowsocks(Go) Server for CentOS/Redhat/Debian/Ubuntu
+* Description: Auto Install Shadowsocks(Go) Server for CentOS/Debian/Ubuntu
 * Intro: https://teddysun.com/392.html
 
 shadowsocks-crond.sh
@@ -28,7 +28,7 @@ shadowsocks-crond.sh
 
 shadowsocksR.sh
 ===============
-* Description: Auto Install ShadowsocksR Server for CentOS/Redhat/Debian/Ubuntu
+* Description: Auto Install ShadowsocksR Server for CentOS/Debian/Ubuntu
 * Intro: https://shadowsocks.be/9.html
 
 haproxy.sh
@@ -38,7 +38,7 @@ haproxy.sh
 
 shadowsocks-nodejs.sh (Deprecated)
 ===============
-* Description: Auto Install Shadowsocks(NodeJS) Server for CentOS/Redhat
+* Description: Auto Install Shadowsocks(NodeJS) Server for CentOS
 * Intro: https://teddysun.com/355.html
 
 Copyright (C) 2014-2016 Teddysun <i@teddysun.com>
