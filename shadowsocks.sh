@@ -19,6 +19,14 @@ echo "# Thanks: @clowwindy <https://twitter.com/clowwindy>        #"
 echo "#############################################################"
 echo
 
+#Current folder
+cur_dir=`pwd`
+# Get public IP address
+IP=$(ip addr | egrep -o '[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}' | egrep -v "^192\.168|^172\.1[6-9]\.|^172\.2[0-9]\.|^172\.3[0-2]\.|^10\.|^127\.|^255\.|^0\." | head -n 1)
+if [[ "$IP" = "" ]]; then
+    IP=$(wget -qO- -t1 -T2 ipv4.icanhazip.com)
+fi
+
 # Make sure only root can run our script
 function rootness(){
     if [[ $EUID -ne 0 ]]; then
@@ -74,7 +82,7 @@ fi
 function pre_install(){
     # Not support CentOS 5
     if centosversion 5; then
-        echo "Not support CentOS 5, please change to CentOS 6+ or Debian 7+ or Ubuntu 12+ and try again."
+        echo "Not supported CentOS 5, please change to CentOS 6+ or Debian 7+ or Ubuntu 12+ and try again."
         exit 1
     fi
     # Set shadowsocks config password
@@ -126,25 +134,25 @@ function pre_install(){
         yum install -y automake make curl curl-devel zlib-devel perl perl-devel cpio expat-devel gettext-devel which
     else
         apt-get -y update
-        apt-get -y install python python-dev python-pip python-setuptools curl wget unzip gcc swig automake make perl cpio
+        apt-get -y install python python-dev python-pip python-setuptools python-m2crypto curl wget unzip gcc swig automake make perl cpio build-essential
     fi
-    # Get IP address
-    echo "Getting Public IP address, Please wait a moment..."
-    IP=$(curl -s -4 icanhazip.com)
-    if [[ "$IP" = "" ]]; then
-        IP=$(curl -s -4 ipinfo.io/ip)
-    fi
-    echo -e "Your main public IP is\t\033[32m$IP\033[0m"
-    echo
-    #Current folder
-    cur_dir=`pwd`
     cd $cur_dir
 }
 
 # Download files
 function download_files(){
+    # Download libsodium file
+    if ! wget --no-check-certificate -O libsodium-1.0.11.tar.gz https://github.com/jedisct1/libsodium/releases/download/1.0.11/libsodium-1.0.11.tar.gz; then
+        echo "Failed to download libsodium file!"
+        exit 1
+    fi
+    # Download Shadowsocks file
+    if ! wget --no-check-certificate -O shadowsocks-master.zip https://github.com/shadowsocks/shadowsocks/archive/master.zip; then
+        echo "Failed to download Shadowsocks file!"
+        exit 1
+    fi
+    # Download ShadowsocksR chkconfig file
     if [ "$OS" == 'CentOS' ]; then
-        # Download shadowsocks chkconfig file
         if ! wget --no-check-certificate https://raw.githubusercontent.com/teddysun/shadowsocks_install/master/shadowsocks -O /etc/init.d/shadowsocks; then
             echo "Failed to download shadowsocks chkconfig file!"
             exit 1
@@ -214,64 +222,62 @@ function firewall_set(){
 
 # Install Shadowsocks
 function install_ss(){
-    which pip > /dev/null 2>&1
-    if [ $? -ne 0 ]; then
-        if [ "$OS" == 'CentOS' ]; then
-            which easy_install > /dev/null 2>&1
-            if [ $? -eq 0 ]; then
-                easy_install pip
-            else
-                echo "easy_install command not found. please check it and try again."
-                exit 1
-            fi
-        fi
-    fi
-
-    if [ -f /usr/bin/pip ]; then
-        if centosversion 6; then
-            # Fix swig failed error by install old version
-            pip install M2Crypto==0.22.3
-        else
-            pip install M2Crypto
-        fi
-        pip install greenlet
-        pip install gevent
-        pip install shadowsocks
-        if [ -f /usr/bin/ssserver ] || [ -f /usr/local/bin/ssserver ]; then
-            chmod +x /etc/init.d/shadowsocks
-            # Add run on system start up
-            if [ "$OS" == 'CentOS' ]; then
-                chkconfig --add shadowsocks
-                chkconfig shadowsocks on
-            else
-                update-rc.d -f shadowsocks defaults
-            fi
-            # Run shadowsocks in the background
-            /etc/init.d/shadowsocks start
-        else
-            echo
-            echo "Shadowsocks install failed! Please visit https://teddysun.com/342.html and contact."
-            exit 1
-        fi
-        clear
-        echo
-        echo "Congratulations, shadowsocks install completed!"
-        echo -e "Your Server IP: \033[41;37m ${IP} \033[0m"
-        echo -e "Your Server Port: \033[41;37m ${shadowsocksport} \033[0m"
-        echo -e "Your Password: \033[41;37m ${shadowsockspwd} \033[0m"
-        echo -e "Your Local IP: \033[41;37m 127.0.0.1 \033[0m"
-        echo -e "Your Local Port: \033[41;37m 1080 \033[0m"
-        echo -e "Your Encryption Method: \033[41;37m aes-256-cfb \033[0m"
-        echo
-        echo "Welcome to visit:https://teddysun.com/342.html"
-        echo "Enjoy it!"
-        echo
-        exit 0
-    else
-        echo
-        echo "pip install failed! Please visit https://teddysun.com/342.html and contact."
+    # Install libsodium
+    tar zxf libsodium-1.0.11.tar.gz
+    cd $cur_dir/libsodium-1.0.11
+    ./configure && make && make install
+    echo "/usr/local/lib" > /etc/ld.so.conf.d/local.conf
+    ldconfig
+    # Install Shadowsocks
+    cd $cur_dir
+    unzip -q shadowsocks-master.zip
+    if [ $? -ne 0 ];then
+        echo "unzip shadowsocks-master.zip failed! Please check unzip command."
         exit 1
     fi
+
+    cd $cur_dir/shadowsocks-master
+    python setup.py install --record /usr/local/shadowsocks_install.log
+
+    if [ -f /usr/bin/ssserver ] || [ -f /usr/local/bin/ssserver ]; then
+        chmod +x /etc/init.d/shadowsocks
+        # Add run on system start up
+        if [ "$OS" == 'CentOS' ]; then
+            chkconfig --add shadowsocks
+            chkconfig shadowsocks on
+        else
+            update-rc.d -f shadowsocks defaults
+        fi
+        # Run shadowsocks in the background
+        /etc/init.d/shadowsocks start
+    else
+        echo
+        echo "Shadowsocks install failed! Please visit https://teddysun.com/342.html and contact."
+        install_cleanup
+        exit 1
+    fi
+    clear
+    echo
+    echo "Congratulations, shadowsocks install completed!"
+    echo -e "Your Server IP: \033[41;37m ${IP} \033[0m"
+    echo -e "Your Server Port: \033[41;37m ${shadowsocksport} \033[0m"
+    echo -e "Your Password: \033[41;37m ${shadowsockspwd} \033[0m"
+    echo -e "Your Local IP: \033[41;37m 127.0.0.1 \033[0m"
+    echo -e "Your Local Port: \033[41;37m 1080 \033[0m"
+    echo -e "Your Encryption Method: \033[41;37m aes-256-cfb \033[0m"
+    echo
+    echo "Welcome to visit:https://teddysun.com/342.html"
+    echo "Enjoy it!"
+    echo
+}
+
+# Install cleanup
+function install_cleanup(){
+    cd $cur_dir
+    rm -f shadowsocks-master.zip
+    rm -rf shadowsocks-master
+    rm -f libsodium-1.0.11.tar.gz
+    rm -rf libsodium-1.0.11
 }
 
 # Uninstall Shadowsocks
@@ -297,12 +303,10 @@ function uninstall_shadowsocks(){
         rm -f /etc/shadowsocks.json
         rm -f /var/run/shadowsocks.pid
         rm -f /etc/init.d/shadowsocks
-        pip uninstall -y shadowsocks
-        if [ $? -eq 0 ]; then
-            echo "Shadowsocks uninstall success!"
-        else
-            echo "Shadowsocks uninstall failed!"
+        if [ -f /usr/local/shadowsocks_install.log ]; then
+            cat /usr/local/shadowsocks_install.log | xargs rm -rf
         fi
+        echo "Shadowsocks uninstall success!"
     else
         echo "uninstall cancelled, Nothing to do"
     fi
@@ -320,6 +324,7 @@ function install_shadowsocks(){
         firewall_set
     fi
     install_ss
+    install_cleanup
 }
 
 # Initialization step
