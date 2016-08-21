@@ -87,7 +87,7 @@ function pre_install(){
     # Update System
     apt-get -y update
     # Install necessary dependencies
-    apt-get -y --no-install-recommends install wget unzip curl build-essential autoconf libtool libssl-dev xmlto asciidoc
+    apt-get -y --no-install-recommends install wget unzip curl build-essential autoconf libtool openssl libssl-dev zlib1g-dev xmlto asciidoc
     # Get IP address
     echo "Getting Public IP address, Please wait a moment..."
     IP=$(curl -s -4 icanhazip.com)
