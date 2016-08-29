@@ -1,13 +1,13 @@
 #! /bin/bash
 PATH=/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin:/usr/local/sbin:~/bin
 export PATH
-#===============================================================================================
-#   System Required:  Debian or Ubuntu (32bit/64bit)
-#   Description: Install Shadowsocks-libev server for Debian or Ubuntu
-#   Author: Teddysun <i@teddysun.com>
-#   Thanks: @m0d8ye <https://twitter.com/m0d8ye>
-#   Intro:  https://teddysun.com/358.html
-#===============================================================================================
+#===================================================================#
+#   System Required:  Debian or Ubuntu (32bit/64bit)                #
+#   Description: Install Shadowsocks-libev server for Debian/Ubuntu #
+#   Author: Teddysun <i@teddysun.com>                               #
+#   Thanks: @madeye <https://github.com/madeye>                     #
+#   Intro:  https://teddysun.com/358.html                           #
+#===================================================================#
 
 clear
 echo
@@ -15,13 +15,13 @@ echo "#############################################################"
 echo "# Install Shadowsocks-libev server for Debian or Ubuntu     #"
 echo "# Intro: https://teddysun.com/358.html                      #"
 echo "# Author: Teddysun <i@teddysun.com>                         #"
-echo "# Thanks: @m0d8ye <https://twitter.com/m0d8ye>              #"
+echo "# Github: https://github.com/shadowsocks/shadowsocks-libev  #"
 echo "#############################################################"
 echo
 
 #Current folder
 cur_dir=`pwd`
-shadowsocks_libev_ver="shadowsocks-libev-2.4.7"
+shadowsocks_libev_ver="shadowsocks-libev-2.5.0"
 
 # Make sure only root can run our script
 function rootness(){
@@ -103,7 +103,7 @@ function download_files(){
     if [ -f ${shadowsocks_libev_ver}.zip ];then
         echo "${shadowsocks_libev_ver}.zip [found]"
     else
-        if ! wget --no-check-certificate https://github.com/shadowsocks/shadowsocks-libev/archive/v2.4.7.zip -O ${shadowsocks_libev_ver}.zip;then
+        if ! wget --no-check-certificate https://github.com/shadowsocks/shadowsocks-libev/archive/v2.5.0.zip -O ${shadowsocks_libev_ver}.zip; then
             echo "Failed to download ${shadowsocks_libev_ver}.zip"
             exit 1
         fi
@@ -223,8 +223,8 @@ function uninstall_shadowsocks_libev(){
         rm -f /usr/local/bin/ss-manager
         rm -f /usr/local/bin/ss-redir
         rm -f /usr/local/bin/ss-nat
-        rm -f /usr/local/lib/libshadowsocks.a
-        rm -f /usr/local/lib/libshadowsocks.la
+        rm -f /usr/local/lib/libshadowsocks-libev.a
+        rm -f /usr/local/lib/libshadowsocks-libev.la
         rm -f /usr/local/include/shadowsocks.h
         rm -f /usr/local/lib/pkgconfig/shadowsocks-libev.pc
         rm -f /usr/local/share/man/man1/ss-local.1
@@ -233,7 +233,8 @@ function uninstall_shadowsocks_libev(){
         rm -f /usr/local/share/man/man1/ss-manager.1
         rm -f /usr/local/share/man/man1/ss-redir.1
         rm -f /usr/local/share/man/man1/ss-nat.1
-        rm -f /usr/local/share/man/man8/shadowsocks.8
+        rm -f /usr/local/share/man/man8/shadowsocks-libev.8
+        rm -fr /usr/local/share/doc/shadowsocks-libev
         rm -f /etc/init.d/shadowsocks
         echo "Shadowsocks-libev uninstall success!"
     else
