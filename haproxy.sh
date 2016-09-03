@@ -9,13 +9,13 @@ export PATH
 #=================================================================#
 
 clear
-echo ""
+echo
 echo "#############################################################"
 echo "# Install haproxy for Shadowsocks server                    #"
 echo "# Intro: https://shadowsocks.be/10.html                     #"
 echo "# Author: Teddysun <i@teddysun.com>                         #"
 echo "#############################################################"
-echo ""
+echo
 
 rootness(){
     if [[ $EUID -ne 0 ]]; then
@@ -67,11 +67,10 @@ valid_ip(){
 }
 
 get_ip(){
-    local IP=$( ip addr | egrep -o '[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}' | egrep -v "^192\.168|^172\.1[6-9]\.|^172\.2[0-9]\.|^172\.3[0-2]\.|^10\.|^127\.|^255\." | head -n 1 )
-    if [ -z ${IP} ]; then
-        IP=$( wget -qO- -t1 -T2 ipv4.icanhazip.com )
-    fi
-    echo ${IP}
+    local IP=$( ip addr | egrep -o '[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}' | egrep -v "^192\.168|^172\.1[6-9]\.|^172\.2[0-9]\.|^172\.3[0-2]\.|^10\.|^127\.|^255\.|^0\." | head -n 1 )
+    [ -z ${IP} ] && IP=$( wget -qO- -t1 -T2 ipv4.icanhazip.com )
+    [ -z ${IP} ] && IP=$( wget -qO- -t1 -T2 ipinfo.io/ip )
+    [ ! -z ${IP} ] && echo ${IP} || echo
 }
 
 # Pre-installation settings
@@ -214,7 +213,7 @@ install(){
     netstat -nxtlp
     echo
     echo "Congratulations, haproxy install completed."
-    echo -e "Your haproxy Server IP: \033[41;37m `get_ip` \033[0m"
+    echo -e "Your haproxy Server IP: \033[41;37m $(get_ip) \033[0m"
     echo -e "Your haproxy Server port: \033[41;37m ${haproxyport} \033[0m"
     echo -e "Your Input Shadowsocks IP: \033[41;37m ${haproxyip} \033[0m"
     echo
@@ -235,4 +234,4 @@ install_haproxy(){
 }
 
 # Initialization step
-install_haproxy 2>&1 | tee -a /root/haproxy_for_shadowsocks.log
+install_haproxy 2>&1 | tee /root/haproxy_for_shadowsocks.log
