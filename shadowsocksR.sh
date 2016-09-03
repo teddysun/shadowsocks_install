@@ -171,7 +171,7 @@ function firewall_set(){
     if centosversion 6; then
         /etc/init.d/iptables status > /dev/null 2>&1
         if [ $? -eq 0 ]; then
-            iptables -L -n | grep '${shadowsocksport}' > /dev/null 2>&1
+            iptables -L -n | grep -i ${shadowsocksport} > /dev/null 2>&1
             if [ $? -ne 0 ]; then
                 iptables -I INPUT -m state --state NEW -m tcp -p tcp --dport ${shadowsocksport} -j ACCEPT
                 iptables -I INPUT -m state --state NEW -m udp -p udp --dport ${shadowsocksport} -j ACCEPT
@@ -264,7 +264,7 @@ function install_ss(){
         echo -e "Encryption Method: \033[41;37m aes-256-cfb \033[0m"
         echo
         echo "Welcome to visit:https://shadowsocks.be/9.html"
-        echo "If you want to change protocol & obfs, reference URL:"
+        echo "If you want to change protocol & obfs, please visit reference URL:"
         echo "https://github.com/breakwa11/shadowsocks-rss/wiki/Server-Setup"
         echo
         echo "Enjoy it!"
@@ -307,6 +307,7 @@ function uninstall_shadowsocks(){
         fi
         rm -f /etc/shadowsocks.json
         rm -f /etc/init.d/shadowsocks
+        rm -f /var/log/shadowsocks.log
         rm -rf /usr/local/shadowsocks
         echo "ShadowsocksR uninstall success!"
     else
