@@ -187,7 +187,7 @@ function firewall_set(){
     if centosversion 6; then
         /etc/init.d/iptables status > /dev/null 2>&1
         if [ $? -eq 0 ]; then
-            iptables -L -n | grep '${shadowsocksport}' > /dev/null 2>&1
+            iptables -L -n | grep -i ${shadowsocksport} > /dev/null 2>&1
             if [ $? -ne 0 ]; then
                 iptables -I INPUT -m state --state NEW -m tcp -p tcp --dport ${shadowsocksport} -j ACCEPT
                 iptables -I INPUT -m state --state NEW -m udp -p udp --dport ${shadowsocksport} -j ACCEPT
@@ -303,6 +303,7 @@ function uninstall_shadowsocks(){
         rm -f /etc/shadowsocks.json
         rm -f /var/run/shadowsocks.pid
         rm -f /etc/init.d/shadowsocks
+        rm -f /var/log/shadowsocks.log
         if [ -f /usr/local/shadowsocks_install.log ]; then
             cat /usr/local/shadowsocks_install.log | xargs rm -rf
         fi
