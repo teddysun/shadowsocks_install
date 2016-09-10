@@ -14,7 +14,11 @@
 # Author: Teddysun <i@teddysun.com>
 
 name=shadowsocks
-BIN=/usr/bin/ssserver
+if [ -f /usr/bin/ssserver ]; then
+    BIN=/usr/bin/ssserver
+elif [ -f /usr/local/bin/ssserver ]; then
+    BIN=/usr/local/bin/ssserver
+fi
 conf=/etc/shadowsocks.json
 
 start(){
