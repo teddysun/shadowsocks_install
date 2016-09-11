@@ -1,4 +1,4 @@
-#! /bin/bash
+#!/usr/bin/env bash
 PATH=/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin:/usr/local/sbin:~/bin
 export PATH
 #=================================================================#
@@ -15,20 +15,22 @@ echo "#############################################################"
 echo "# One click Install Shadowsocks-Python server               #"
 echo "# Intro: https://teddysun.com/342.html                      #"
 echo "# Author: Teddysun <i@teddysun.com>                         #"
-echo "# Thanks: @clowwindy <https://twitter.com/clowwindy>        #"
+echo "# Github: https://github.com/shadowsocks/shadowsocks        #"
 echo "#############################################################"
 echo
 
 #Current folder
 cur_dir=`pwd`
 # Get public IP address
-IP=$(ip addr | egrep -o '[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}' | egrep -v "^192\.168|^172\.1[6-9]\.|^172\.2[0-9]\.|^172\.3[0-2]\.|^10\.|^127\.|^255\.|^0\." | head -n 1)
-if [[ "$IP" = "" ]]; then
-    IP=$(wget -qO- -t1 -T2 ipv4.icanhazip.com)
-fi
+get_ip(){
+    local IP=$( ip addr | egrep -o '[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}' | egrep -v "^192\.168|^172\.1[6-9]\.|^172\.2[0-9]\.|^172\.3[0-2]\.|^10\.|^127\.|^255\.|^0\." | head -n 1 )
+    [ -z ${IP} ] && IP=$( wget -qO- -t1 -T2 ipv4.icanhazip.com )
+    [ -z ${IP} ] && IP=$( wget -qO- -t1 -T2 ipinfo.io/ip )
+    [ ! -z ${IP} ] && echo ${IP} || echo
+}
 
 # Make sure only root can run our script
-function rootness(){
+rootness(){
     if [[ $EUID -ne 0 ]]; then
         echo "Error:This script must be run as root!" 1>&2
         exit 1
@@ -36,7 +38,7 @@ function rootness(){
 }
 
 # Check OS
-function checkos(){
+checkos(){
     if [ -f /etc/redhat-release ];then
         OS=CentOS
     elif [ ! -z "`cat /etc/issue | grep bian`" ];then
@@ -50,7 +52,7 @@ function checkos(){
 }
 
 # Get version
-function getversion(){
+getversion(){
     if [[ -s /etc/redhat-release ]];then
         grep -oE  "[0-9.]+" /etc/redhat-release
     else    
@@ -59,7 +61,7 @@ function getversion(){
 }
 
 # CentOS version
-function centosversion(){
+centosversion(){
     local code=$1
     local version="`getversion`"
     local main_ver=${version%%.*}
@@ -71,7 +73,7 @@ function centosversion(){
 }
 
 # Disable selinux
-function disable_selinux(){
+disable_selinux(){
 if [ -s /etc/selinux/config ] && grep 'SELINUX=enforcing' /etc/selinux/config; then
     sed -i 's/SELINUX=enforcing/SELINUX=disabled/g' /etc/selinux/config
     setenforce 0
@@ -79,7 +81,7 @@ fi
 }
 
 # Pre-installation settings
-function pre_install(){
+pre_install(){
     # Not support CentOS 5
     if centosversion 5; then
         echo "Not supported CentOS 5, please change to CentOS 6+ or Debian 7+ or Ubuntu 12+ and try again."
@@ -100,9 +102,9 @@ function pre_install(){
     echo -e "Please input port for shadowsocks-python [1-65535]:"
     read -p "(Default port: 8989):" shadowsocksport
     [ -z "$shadowsocksport" ] && shadowsocksport="8989"
-    expr $shadowsocksport + 0 &>/dev/null
+    expr ${shadowsocksport} + 0 &>/dev/null
     if [ $? -eq 0 ]; then
-        if [ $shadowsocksport -ge 1 ] && [ $shadowsocksport -le 65535 ]; then
+        if [ ${shadowsocksport} -ge 1 ] && [ ${shadowsocksport} -le 65535 ]; then
             echo
             echo "---------------------------"
             echo "port = $shadowsocksport"
@@ -136,11 +138,11 @@ function pre_install(){
         apt-get -y update
         apt-get -y install python python-dev python-pip python-setuptools python-m2crypto curl wget unzip gcc swig automake make perl cpio build-essential
     fi
-    cd $cur_dir
+    cd ${cur_dir}
 }
 
 # Download files
-function download_files(){
+download_files(){
     # Download libsodium file
     if ! wget --no-check-certificate -O libsodium-1.0.11.tar.gz https://github.com/jedisct1/libsodium/releases/download/1.0.11/libsodium-1.0.11.tar.gz; then
         echo "Failed to download libsodium file!"
@@ -166,7 +168,7 @@ function download_files(){
 }
 
 # Config shadowsocks
-function config_shadowsocks(){
+config_shadowsocks(){
     cat > /etc/shadowsocks.json<<-EOF
 {
     "server":"0.0.0.0",
@@ -182,7 +184,7 @@ EOF
 }
 
 # firewall set
-function firewall_set(){
+firewall_set(){
     echo "firewall set start..."
     if centosversion 6; then
         /etc/init.d/iptables status > /dev/null 2>&1
@@ -221,22 +223,22 @@ function firewall_set(){
 }
 
 # Install Shadowsocks
-function install_ss(){
+install_ss(){
     # Install libsodium
     tar zxf libsodium-1.0.11.tar.gz
-    cd $cur_dir/libsodium-1.0.11
+    cd ${cur_dir}/libsodium-1.0.11
     ./configure && make && make install
     echo "/usr/local/lib" > /etc/ld.so.conf.d/local.conf
     ldconfig
     # Install Shadowsocks
-    cd $cur_dir
+    cd ${cur_dir}
     unzip -q shadowsocks-master.zip
     if [ $? -ne 0 ];then
         echo "unzip shadowsocks-master.zip failed! Please check unzip command."
         exit 1
     fi
 
-    cd $cur_dir/shadowsocks-master
+    cd ${cur_dir}/shadowsocks-master
     python setup.py install --record /usr/local/shadowsocks_install.log
 
     if [ -f /usr/bin/ssserver ] || [ -f /usr/local/bin/ssserver ]; then
@@ -259,7 +261,7 @@ function install_ss(){
     clear
     echo
     echo "Congratulations, shadowsocks install completed!"
-    echo -e "Your Server IP: \033[41;37m ${IP} \033[0m"
+    echo -e "Your Server IP: \033[41;37m $(get_ip) \033[0m"
     echo -e "Your Server Port: \033[41;37m ${shadowsocksport} \033[0m"
     echo -e "Your Password: \033[41;37m ${shadowsockspwd} \033[0m"
     echo -e "Your Local IP: \033[41;37m 127.0.0.1 \033[0m"
@@ -272,8 +274,8 @@ function install_ss(){
 }
 
 # Install cleanup
-function install_cleanup(){
-    cd $cur_dir
+install_cleanup(){
+    cd ${cur_dir}
     rm -f shadowsocks-master.zip
     rm -rf shadowsocks-master
     rm -f libsodium-1.0.11.tar.gz
@@ -281,7 +283,7 @@ function install_cleanup(){
 }
 
 # Uninstall Shadowsocks
-function uninstall_shadowsocks(){
+uninstall_shadowsocks(){
     printf "Are you sure uninstall Shadowsocks? (y/n) "
     printf "\n"
     read -p "(Default: n):" answer
@@ -314,7 +316,7 @@ function uninstall_shadowsocks(){
 }
 
 # Install Shadowsocks-python
-function install_shadowsocks(){
+install_shadowsocks(){
     checkos
     rootness
     disable_selinux
