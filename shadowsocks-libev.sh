@@ -1,8 +1,8 @@
-#! /bin/bash
+#!/usr/bin/env bash
 PATH=/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin:/usr/local/sbin:~/bin
 export PATH
 #===================================================================#
-#   System Required:  CentOS6.x (32bit/64bit)                       #
+#   System Required:  CentOS6 or 7                                  #
 #   Description: Install Shadowsocks-libev server for CentOS 6 or 7 #
 #   Author: Teddysun <i@teddysun.com>                               #
 #   Thanks: @madeye <https://github.com/madeye>                     #
@@ -20,10 +20,10 @@ echo
 
 #Current folder
 cur_dir=`pwd`
-shadowsocks_libev_ver="shadowsocks-libev-2.5.0"
+shadowsocks_libev_ver="shadowsocks-libev-2.5.1"
 
 # Make sure only root can run our script
-function rootness(){
+rootness(){
 if [[ $EUID -ne 0 ]]; then
    echo "Error:This script must be run as root!" 1>&2
    exit 1
@@ -31,7 +31,7 @@ fi
 }
 
 # Get version
-function getversion(){
+getversion(){
     if [[ -s /etc/redhat-release ]];then
         grep -oE  "[0-9.]+" /etc/redhat-release
     else    
@@ -40,7 +40,7 @@ function getversion(){
 }
 
 # CentOS version
-function centosversion(){
+centosversion(){
     local code=$1
     local version="`getversion`"
     local main_ver=${version%%.*}
@@ -52,15 +52,22 @@ function centosversion(){
 }
 
 # Disable selinux
-function disable_selinux(){
+disable_selinux(){
 if [ -s /etc/selinux/config ] && grep 'SELINUX=enforcing' /etc/selinux/config; then
     sed -i 's/SELINUX=enforcing/SELINUX=disabled/g' /etc/selinux/config
     setenforce 0
 fi
 }
 
+get_ip(){
+    local IP=$( ip addr | egrep -o '[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}' | egrep -v "^192\.168|^172\.1[6-9]\.|^172\.2[0-9]\.|^172\.3[0-2]\.|^10\.|^127\.|^255\.|^0\." | head -n 1 )
+    [ -z ${IP} ] && IP=$( wget -qO- -t1 -T2 ipv4.icanhazip.com )
+    [ -z ${IP} ] && IP=$( wget -qO- -t1 -T2 ipinfo.io/ip )
+    [ ! -z ${IP} ] && echo ${IP} || echo
+}
+
 # Pre-installation settings
-function pre_install(){
+pre_install(){
     # Not support CentOS 5
     if centosversion 5; then
         echo "Not support CentOS 5, please change to CentOS 6 or 7 and try again."
@@ -70,11 +77,11 @@ function pre_install(){
     echo "Please input password for shadowsocks-libev:"
     read -p "(Default password: teddysun.com):" shadowsockspwd
     [ -z "$shadowsockspwd" ] && shadowsockspwd="teddysun.com"
-    echo ""
+    echo
     echo "---------------------------"
     echo "password = $shadowsockspwd"
     echo "---------------------------"
-    echo ""
+    echo
     #Set shadowsocks-libev config port
     while true
     do
@@ -84,11 +91,11 @@ function pre_install(){
     expr $shadowsocksport + 0 &>/dev/null
     if [ $? -eq 0 ]; then
         if [ $shadowsocksport -ge 1 ] && [ $shadowsocksport -le 65535 ]; then
-            echo ""
+            echo
             echo "---------------------------"
             echo "port = $shadowsocksport"
             echo "---------------------------"
-            echo ""
+            echo
             break
         else
             echo "Input error! Please input correct numbers."
@@ -106,7 +113,7 @@ function pre_install(){
         stty echo
         stty $SAVEDSTTY
     }
-    echo ""
+    echo
     echo "Press any key to start...or Press Ctrl+C to cancel"
     char=`get_char`
     #Install necessary dependencies
@@ -114,29 +121,25 @@ function pre_install(){
     yum install -y automake make curl curl-devel zlib-devel openssl-devel perl perl-devel cpio expat-devel gettext-devel asciidoc
     # Get IP address
     echo "Getting Public IP address, Please wait a moment..."
-    IP=$(curl -s -4 icanhazip.com)
-    if [[ "$IP" = "" ]]; then
-        IP=`curl -s -4 ipinfo.io/ip`
-    fi
-    echo -e "Your main public IP is\t\033[32m$IP\033[0m"
-    echo ""
+    echo -e "Your main public IP is\t\033[32m $(get_ip) \033[0m"
+    echo
 }
 
 # Download latest shadowsocks-libev
-function download_files(){
+download_files(){
     if [ -f ${shadowsocks_libev_ver}.zip ];then
         echo "${shadowsocks_libev_ver}.zip [found]"
     else
-        if ! wget --no-check-certificate https://github.com/shadowsocks/shadowsocks-libev/archive/v2.5.0.zip -O ${shadowsocks_libev_ver}.zip; then
+        if ! wget --no-check-certificate https://github.com/shadowsocks/shadowsocks-libev/archive/v2.5.1.zip -O ${shadowsocks_libev_ver}.zip; then
             echo "Failed to download ${shadowsocks_libev_ver}.zip"
             exit 1
         fi
     fi
-    unzip ${shadowsocks_libev_ver}.zip
+    unzip -q ${shadowsocks_libev_ver}.zip
     if [ $? -eq 0 ];then
         cd ${cur_dir}/${shadowsocks_libev_ver}/
     else
-        echo ""
+        echo
         echo "Unzip ${shadowsocks_libev_ver}.zip failed! Please visit https://teddysun.com/357.html and contact."
         exit 1
     fi
@@ -148,7 +151,7 @@ function download_files(){
 }
 
 # Config shadowsocks
-function config_shadowsocks(){
+config_shadowsocks(){
     if [ ! -d /etc/shadowsocks-libev ];then
         mkdir /etc/shadowsocks-libev
     fi
@@ -166,7 +169,7 @@ EOF
 }
 
 # firewall set
-function firewall_set(){
+firewall_set(){
     echo "firewall set start..."
     if centosversion 6; then
         /etc/init.d/iptables status > /dev/null 2>&1
@@ -205,7 +208,7 @@ function firewall_set(){
 }
 
 # Install 
-function install(){
+install(){
     # Build and Install shadowsocks-libev
     if [ -s /usr/local/bin/ss-server ];then
         echo "shadowsocks-libev has been installed!"
@@ -227,7 +230,7 @@ function install(){
                 echo "Shadowsocks-libev start failure!"
             fi
         else
-            echo ""
+            echo
             echo "Shadowsocks-libev install failed! Please visit https://teddysun.com/357.html and contact."
             exit 1
         fi
@@ -238,23 +241,23 @@ function install(){
     # Delete shadowsocks-libev zip file
     rm -f ${cur_dir}/${shadowsocks_libev_ver}.zip
     clear
-    echo ""
+    echo
     echo "Congratulations, shadowsocks-libev install completed!"
-    echo -e "Your Server IP: \033[41;37m ${IP} \033[0m"
+    echo -e "Your Server IP: \033[41;37m $(get_ip) \033[0m"
     echo -e "Your Server Port: \033[41;37m ${shadowsocksport} \033[0m"
     echo -e "Your Password: \033[41;37m ${shadowsockspwd} \033[0m"
     echo -e "Your Local IP: \033[41;37m 127.0.0.1 \033[0m"
     echo -e "Your Local Port: \033[41;37m 1080 \033[0m"
     echo -e "Your Encryption Method: \033[41;37m aes-256-cfb \033[0m"
-    echo ""
+    echo
     echo "Welcome to visit:https://teddysun.com/357.html"
     echo "Enjoy it!"
-    echo ""
+    echo
     exit 0
 }
 
 # Uninstall Shadowsocks-libev
-function uninstall_shadowsocks_libev(){
+uninstall_shadowsocks_libev(){
     printf "Are you sure uninstall shadowsocks_libev? (y/n) "
     printf "\n"
     read -p "(Default: n):" answer
@@ -296,7 +299,7 @@ function uninstall_shadowsocks_libev(){
 }
 
 # Install Shadowsocks-libev
-function install_shadowsocks_libev(){
+install_shadowsocks_libev(){
     rootness
     disable_selinux
     pre_install

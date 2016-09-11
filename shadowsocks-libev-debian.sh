@@ -1,8 +1,8 @@
-#! /bin/bash
+#!/usr/bin/env bash
 PATH=/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin:/usr/local/sbin:~/bin
 export PATH
 #===================================================================#
-#   System Required:  Debian or Ubuntu (32bit/64bit)                #
+#   System Required:  Debian or Ubuntu                              #
 #   Description: Install Shadowsocks-libev server for Debian/Ubuntu #
 #   Author: Teddysun <i@teddysun.com>                               #
 #   Thanks: @madeye <https://github.com/madeye>                     #
@@ -21,10 +21,10 @@ echo
 
 #Current folder
 cur_dir=`pwd`
-shadowsocks_libev_ver="shadowsocks-libev-2.5.0"
+shadowsocks_libev_ver="shadowsocks-libev-2.5.1"
 
 # Make sure only root can run our script
-function rootness(){
+rootness(){
 if [[ $EUID -ne 0 ]]; then
     echo "Error:This script must be run as root!" 1>&2
     exit 1
@@ -32,15 +32,22 @@ fi
 }
 
 # Disable selinux
-function disable_selinux(){
+disable_selinux(){
 if [ -s /etc/selinux/config ] && grep 'SELINUX=enforcing' /etc/selinux/config; then
     sed -i 's/SELINUX=enforcing/SELINUX=disabled/g' /etc/selinux/config
     setenforce 0
 fi
 }
 
+get_ip(){
+    local IP=$( ip addr | egrep -o '[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}' | egrep -v "^192\.168|^172\.1[6-9]\.|^172\.2[0-9]\.|^172\.3[0-2]\.|^10\.|^127\.|^255\.|^0\." | head -n 1 )
+    [ -z ${IP} ] && IP=$( wget -qO- -t1 -T2 ipv4.icanhazip.com )
+    [ -z ${IP} ] && IP=$( wget -qO- -t1 -T2 ipinfo.io/ip )
+    [ ! -z ${IP} ] && echo ${IP} || echo
+}
+
 # Pre-installation settings
-function pre_install(){
+pre_install(){
     #Set shadowsocks-libev config password
     echo "Please input password for shadowsocks-libev:"
     read -p "(Default password: teddysun.com):" shadowsockspwd
@@ -90,25 +97,21 @@ function pre_install(){
     apt-get -y --no-install-recommends install wget unzip curl build-essential autoconf libtool openssl libssl-dev zlib1g-dev xmlto asciidoc
     # Get IP address
     echo "Getting Public IP address, Please wait a moment..."
-    IP=$(curl -s -4 icanhazip.com)
-    if [[ "$IP" = "" ]]; then
-        IP=$(curl -s -4 ipinfo.io/ip)
-    fi
-    echo -e "Your main public IP is\t\033[32m$IP\033[0m"
+    echo -e "Your main public IP is\t\033[32m $(get_ip) \033[0m"
     echo
 }
 
 # Download latest shadowsocks-libev
-function download_files(){
+download_files(){
     if [ -f ${shadowsocks_libev_ver}.zip ];then
         echo "${shadowsocks_libev_ver}.zip [found]"
     else
-        if ! wget --no-check-certificate https://github.com/shadowsocks/shadowsocks-libev/archive/v2.5.0.zip -O ${shadowsocks_libev_ver}.zip; then
+        if ! wget --no-check-certificate https://github.com/shadowsocks/shadowsocks-libev/archive/v2.5.1.zip -O ${shadowsocks_libev_ver}.zip; then
             echo "Failed to download ${shadowsocks_libev_ver}.zip"
             exit 1
         fi
     fi
-    unzip ${shadowsocks_libev_ver}.zip
+    unzip -q ${shadowsocks_libev_ver}.zip
     if [ $? -eq 0 ];then
         cd ${cur_dir}/${shadowsocks_libev_ver}/
         if ! wget --no-check-certificate https://raw.githubusercontent.com/teddysun/shadowsocks_install/master/shadowsocks-libev-debian; then
@@ -123,7 +126,7 @@ function download_files(){
 }
 
 # Config shadowsocks
-function config_shadowsocks(){
+config_shadowsocks(){
     if [ ! -d /etc/shadowsocks-libev ];then
         mkdir /etc/shadowsocks-libev
     fi
@@ -141,7 +144,7 @@ EOF
 }
 
 # Install 
-function install_libev(){
+install_libev(){
     # Build and Install shadowsocks-libev
     if [ -s /usr/local/bin/ss-server ];then
         echo "shadowsocks-libev has been installed!"
@@ -176,7 +179,7 @@ function install_libev(){
     clear
     echo
     echo "Congratulations, shadowsocks-libev install completed!"
-    echo -e "Your Server IP: \033[41;37m ${IP} \033[0m"
+    echo -e "Your Server IP: \033[41;37m $(get_ip) \033[0m"
     echo -e "Your Server Port: \033[41;37m ${shadowsocksport} \033[0m"
     echo -e "Your Password: \033[41;37m ${shadowsockspwd} \033[0m"
     echo -e "Your Local IP: \033[41;37m 127.0.0.1 \033[0m"
@@ -190,7 +193,7 @@ function install_libev(){
 }
 
 # Install Shadowsocks-libev
-function install_shadowsocks_libev(){
+install_shadowsocks_libev(){
     rootness
     disable_selinux
     pre_install
@@ -200,7 +203,7 @@ function install_shadowsocks_libev(){
 }
 
 # Uninstall Shadowsocks-libev
-function uninstall_shadowsocks_libev(){
+uninstall_shadowsocks_libev(){
     printf "Are you sure uninstall Shadowsocks-libev? (y/n) "
     printf "\n"
     read -p "(Default: n):" answer
