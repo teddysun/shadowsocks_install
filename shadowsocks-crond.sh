@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 #=================================================================#
 #   System Required:  CentOS, Debian, Ubuntu                      #
 #   Description: Check Shadowsocks Server is running or not       #
