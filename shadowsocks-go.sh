@@ -1,4 +1,4 @@
-#! /bin/bash
+#!/usr/bin/env bash
 PATH=/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin:/usr/local/sbin:~/bin
 export PATH
 #=================================================================#
@@ -15,12 +15,12 @@ echo "#############################################################"
 echo "# One click Install Shadowsocks-go server                   #"
 echo "# Intro: https://teddysun.com/392.html                      #"
 echo "# Author: Teddysun <i@teddysun.com>                         #"
-echo "# Thanks: @cyfdecyf <https://twitter.com/cyfdecyf>          #"
+echo "# Github: https://github.com/shadowsocks/shadowsocks-go     #"
 echo "#############################################################"
 echo
 
 # Make sure only root can run our script
-function rootness(){
+rootness(){
     if [[ $EUID -ne 0 ]]; then
        echo "Error:This script must be run as root!" 1>&2
        exit 1
@@ -28,7 +28,7 @@ function rootness(){
 }
 
 # Check OS
-function checkos(){
+checkos(){
     if [ -f /etc/redhat-release ];then
         OS=CentOS
     elif [ ! -z "`cat /etc/issue | grep bian`" ];then
@@ -42,7 +42,7 @@ function checkos(){
 }
 
 # Get version
-function getversion(){
+getversion(){
     if [[ -s /etc/redhat-release ]];then
         grep -oE  "[0-9.]+" /etc/redhat-release
     else    
@@ -51,7 +51,7 @@ function getversion(){
 }
 
 # CentOS version
-function centosversion(){
+centosversion(){
     local code=$1
     local version="`getversion`"
     local main_ver=${version%%.*}
@@ -63,7 +63,7 @@ function centosversion(){
 }
 
 # is 64bit or not
-function is_64bit(){
+is_64bit(){
     if [ `getconf WORD_BIT` = '32' ] && [ `getconf LONG_BIT` = '64' ] ; then
         return 0
     else
@@ -72,15 +72,22 @@ function is_64bit(){
 }
 
 # Disable selinux
-function disable_selinux(){
+disable_selinux(){
 if [ -s /etc/selinux/config ] && grep 'SELINUX=enforcing' /etc/selinux/config; then
     sed -i 's/SELINUX=enforcing/SELINUX=disabled/g' /etc/selinux/config
     setenforce 0
 fi
 }
 
+get_ip(){
+    local IP=$( ip addr | egrep -o '[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}' | egrep -v "^192\.168|^172\.1[6-9]\.|^172\.2[0-9]\.|^172\.3[0-2]\.|^10\.|^127\.|^255\.|^0\." | head -n 1 )
+    [ -z ${IP} ] && IP=$( wget -qO- -t1 -T2 ipv4.icanhazip.com )
+    [ -z ${IP} ] && IP=$( wget -qO- -t1 -T2 ipinfo.io/ip )
+    [ ! -z ${IP} ] && echo ${IP} || echo
+}
+
 # Pre-installation settings
-function pre_install(){
+pre_install(){
     # Set shadowsocks-go config password
     echo "Please input password for shadowsocks-go:"
     read -p "(Default password: teddysun.com):" shadowsockspwd
@@ -95,10 +102,10 @@ function pre_install(){
     do
     echo -e "Please input port for shadowsocks-go [1-65535]:"
     read -p "(Default port: 8989):" shadowsocksport
-    [ -z "$shadowsocksport" ] && shadowsocksport="8989"
-    expr $shadowsocksport + 0 &>/dev/null
+    [ -z "${shadowsocksport}" ] && shadowsocksport="8989"
+    expr ${shadowsocksport} + 0 &>/dev/null
     if [ $? -eq 0 ]; then
-        if [ $shadowsocksport -ge 1 ] && [ $shadowsocksport -le 65535 ]; then
+        if [ ${shadowsocksport} -ge 1 ] && [ ${shadowsocksport} -le 65535 ]; then
             echo
             echo "---------------------------"
             echo "port = $shadowsocksport"
@@ -133,21 +140,17 @@ function pre_install(){
     fi
     # Get IP address
     echo "Getting Public IP address, Please wait a moment..."
-    IP=$(curl -s -4 icanhazip.com)
-    if [[ "$IP" = "" ]]; then
-        IP=$(curl -s -4 ipinfo.io/ip)
-    fi
-    echo -e "Your main public IP is\t\033[32m$IP\033[0m"
+    echo -e "Your main public IP is\t\033[32m $(get_ip) \033[0m"
     echo
     #Current folder
     cur_dir=`pwd`
 }
 
 # Download shadowsocks-go
-function download_files(){
-    cd $cur_dir
+download_files(){
+    cd ${cur_dir}
     if is_64bit; then
-        if ! wget -c http://lamp.teddysun.com/shadowsocks/shadowsocks-server-linux64-1.1.5.gz;then
+        if ! wget -c http://dl.teddysun.com/shadowsocks/shadowsocks-server-linux64-1.1.5.gz;then
             echo "Failed to download shadowsocks-server-linux64-1.1.5.gz"
             exit 1
         fi
@@ -160,7 +163,7 @@ function download_files(){
         fi
         mv -f shadowsocks-server-linux64-1.1.5 /usr/bin/shadowsocks-server
     else
-        if ! wget -c http://lamp.teddysun.com/shadowsocks/shadowsocks-server-linux32-1.1.5.gz;then
+        if ! wget -c http://dl.teddysun.com/shadowsocks/shadowsocks-server-linux32-1.1.5.gz;then
             echo "Failed to download shadowsocks-server-linux32-1.1.5.gz"
             exit 1
         fi
@@ -189,7 +192,7 @@ function download_files(){
 }
 
 # Config shadowsocks
-function config_shadowsocks(){
+config_shadowsocks(){
     if [ ! -d /etc/shadowsocks ];then
         mkdir /etc/shadowsocks
     fi
@@ -206,7 +209,7 @@ EOF
 }
 
 # firewall set
-function firewall_set(){
+firewall_set(){
     echo "firewall set start..."
     if centosversion 6; then
         /etc/init.d/iptables status > /dev/null 2>&1
@@ -245,12 +248,12 @@ function firewall_set(){
 }
 
 # Install 
-function install_go(){
+install_go(){
     # Install shadowsocks-go
     if [ -s /usr/bin/shadowsocks-server ]; then
         echo "shadowsocks-go install success!"
         chmod +x /usr/bin/shadowsocks-server
-        mv $cur_dir/shadowsocks-go /etc/init.d/shadowsocks
+        mv ${cur_dir}/shadowsocks-go /etc/init.d/shadowsocks
         chmod +x /etc/init.d/shadowsocks
         # Add run on system start up
         if [ "$OS" == 'CentOS' ]; then
@@ -275,7 +278,7 @@ function install_go(){
     clear
     echo
     echo "Congratulations, shadowsocks-go install completed!"
-    echo -e "Your Server IP: \033[41;37m ${IP} \033[0m"
+    echo -e "Your Server IP: \033[41;37m $(get_ip) \033[0m"
     echo -e "Your Server Port: \033[41;37m ${shadowsocksport} \033[0m"
     echo -e "Your Password: \033[41;37m ${shadowsockspwd} \033[0m"
     echo -e "Your Local Port: \033[41;37m 1080 \033[0m"
@@ -288,11 +291,11 @@ function install_go(){
 }
 
 # Uninstall Shadowsocks-go
-function uninstall_shadowsocks_go(){
+uninstall_shadowsocks_go(){
     printf "Are you sure uninstall shadowsocks-go? (y/n) "
     printf "\n"
     read -p "(Default: n):" answer
-    if [ -z $answer ]; then
+    if [ -z ${answer} ]; then
         answer="n"
     fi
     if [ "$answer" = "y" ]; then
@@ -318,7 +321,7 @@ function uninstall_shadowsocks_go(){
 }
 
 # Install Shadowsocks-go
-function install_shadowsocks_go(){
+install_shadowsocks_go(){
     checkos
     rootness
     disable_selinux
