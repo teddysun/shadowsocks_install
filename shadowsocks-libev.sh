@@ -117,8 +117,9 @@ pre_install(){
     echo "Press any key to start...or Press Ctrl+C to cancel"
     char=`get_char`
     #Install necessary dependencies
-    yum install -y wget unzip openssl-devel gcc swig python python-devel python-setuptools autoconf libtool libevent xmlto
-    yum install -y automake make curl curl-devel zlib-devel openssl-devel perl perl-devel cpio expat-devel gettext-devel asciidoc
+    yum install -y wget unzip openssl-devel gcc swig python python-devel python-setuptools
+    yum install -y autoconf libtool libevent xmlto asciidoc pcre pcre-devel make curl curl-devel
+    yum install -y automake zlib-devel openssl-devel perl perl-devel cpio expat-devel gettext-devel
     # Get IP address
     echo "Getting Public IP address, Please wait a moment..."
     echo -e "Your main public IP is\t\033[32m $(get_ip) \033[0m"

@@ -94,7 +94,7 @@ pre_install(){
     # Update System
     apt-get -y update
     # Install necessary dependencies
-    apt-get -y --no-install-recommends install wget unzip curl build-essential autoconf libtool openssl libssl-dev zlib1g-dev xmlto asciidoc
+    apt-get -y --no-install-recommends install wget unzip curl build-essential autoconf libtool openssl libssl-dev zlib1g-dev xmlto asciidoc libpcre3 libpcre3-dev
     # Get IP address
     echo "Getting Public IP address, Please wait a moment..."
     echo -e "Your main public IP is\t\033[32m $(get_ip) \033[0m"
