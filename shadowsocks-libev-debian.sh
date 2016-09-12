@@ -31,6 +31,52 @@ if [[ $EUID -ne 0 ]]; then
 fi
 }
 
+#Check system
+check_sys(){
+    local checkType=$1
+    local value=$2
+
+    local release=''
+    local systemPackage=''
+
+    if [[ -f /etc/redhat-release ]]; then
+        release="centos"
+        systemPackage="yum"
+    elif cat /etc/issue | grep -q -E -i "debian"; then
+        release="debian"
+        systemPackage="apt"
+    elif cat /etc/issue | grep -q -E -i "ubuntu"; then
+        release="ubuntu"
+        systemPackage="apt"
+    elif cat /etc/issue | grep -q -E -i "centos|red hat|redhat"; then
+        release="centos"
+        systemPackage="yum"
+    elif cat /proc/version | grep -q -E -i "debian"; then
+        release="debian"
+        systemPackage="apt"
+    elif cat /proc/version | grep -q -E -i "ubuntu"; then
+        release="ubuntu"
+        systemPackage="apt"
+    elif cat /proc/version | grep -q -E -i "centos|red hat|redhat"; then
+        release="centos"
+        systemPackage="yum"
+    fi
+
+    if [[ ${checkType} == "sysRelease" ]]; then
+        if [ "$value" == "$release" ]; then
+            return 0
+        else
+            return 1
+        fi
+    elif [[ ${checkType} == "packageManager" ]]; then
+        if [ "$value" == "$systemPackage" ]; then
+            return 0
+        else
+            return 1
+        fi
+    fi
+}
+
 # Disable selinux
 disable_selinux(){
 if [ -s /etc/selinux/config ] && grep 'SELINUX=enforcing' /etc/selinux/config; then
@@ -48,57 +94,63 @@ get_ip(){
 
 # Pre-installation settings
 pre_install(){
-    #Set shadowsocks-libev config password
-    echo "Please input password for shadowsocks-libev:"
-    read -p "(Default password: teddysun.com):" shadowsockspwd
-    [ -z "$shadowsockspwd" ] && shadowsockspwd="teddysun.com"
-    echo
-    echo "---------------------------"
-    echo "password = $shadowsockspwd"
-    echo "---------------------------"
-    echo
-    #Set shadowsocks-libev config port
-    while true
-    do
-    echo -e "Please input port for shadowsocks-libev [1-65535]:"
-    read -p "(Default port: 8989):" shadowsocksport
-    [ -z "$shadowsocksport" ] && shadowsocksport="8989"
-    expr $shadowsocksport + 0 &>/dev/null
-    if [ $? -eq 0 ]; then
-        if [ $shadowsocksport -ge 1 ] && [ $shadowsocksport -le 65535 ]; then
-            echo
-            echo "---------------------------"
-            echo "port = $shadowsocksport"
-            echo "---------------------------"
-            echo
-            break
+    # Check OS system
+    if check_sys packageManager apt; then
+        #Set shadowsocks-libev config password
+        echo "Please input password for shadowsocks-libev:"
+        read -p "(Default password: teddysun.com):" shadowsockspwd
+        [ -z "$shadowsockspwd" ] && shadowsockspwd="teddysun.com"
+        echo
+        echo "---------------------------"
+        echo "password = $shadowsockspwd"
+        echo "---------------------------"
+        echo
+        #Set shadowsocks-libev config port
+        while true
+        do
+        echo -e "Please input port for shadowsocks-libev [1-65535]:"
+        read -p "(Default port: 8989):" shadowsocksport
+        [ -z "$shadowsocksport" ] && shadowsocksport="8989"
+        expr ${shadowsocksport} + 0 &>/dev/null
+        if [ $? -eq 0 ]; then
+            if [ ${shadowsocksport} -ge 1 ] && [ ${shadowsocksport} -le 65535 ]; then
+                echo
+                echo "---------------------------"
+                echo "port = ${shadowsocksport}"
+                echo "---------------------------"
+                echo
+                break
+            else
+                echo "Input error! Please input correct numbers."
+            fi
         else
             echo "Input error! Please input correct numbers."
         fi
+        done
+        get_char(){
+            SAVEDSTTY=`stty -g`
+            stty -echo
+            stty cbreak
+            dd if=/dev/tty bs=1 count=1 2> /dev/null
+            stty -raw
+            stty echo
+            stty $SAVEDSTTY
+        }
+        echo
+        echo "Press any key to start...or Press Ctrl+C to cancel"
+        char=`get_char`
+        # Update System
+        apt-get -y update
+        # Install necessary dependencies
+        apt-get -y --no-install-recommends install wget unzip curl build-essential autoconf libtool openssl libssl-dev zlib1g-dev xmlto asciidoc libpcre3 libpcre3-dev
+        # Get IP address
+        echo "Getting Public IP address, Please wait a moment..."
+        echo -e "Your main public IP is\t\033[32m $(get_ip) \033[0m"
+        echo
     else
-        echo "Input error! Please input correct numbers."
+        echo "Error: Your OS is not supported to run it! Please change OS to Debian/Ubuntu and try again."
+        exit 1
     fi
-    done
-    get_char(){
-        SAVEDSTTY=`stty -g`
-        stty -echo
-        stty cbreak
-        dd if=/dev/tty bs=1 count=1 2> /dev/null
-        stty -raw
-        stty echo
-        stty $SAVEDSTTY
-    }
-    echo
-    echo "Press any key to start...or Press Ctrl+C to cancel"
-    char=`get_char`
-    # Update System
-    apt-get -y update
-    # Install necessary dependencies
-    apt-get -y --no-install-recommends install wget unzip curl build-essential autoconf libtool openssl libssl-dev zlib1g-dev xmlto asciidoc libpcre3 libpcre3-dev
-    # Get IP address
-    echo "Getting Public IP address, Please wait a moment..."
-    echo -e "Your main public IP is\t\033[32m $(get_ip) \033[0m"
-    echo
 }
 
 # Download latest shadowsocks-libev
