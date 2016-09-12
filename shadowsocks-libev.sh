@@ -20,7 +20,7 @@ echo
 
 #Current folder
 cur_dir=`pwd`
-shadowsocks_libev_ver="shadowsocks-libev-2.5.1"
+shadowsocks_libev_ver="shadowsocks-libev-2.5.2"
 
 # Make sure only root can run our script
 rootness(){
@@ -131,7 +131,7 @@ download_files(){
     if [ -f ${shadowsocks_libev_ver}.zip ];then
         echo "${shadowsocks_libev_ver}.zip [found]"
     else
-        if ! wget --no-check-certificate https://github.com/shadowsocks/shadowsocks-libev/archive/v2.5.1.zip -O ${shadowsocks_libev_ver}.zip; then
+        if ! wget --no-check-certificate https://github.com/shadowsocks/shadowsocks-libev/archive/v2.5.2.zip -O ${shadowsocks_libev_ver}.zip; then
             echo "Failed to download ${shadowsocks_libev_ver}.zip"
             exit 1
         fi
