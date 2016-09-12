@@ -30,25 +30,75 @@ if [[ $EUID -ne 0 ]]; then
 fi
 }
 
+#Check system
+check_sys(){
+    local checkType=$1
+    local value=$2
+
+    local release=''
+    local systemPackage=''
+
+    if [[ -f /etc/redhat-release ]]; then
+        release="centos"
+        systemPackage="yum"
+    elif cat /etc/issue | grep -q -E -i "debian"; then
+        release="debian"
+        systemPackage="apt"
+    elif cat /etc/issue | grep -q -E -i "ubuntu"; then
+        release="ubuntu"
+        systemPackage="apt"
+    elif cat /etc/issue | grep -q -E -i "centos|red hat|redhat"; then
+        release="centos"
+        systemPackage="yum"
+    elif cat /proc/version | grep -q -E -i "debian"; then
+        release="debian"
+        systemPackage="apt"
+    elif cat /proc/version | grep -q -E -i "ubuntu"; then
+        release="ubuntu"
+        systemPackage="apt"
+    elif cat /proc/version | grep -q -E -i "centos|red hat|redhat"; then
+        release="centos"
+        systemPackage="yum"
+    fi
+
+    if [[ ${checkType} == "sysRelease" ]]; then
+        if [ "$value" == "$release" ]; then
+            return 0
+        else
+            return 1
+        fi
+    elif [[ ${checkType} == "packageManager" ]]; then
+        if [ "$value" == "$systemPackage" ]; then
+            return 0
+        else
+            return 1
+        fi
+    fi
+}
+
 # Get version
 getversion(){
     if [[ -s /etc/redhat-release ]];then
         grep -oE  "[0-9.]+" /etc/redhat-release
-    else    
+    else
         grep -oE  "[0-9.]+" /etc/issue
-    fi    
+    fi
 }
 
 # CentOS version
 centosversion(){
-    local code=$1
-    local version="`getversion`"
-    local main_ver=${version%%.*}
-    if [ $main_ver == $code ];then
-        return 0
+    if check_sys sysRelease centos; then
+        local code=$1
+        local version="$(getversion)"
+        local main_ver=${version%%.*}
+        if [ "$main_ver" == "$code" ];then
+            return 0
+        else
+            return 1
+        fi
     else
         return 1
-    fi        
+    fi
 }
 
 # Disable selinux
@@ -68,9 +118,15 @@ get_ip(){
 
 # Pre-installation settings
 pre_install(){
-    # Not support CentOS 5
-    if centosversion 5; then
-        echo "Not support CentOS 5, please change to CentOS 6 or 7 and try again."
+    # Check OS system
+    if check_sys sysRelease centos; then
+        # Not support CentOS 5
+        if centosversion 5; then
+            echo "Not support CentOS 5, please change to CentOS 6 or 7 and try again."
+            exit 1
+        fi
+    else
+        echo "Error: Your OS is not supported to run it! Please change OS to CentOS and try again."
         exit 1
     fi
     #Set shadowsocks-libev config password
