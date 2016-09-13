@@ -21,6 +21,7 @@ echo
 
 #Current folder
 cur_dir=`pwd`
+
 # Get public IP address
 get_ip(){
     local IP=$( ip addr | egrep -o '[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}' | egrep -v "^192\.168|^172\.1[6-9]\.|^172\.2[0-9]\.|^172\.3[0-2]\.|^10\.|^127\.|^255\.|^0\." | head -n 1 )
@@ -37,39 +38,75 @@ rootness(){
     fi
 }
 
-# Check OS
-checkos(){
-    if [ -f /etc/redhat-release ];then
-        OS=CentOS
-    elif [ ! -z "`cat /etc/issue | grep bian`" ];then
-        OS=Debian
-    elif [ ! -z "`cat /etc/issue | grep Ubuntu`" ];then
-        OS=Ubuntu
-    else
-        echo "Not support OS, Please reinstall OS and retry!"
-        exit 1
+#Check system
+check_sys(){
+    local checkType=$1
+    local value=$2
+
+    local release=''
+    local systemPackage=''
+
+    if [[ -f /etc/redhat-release ]]; then
+        release="centos"
+        systemPackage="yum"
+    elif cat /etc/issue | grep -q -E -i "debian"; then
+        release="debian"
+        systemPackage="apt"
+    elif cat /etc/issue | grep -q -E -i "ubuntu"; then
+        release="ubuntu"
+        systemPackage="apt"
+    elif cat /etc/issue | grep -q -E -i "centos|red hat|redhat"; then
+        release="centos"
+        systemPackage="yum"
+    elif cat /proc/version | grep -q -E -i "debian"; then
+        release="debian"
+        systemPackage="apt"
+    elif cat /proc/version | grep -q -E -i "ubuntu"; then
+        release="ubuntu"
+        systemPackage="apt"
+    elif cat /proc/version | grep -q -E -i "centos|red hat|redhat"; then
+        release="centos"
+        systemPackage="yum"
+    fi
+
+    if [[ ${checkType} == "sysRelease" ]]; then
+        if [ "$value" == "$release" ]; then
+            return 0
+        else
+            return 1
+        fi
+    elif [[ ${checkType} == "packageManager" ]]; then
+        if [ "$value" == "$systemPackage" ]; then
+            return 0
+        else
+            return 1
+        fi
     fi
 }
 
 # Get version
 getversion(){
-    if [[ -s /etc/redhat-release ]];then
+    if [[ -s /etc/redhat-release ]]; then
         grep -oE  "[0-9.]+" /etc/redhat-release
-    else    
+    else
         grep -oE  "[0-9.]+" /etc/issue
-    fi    
+    fi
 }
 
 # CentOS version
 centosversion(){
-    local code=$1
-    local version="`getversion`"
-    local main_ver=${version%%.*}
-    if [ $main_ver == $code ];then
-        return 0
+    if check_sys sysRelease centos; then
+        local code=$1
+        local version="$(getversion)"
+        local main_ver=${version%%.*}
+        if [ "$main_ver" == "$code" ]; then
+            return 0
+        else
+            return 1
+        fi
     else
         return 1
-    fi        
+    fi
 }
 
 # Disable selinux
@@ -82,18 +119,23 @@ fi
 
 # Pre-installation settings
 pre_install(){
-    # Not support CentOS 5
-    if centosversion 5; then
-        echo "Not supported CentOS 5, please change to CentOS 6+ or Debian 7+ or Ubuntu 12+ and try again."
+    if check_sys packageManager yum || check_sys packageManager apt; then
+        # Not support CentOS 5
+        if centosversion 5; then
+            echo "Error: Not supported CentOS 5, please change to CentOS 6+/Debian 7+/Ubuntu 12+ and try again."
+            exit 1
+        fi
+    else
+        echo "Error: Your OS is not supported. please change OS to CentOS/Debian/Ubuntu and try again."
         exit 1
     fi
     # Set shadowsocks config password
     echo "Please input password for shadowsocks-python:"
     read -p "(Default password: teddysun.com):" shadowsockspwd
-    [ -z "$shadowsockspwd" ] && shadowsockspwd="teddysun.com"
+    [ -z "${shadowsockspwd}" ] && shadowsockspwd="teddysun.com"
     echo
     echo "---------------------------"
-    echo "password = $shadowsockspwd"
+    echo "password = ${shadowsockspwd}"
     echo "---------------------------"
     echo
     # Set shadowsocks config port
@@ -107,7 +149,7 @@ pre_install(){
         if [ ${shadowsocksport} -ge 1 ] && [ ${shadowsocksport} -le 65535 ]; then
             echo
             echo "---------------------------"
-            echo "port = $shadowsocksport"
+            echo "port = ${shadowsocksport}"
             echo "---------------------------"
             echo
             break
@@ -131,10 +173,10 @@ pre_install(){
     echo "Press any key to start...or Press Ctrl+C to cancel"
     char=`get_char`
     #Install necessary dependencies
-    if [ "$OS" == 'CentOS' ]; then
+    if check_sys packageManager yum; then
         yum install -y wget unzip openssl-devel gcc swig python python-devel python-setuptools autoconf libtool libevent
-        yum install -y automake make curl curl-devel zlib-devel perl perl-devel cpio expat-devel gettext-devel which
-    else
+        yum install -y automake make curl curl-devel zlib-devel perl perl-devel cpio expat-devel gettext-devel
+    elif check_sys packageManager apt; then
         apt-get -y update
         apt-get -y install python python-dev python-pip python-setuptools python-m2crypto curl wget unzip gcc swig automake make perl cpio build-essential
     fi
@@ -145,21 +187,21 @@ pre_install(){
 download_files(){
     # Download libsodium file
     if ! wget --no-check-certificate -O libsodium-1.0.11.tar.gz https://github.com/jedisct1/libsodium/releases/download/1.0.11/libsodium-1.0.11.tar.gz; then
-        echo "Failed to download libsodium file!"
+        echo "Failed to download libsodium-1.0.11.tar.gz!"
         exit 1
     fi
     # Download Shadowsocks file
     if ! wget --no-check-certificate -O shadowsocks-master.zip https://github.com/shadowsocks/shadowsocks/archive/master.zip; then
-        echo "Failed to download Shadowsocks file!"
+        echo "Failed to download shadowsocks python file!"
         exit 1
     fi
-    # Download ShadowsocksR chkconfig file
-    if [ "$OS" == 'CentOS' ]; then
+    # Download Shadowsocks chkconfig file
+    if check_sys packageManager yum; then
         if ! wget --no-check-certificate https://raw.githubusercontent.com/teddysun/shadowsocks_install/master/shadowsocks -O /etc/init.d/shadowsocks; then
             echo "Failed to download shadowsocks chkconfig file!"
             exit 1
         fi
-    else
+    elif check_sys packageManager apt; then
         if ! wget --no-check-certificate https://raw.githubusercontent.com/teddysun/shadowsocks_install/master/shadowsocks-debian -O /etc/init.d/shadowsocks; then
             echo "Failed to download shadowsocks chkconfig file!"
             exit 1
@@ -226,15 +268,21 @@ firewall_set(){
 install_ss(){
     # Install libsodium
     tar zxf libsodium-1.0.11.tar.gz
-    cd ${cur_dir}/libsodium-1.0.11
+    cd libsodium-1.0.11/
     ./configure && make && make install
+    if [ $? -ne 0 ]; then
+        echo "libsodium install failed!"
+        install_cleanup
+        exit 1
+    fi
     echo "/usr/local/lib" > /etc/ld.so.conf.d/local.conf
     ldconfig
     # Install Shadowsocks
     cd ${cur_dir}
     unzip -q shadowsocks-master.zip
     if [ $? -ne 0 ];then
-        echo "unzip shadowsocks-master.zip failed! Please check unzip command."
+        echo "unzip shadowsocks-master.zip failed! please check unzip command."
+        install_cleanup
         exit 1
     fi
 
@@ -244,23 +292,23 @@ install_ss(){
     if [ -f /usr/bin/ssserver ] || [ -f /usr/local/bin/ssserver ]; then
         chmod +x /etc/init.d/shadowsocks
         # Add run on system start up
-        if [ "$OS" == 'CentOS' ]; then
+        if check_sys packageManager yum; then
             chkconfig --add shadowsocks
             chkconfig shadowsocks on
-        else
+        elif check_sys packageManager apt; then
             update-rc.d -f shadowsocks defaults
         fi
         # Run shadowsocks in the background
         /etc/init.d/shadowsocks start
     else
         echo
-        echo "Shadowsocks install failed! Please visit https://teddysun.com/342.html and contact."
+        echo "Shadowsocks install failed! please visit https://teddysun.com/342.html and contact."
         install_cleanup
         exit 1
     fi
     clear
     echo
-    echo "Congratulations, shadowsocks install completed!"
+    echo "Congratulations, shadowsocks server install completed!"
     echo -e "Your Server IP: \033[41;37m $(get_ip) \033[0m"
     echo -e "Your Server Port: \033[41;37m ${shadowsocksport} \033[0m"
     echo -e "Your Password: \033[41;37m ${shadowsockspwd} \033[0m"
@@ -287,18 +335,15 @@ uninstall_shadowsocks(){
     printf "Are you sure uninstall Shadowsocks? (y/n) "
     printf "\n"
     read -p "(Default: n):" answer
-    if [ -z $answer ]; then
-        answer="n"
-    fi
-    if [ "$answer" = "y" ]; then
-        ps -ef | grep -v grep | grep -v ps | grep -i "ssserver" > /dev/null 2>&1
+    [ -z ${answer} ] && answer="n"
+    if [ "${answer}" == "y" ] || [ "${answer}" == "Y" ]; then
+        ps -ef | grep -v grep | grep -i "ssserver" > /dev/null 2>&1
         if [ $? -eq 0 ]; then
             /etc/init.d/shadowsocks stop
         fi
-        checkos
-        if [ "$OS" == 'CentOS' ]; then
+        if check_sys packageManager yum; then
             chkconfig --del shadowsocks
-        else
+        elif check_sys packageManager apt; then
             update-rc.d -f shadowsocks remove
         fi
         # delete config file
@@ -311,19 +356,18 @@ uninstall_shadowsocks(){
         fi
         echo "Shadowsocks uninstall success!"
     else
-        echo "uninstall cancelled, Nothing to do"
+        echo "uninstall cancelled, nothing to do..."
     fi
 }
 
 # Install Shadowsocks-python
 install_shadowsocks(){
-    checkos
     rootness
     disable_selinux
     pre_install
     download_files
     config_shadowsocks
-    if [ "$OS" == 'CentOS' ]; then
+    if check_sys packageManager yum; then
         firewall_set
     fi
     install_ss
