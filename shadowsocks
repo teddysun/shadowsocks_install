@@ -1,7 +1,7 @@
 #!/bin/bash
 # chkconfig: 2345 90 10
 # description: Start or stop the Shadowsocks server
-#
+
 ### BEGIN INIT INFO
 # Provides: Shadowsocks
 # Required-Start: $network $syslog
@@ -13,70 +13,81 @@
 
 # Author: Teddysun <i@teddysun.com>
 
-name=shadowsocks
 if [ -f /usr/bin/ssserver ]; then
     BIN=/usr/bin/ssserver
 elif [ -f /usr/local/bin/ssserver ]; then
     BIN=/usr/local/bin/ssserver
 fi
-conf=/etc/shadowsocks.json
+NAME=shadowsocks
+CONF=/etc/shadowsocks.json
 
-start(){
-    $BIN -c $conf -d start
-    RETVAL=$?
-    if [ "$RETVAL" = "0" ]; then
-        echo "$name start success"
+check_running(){
+    PID=`ps -ef | grep -v grep | grep -i "${BIN}" | awk '{print $2}'`
+    if [ -n $PID ]; then
+        return 0
     else
-        echo "$name start failed"
+        return 1
     fi
 }
 
-stop(){
-    pid=`ps -ef | grep -v grep | grep -i "${BIN}" | awk '{print $2}'`
-    if [[ ! -z $pid ]]; then
-        $BIN -c $conf -d stop
+do_start(){
+    check_running
+    if [ $? -eq 0 ]; then
+        echo "$NAME is already running with PID $PID"
+        RETVAL=1
+    else
+        $BIN -c $CONF -d start
         RETVAL=$?
-        if [ "$RETVAL" = "0" ]; then
-            echo "$name stop success"
+        if [ $RETVAL -eq 0 ]; then
+            echo "$NAME start success"
         else
-            echo "$name stop failed"
+            echo "$NAME start failed"
+            RETVAL=1
+        fi
+    fi
+}
+
+do_stop(){
+    check_running
+    if [ $? -eq 0 ]; then
+        $BIN -c $CONF -d stop
+        RETVAL=$?
+        if [ $RETVAL -eq 0 ]; then
+            echo "$NAME stop success"
+        else
+            echo "$NAME stop failed"
+            RETVAL=1
         fi
     else
-        echo "$name is not running"
+        echo "$NAME is not running"
         RETVAL=1
     fi
 }
 
-status(){
-    pid=`ps -ef | grep -v grep | grep -i "${BIN}" | awk '{print $2}'`
-    if [[ -z $pid ]]; then
-        echo "$name is not running"
-        RETVAL=1
-    else
-        echo "$name is running with PID $pid"
+do_status(){
+    check_running
+    if [ $? -eq 0 ]; then
+        echo "$NAME is running with PID $PID"
         RETVAL=0
+    else
+        echo "$NAME is not running"
+        RETVAL=1
     fi
+}
+
+do_restart(){
+  do_stop
+  do_start
 }
 
 case "$1" in
-'start')
-    start
+    start|stop|restart|status)
+    do_$1
     ;;
-'stop')
-    stop
-    ;;
-'status')
-    status
-    ;;
-'restart')
-    stop
-    start
-    RETVAL=$?
-    ;;
-*)
+    *)
     echo "Usage: $0 { start | stop | restart | status }"
     RETVAL=1
     ;;
 esac
-exit $RETVAL
 
+exit $RETVAL
