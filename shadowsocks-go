@@ -17,7 +17,7 @@
 . /etc/rc.d/init.d/functions
 
 # Check that networking is up.
-[ "${NETWORKING}" == "yes" ] || exit 0
+[ ${NETWORKING} ="yes" ] || exit 0
 
 NAME=Shadowsocks-go
 BIN=/usr/bin/shadowsocks-server
