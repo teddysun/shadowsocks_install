@@ -53,8 +53,8 @@ disable_selinux(){
 }
 
 valid_ip(){
-    local  ip=$1
-    local  stat=1
+    local ip=$1
+    local stat=1
     if [[ $ip =~ ^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}$ ]]; then
         OIFS=$IFS
         IFS='.'
@@ -84,17 +84,17 @@ function pre_install(){
     expr ${haproxyport} + 0 &>/dev/null
     if [ $? -eq 0 ]; then
         if [ ${haproxyport} -ge 1 ] && [ ${haproxyport} -le 65535 ]; then
-            echo ""
+            echo
             echo "---------------------------"
             echo "port = ${haproxyport}"
             echo "---------------------------"
-            echo ""
+            echo
             break
         else
-            echo "Input error! Please input correct numbers."
+            echo "Input error! Please input correct number."
         fi
     else
-        echo "Input error! Please input correct numbers."
+        echo "Input error! Please input correct number."
     fi
     done
 
@@ -105,11 +105,11 @@ function pre_install(){
     read -p "(IPv4 is):" haproxyip
     valid_ip ${haproxyip}
     if [ $? -eq 0 ]; then
-        echo ""
+        echo
         echo "---------------------------"
         echo "IP = ${haproxyip}"
         echo "---------------------------"
-        echo ""
+        echo
         break
     else
         echo "Input error! Please input correct IPv4 address."
@@ -125,7 +125,7 @@ function pre_install(){
         stty echo
         stty $SAVEDSTTY
     }
-    echo ""
+    echo
     echo "Press any key to start...or Press Ctrl+C to cancel"
     char=`get_char`
 
@@ -201,7 +201,7 @@ install(){
             echo "haproxy start failure..."
         fi
     else
-        echo ""
+        echo
         echo "haproxy install failed."
         exit 1
     fi
@@ -220,7 +220,6 @@ install(){
     echo "Welcome to visit:https://shadowsocks.be/10.html"
     echo "Enjoy it."
     echo
-    exit 0
 }
 
 
