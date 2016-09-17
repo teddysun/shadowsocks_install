@@ -22,19 +22,19 @@ echo
 #Current folder
 cur_dir=`pwd`
 
-# Get public IP address
-get_ip(){
-    local IP=$( ip addr | egrep -o '[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}' | egrep -v "^192\.168|^172\.1[6-9]\.|^172\.2[0-9]\.|^172\.3[0-2]\.|^10\.|^127\.|^255\.|^0\." | head -n 1 )
-    [ -z ${IP} ] && IP=$( wget -qO- -t1 -T2 ipv4.icanhazip.com )
-    [ -z ${IP} ] && IP=$( wget -qO- -t1 -T2 ipinfo.io/ip )
-    [ ! -z ${IP} ] && echo ${IP} || echo
-}
-
 # Make sure only root can run our script
 rootness(){
     if [[ $EUID -ne 0 ]]; then
-       echo "Error:This script must be run as root!" 1>&2
+       echo "Error: This script must be run as root!" 1>&2
        exit 1
+    fi
+}
+
+# Disable selinux
+disable_selinux(){
+    if [ -s /etc/selinux/config ] && grep 'SELINUX=enforcing' /etc/selinux/config; then
+        sed -i 's/SELINUX=enforcing/SELINUX=disabled/g' /etc/selinux/config
+        setenforce 0
     fi
 }
 
@@ -109,12 +109,12 @@ centosversion(){
     fi
 }
 
-# Disable selinux
-disable_selinux(){
-if [ -s /etc/selinux/config ] && grep 'SELINUX=enforcing' /etc/selinux/config; then
-    sed -i 's/SELINUX=enforcing/SELINUX=disabled/g' /etc/selinux/config
-    setenforce 0
-fi
+# Get public IP address
+get_ip(){
+    local IP=$( ip addr | egrep -o '[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}' | egrep -v "^192\.168|^172\.1[6-9]\.|^172\.2[0-9]\.|^172\.3[0-2]\.|^10\.|^127\.|^255\.|^0\." | head -n 1 )
+    [ -z ${IP} ] && IP=$( wget -qO- -t1 -T2 ipv4.icanhazip.com )
+    [ -z ${IP} ] && IP=$( wget -qO- -t1 -T2 ipinfo.io/ip )
+    [ ! -z ${IP} ] && echo ${IP} || echo
 }
 
 # Pre-installation settings
@@ -154,10 +154,10 @@ pre_install(){
             echo
             break
         else
-            echo "Input error! Please input correct number."
+            echo "Input error, please input correct number"
         fi
     else
-        echo "Input error! Please input correct number."
+        echo "Input error, please input correct number"
     fi
     done
     get_char(){
@@ -174,8 +174,7 @@ pre_install(){
     char=`get_char`
     # Install necessary dependencies
     if check_sys packageManager yum; then
-        yum install -y wget unzip openssl-devel gcc swig python python-devel python-setuptools autoconf libtool libevent
-        yum install -y m2crypto automake make curl curl-devel zlib-devel perl perl-devel cpio expat-devel gettext-devel
+        yum install -y unzip openssl-devel gcc swig python python-devel python-setuptools autoconf libtool libevent automake make curl curl-devel zlib-devel perl perl-devel cpio expat-devel gettext-devel
     elif check_sys packageManager apt; then
         apt-get -y update
         apt-get -y install python python-dev python-pip python-m2crypto curl wget unzip gcc swig automake make perl cpio build-essential
@@ -195,7 +194,7 @@ download_files(){
         echo "Failed to download ShadowsocksR file!"
         exit 1
     fi
-    # Download ShadowsocksR chkconfig file
+    # Download ShadowsocksR init script
     if check_sys packageManager yum; then
         if ! wget --no-check-certificate https://raw.githubusercontent.com/teddysun/shadowsocks_install/master/shadowsocksR -O /etc/init.d/shadowsocks; then
             echo "Failed to download ShadowsocksR chkconfig file!"
@@ -209,7 +208,7 @@ download_files(){
     fi
 }
 
-# firewall set
+# Firewall set
 firewall_set(){
     echo "firewall set start..."
     if centosversion 6; then
@@ -229,14 +228,14 @@ firewall_set(){
         fi
     elif centosversion 7; then
         systemctl status firewalld > /dev/null 2>&1
-        if [ $? -eq 0 ];then
+        if [ $? -eq 0 ]; then
             firewall-cmd --permanent --zone=public --add-port=${shadowsocksport}/tcp
             firewall-cmd --permanent --zone=public --add-port=${shadowsocksport}/udp
             firewall-cmd --reload
         else
             echo "Firewalld looks like not running, try to start..."
             systemctl start firewalld
-            if [ $? -eq 0 ];then
+            if [ $? -eq 0 ]; then
                 firewall-cmd --permanent --zone=public --add-port=${shadowsocksport}/tcp
                 firewall-cmd --permanent --zone=public --add-port=${shadowsocksport}/udp
                 firewall-cmd --reload
@@ -273,10 +272,10 @@ EOF
 }
 
 # Install ShadowsocksR
-install_ss(){
+install(){
     # Install libsodium
     tar zxf libsodium-1.0.11.tar.gz
-    cd libsodium-1.0.11/
+    cd libsodium-1.0.11
     ./configure && make && make install
     if [ $? -ne 0 ]; then
         echo "libsodium install failed!"
@@ -291,15 +290,14 @@ install_ss(){
     mv shadowsocks-manyuser/shadowsocks /usr/local/
     if [ -f /usr/local/shadowsocks/server.py ]; then
         chmod +x /etc/init.d/shadowsocks
-        # Add run on system start up
         if check_sys packageManager yum; then
             chkconfig --add shadowsocks
             chkconfig shadowsocks on
         elif check_sys packageManager apt; then
             update-rc.d -f shadowsocks defaults
         fi
-        # Run ShadowsocksR in the background
         /etc/init.d/shadowsocks start
+
         clear
         echo
         echo "Congratulations, ShadowsocksR install completed!"
@@ -319,7 +317,7 @@ install_ss(){
         echo "Enjoy it!"
         echo
     else
-        echo "Shadowsocks install failed! Please Email to Teddysun <i@teddysun.com> and contact."
+        echo "ShadowsocksR install failed, please Email to Teddysun <i@teddysun.com> and contact"
         install_cleanup
         exit 1
     fi
@@ -328,16 +326,13 @@ install_ss(){
 # Install cleanup
 install_cleanup(){
     cd ${cur_dir}
-    rm -f manyuser.zip
-    rm -rf shadowsocks-manyuser
-    rm -f libsodium-1.0.11.tar.gz
-    rm -rf libsodium-1.0.11
+    rm -rf manyuser.zip shadowsocks-manyuser libsodium-1.0.11.tar.gz libsodium-1.0.11
 }
 
 
 # Uninstall ShadowsocksR
 uninstall_shadowsocks(){
-    printf "Are you sure uninstall ShadowsocksR? (y/n) "
+    printf "Are you sure uninstall ShadowsocksR? (y/n)"
     printf "\n"
     read -p "(Default: n):" answer
     [ -z ${answer} ] && answer="n"
@@ -357,7 +352,9 @@ uninstall_shadowsocks(){
         rm -rf /usr/local/shadowsocks
         echo "ShadowsocksR uninstall success!"
     else
+        echo
         echo "uninstall cancelled, nothing to do..."
+        echo
     fi
 }
 
@@ -368,7 +365,7 @@ install_shadowsocks(){
     pre_install
     download_files
     config_shadowsocks
-    install_ss
+    install
     if check_sys packageManager yum; then
         firewall_set
     fi
@@ -379,14 +376,11 @@ install_shadowsocks(){
 action=$1
 [ -z $1 ] && action=install
 case "$action" in
-install)
-    install_shadowsocks
+    install|uninstall)
+    ${action}_shadowsocks
     ;;
-uninstall)
-    uninstall_shadowsocks
-    ;;
-*)
-    echo "Arguments error! [${action} ]"
+    *)
+    echo "Arguments error! [${action}]"
     echo "Usage: `basename $0` {install|uninstall}"
     ;;
 esac
