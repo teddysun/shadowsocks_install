@@ -1,14 +1,15 @@
 #!/bin/bash
+# chkconfig: 2345 90 10
+# description: A secure socks5 proxy, designed to protect your Internet traffic.
 
 ### BEGIN INIT INFO
-# chkconfig:         2345 90 10
 # Provides:          Shadowsocks-go
 # Required-Start:    $network $syslog
 # Required-Stop:     $network
 # Default-Start:     2 3 4 5
 # Default-Stop:      0 1 6
 # Short-Description: Fast tunnel proxy that helps you bypass firewalls
-# Description:       A secure socks5 proxy, designed to protect your Internet traffic.
+# Description:       Start or stop the Shadowsocks-go server
 ### END INIT INFO
 
 # Author: Teddysun <i@teddysun.com>
