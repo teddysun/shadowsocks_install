@@ -112,10 +112,10 @@ is_64bit(){
 
 # Disable selinux
 disable_selinux(){
-if [ -s /etc/selinux/config ] && grep 'SELINUX=enforcing' /etc/selinux/config; then
-    sed -i 's/SELINUX=enforcing/SELINUX=disabled/g' /etc/selinux/config
-    setenforce 0
-fi
+    if [ -s /etc/selinux/config ] && grep 'SELINUX=enforcing' /etc/selinux/config; then
+        sed -i 's/SELINUX=enforcing/SELINUX=disabled/g' /etc/selinux/config
+        setenforce 0
+    fi
 }
 
 get_ip(){
@@ -156,10 +156,10 @@ pre_install(){
             echo
             break
         else
-            echo "Input error! Please input correct numbers."
+            echo "Input error, please input correct number"
         fi
     else
-        echo "Input error! Please input correct numbers."
+        echo "Input error, please input correct number"
     fi
     done
     get_char(){
@@ -181,9 +181,6 @@ pre_install(){
         apt-get -y update
         apt-get install -y wget unzip gzip curl
     fi
-    # Get IP address
-    echo "Getting Public IP address, Please wait a moment..."
-    echo -e "Your main public IP is\t\033[32m $(get_ip) \033[0m"
     echo
 
 }
@@ -236,7 +233,7 @@ download_files(){
 # Config shadowsocks
 config_shadowsocks(){
     if [ ! -d /etc/shadowsocks ]; then
-        mkdir /etc/shadowsocks
+        mkdir -p /etc/shadowsocks
     fi
     cat > /etc/shadowsocks/config.json<<-EOF
 {
@@ -250,7 +247,7 @@ config_shadowsocks(){
 EOF
 }
 
-# firewall set
+# Firewall set
 firewall_set(){
     echo "firewall set start..."
     if centosversion 6; then
@@ -289,36 +286,36 @@ firewall_set(){
     echo "firewall set completed..."
 }
 
-# Install 
-install_go(){
-    # Install shadowsocks-go
+# Install Shadowsocks-go
+install(){
+
     if [ -s /usr/bin/shadowsocks-server ]; then
         echo "shadowsocks-go install success!"
         chmod +x /usr/bin/shadowsocks-server
         chmod +x /etc/init.d/shadowsocks
-        # Add run on system start up
+
         if check_sys packageManager yum; then
             chkconfig --add shadowsocks
             chkconfig shadowsocks on
         elif check_sys packageManager apt; then
             update-rc.d -f shadowsocks defaults
         fi
-        # Start shadowsocks
+
         /etc/init.d/shadowsocks start
         if [ $? -eq 0 ]; then
             echo "Shadowsocks-go start success!"
         else
-            echo "Shadowsocks-go start failure!"
+            echo "Shadowsocks-go start failed!"
         fi
     else
         echo
-        echo "shadowsocks-go install failed!"
+        echo "Shadowsocks-go install failed!"
         exit 1
     fi
 
     clear
     echo
-    echo "Congratulations, shadowsocks-go install completed!"
+    echo "Congratulations, Shadowsocks-go install completed!"
     echo -e "Your Server IP: \033[41;37m $(get_ip) \033[0m"
     echo -e "Your Server Port: \033[41;37m ${shadowsocksport} \033[0m"
     echo -e "Your Password: \033[41;37m ${shadowsockspwd} \033[0m"
@@ -328,7 +325,6 @@ install_go(){
     echo "Welcome to visit:https://teddysun.com/392.html"
     echo "Enjoy it!"
     echo
-    exit 0
 }
 
 # Uninstall Shadowsocks-go
@@ -354,7 +350,9 @@ uninstall_shadowsocks_go(){
         rm -f /usr/bin/shadowsocks-server
         echo "Shadowsocks-go uninstall success!"
     else
+        echo
         echo "Uninstall cancelled, nothing to do..."
+        echo
     fi
 }
 
@@ -368,21 +366,18 @@ install_shadowsocks_go(){
     if check_sys packageManager yum; then
         firewall_set
     fi
-    install_go
+    install
 }
 
 # Initialization step
 action=$1
 [ -z $1 ] && action=install
 case "$action" in
-install)
-    install_shadowsocks_go
+    install|uninstall)
+    ${action}_shadowsocks_go
     ;;
-uninstall)
-    uninstall_shadowsocks_go
-    ;;
-*)
-    echo "Arguments error! [${action} ]"
+    *)
+    echo "Arguments error! [${action}]"
     echo "Usage: `basename $0` {install|uninstall}"
     ;;
 esac
