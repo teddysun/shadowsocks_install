@@ -15,6 +15,7 @@
 NAME=ShadowsocksR
 BIN=/usr/local/shadowsocks/server.py
 CONF=/etc/shadowsocks.json
+RETVAL=0
 
 check_running(){
     PID=`ps -ef | grep -v grep | grep -i "${BIN}" | awk '{print $2}'`
@@ -28,16 +29,15 @@ check_running(){
 do_start(){
     check_running
     if [ $? -eq 0 ]; then
-        echo "$NAME is already running with PID $PID"
-        RETVAL=1
+        echo "$NAME (pid $PID) is already running..."
+        exit 0
     else
         $BIN -c $CONF -d start
         RETVAL=$?
         if [ $RETVAL -eq 0 ]; then
-            echo "$NAME start success"
+            echo "Starting $NAME success"
         else
-            echo "$NAME start failed"
-            RETVAL=1
+            echo "Starting $NAME failed"
         fi
     fi
 }
@@ -48,13 +48,12 @@ do_stop(){
         $BIN -c $CONF -d stop
         RETVAL=$?
         if [ $RETVAL -eq 0 ]; then
-            echo "$NAME stop success"
+            echo "Stopping $NAME success"
         else
-            echo "$NAME stop failed"
-            RETVAL=1
+            echo "Stopping $NAME failed"
         fi
     else
-        echo "$NAME is not running"
+        echo "$NAME is stopped"
         RETVAL=1
     fi
 }
@@ -62,17 +61,16 @@ do_stop(){
 do_status(){
     check_running
     if [ $? -eq 0 ]; then
-        echo "$NAME is running with PID $PID"
-        RETVAL=0
+        echo "$NAME (pid $PID) is running..."
     else
-        echo "$NAME is not running"
+        echo "$NAME is stopped"
         RETVAL=1
     fi
 }
 
 do_restart(){
-  do_stop
-  do_start
+    do_stop
+    do_start
 }
 
 case "$1" in
