@@ -36,6 +36,11 @@ get_ip(){
 }
 
 get_latest_version(){
+    check_installed "curl"
+    if [ $? -eq 1 ]; then
+        echo "curl command not found, try to install it"
+        yum -y install curl
+    fi
     ver=$(curl -s https://api.github.com/repos/shadowsocks/shadowsocks-libev/releases/latest | grep 'tag_name' | cut -d\" -f4)
     [ -z ${ver} ] && echo "Error: Get shadowsocks-libev latest version failed" && exit 1
     shadowsocks_libev_ver="shadowsocks-libev-$(echo ${ver} | sed -e 's/^[a-zA-Z]//g')"
@@ -206,7 +211,7 @@ pre_install(){
     echo "Press any key to start...or press Ctrl+C to cancel"
     char=`get_char`
     #Install necessary dependencies
-    yum install -y unzip autoconf automake make zlib-devel curl curl-devel libtool libevent xmlto asciidoc pcre pcre-devel openssl-devel gcc perl perl-devel cpio expat-devel gettext-devel
+    yum install -y unzip autoconf automake make zlib-devel curl-devel libtool libevent xmlto asciidoc pcre pcre-devel openssl-devel gcc perl perl-devel cpio expat-devel gettext-devel
     echo
     cd ${cur_dir}
 }

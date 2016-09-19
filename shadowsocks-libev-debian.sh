@@ -36,6 +36,12 @@ get_ip(){
 }
 
 get_latest_version(){
+    check_installed "curl"
+    if [ $? -eq 1 ]; then
+        echo "curl command not found, try to install it"
+        apt-get -y update
+        apt-get -y --no-install-recommends install curl
+    fi
     ver=$(curl -s https://api.github.com/repos/shadowsocks/shadowsocks-libev/releases/latest | grep 'tag_name' | cut -d\" -f4)
     [ -z ${ver} ] && echo "Error: Get shadowsocks-libev latest version failed" && exit 1
     shadowsocks_libev_ver="shadowsocks-libev-$(echo ${ver} | sed -e 's/^[a-zA-Z]//g')"
@@ -177,7 +183,7 @@ pre_install(){
     # Update System
     apt-get -y update
     # Install necessary dependencies
-    apt-get -y --no-install-recommends install curl build-essential autoconf libtool openssl libssl-dev zlib1g-dev xmlto asciidoc libpcre3 libpcre3-dev
+    apt-get -y --no-install-recommends install build-essential autoconf libtool openssl libssl-dev zlib1g-dev xmlto asciidoc libpcre3 libpcre3-dev
     echo
     cd ${cur_dir}
 }
