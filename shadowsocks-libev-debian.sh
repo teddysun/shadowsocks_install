@@ -35,6 +35,15 @@ get_ip(){
     [ ! -z ${IP} ] && echo ${IP} || echo
 }
 
+get_ipv6(){
+    local ipv6=$(wget -qO- -t1 -T2 ipv6.icanhazip.com)
+    if [ -z ${ipv6} ]; then
+        return 1
+    else
+        return 0
+    fi
+}
+
 get_latest_version(){
     ver=$(wget -qO- https://api.github.com/repos/shadowsocks/shadowsocks-libev/releases/latest | grep 'tag_name' | cut -d\" -f4)
     [ -z ${ver} ] && echo "Error: Get shadowsocks-libev latest version failed" && exit 1
