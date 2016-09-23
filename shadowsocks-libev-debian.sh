@@ -22,10 +22,10 @@ rootness(){
 
 # Disable selinux
 disable_selinux(){
-if [ -s /etc/selinux/config ] && grep 'SELINUX=enforcing' /etc/selinux/config; then
-    sed -i 's/SELINUX=enforcing/SELINUX=disabled/g' /etc/selinux/config
-    setenforce 0
-fi
+    if [ -s /etc/selinux/config ] && grep 'SELINUX=enforcing' /etc/selinux/config; then
+        sed -i 's/SELINUX=enforcing/SELINUX=disabled/g' /etc/selinux/config
+        setenforce 0
+    fi
 }
 
 get_ip(){
@@ -36,13 +36,7 @@ get_ip(){
 }
 
 get_latest_version(){
-    check_installed "curl"
-    if [ $? -eq 1 ]; then
-        echo "curl command not found, try to install it"
-        apt-get -y update
-        apt-get -y --no-install-recommends install curl
-    fi
-    ver=$(curl -s https://api.github.com/repos/shadowsocks/shadowsocks-libev/releases/latest | grep 'tag_name' | cut -d\" -f4)
+    ver=$(wget -qO- https://api.github.com/repos/shadowsocks/shadowsocks-libev/releases/latest | grep 'tag_name' | cut -d\" -f4)
     [ -z ${ver} ] && echo "Error: Get shadowsocks-libev latest version failed" && exit 1
     shadowsocks_libev_ver="shadowsocks-libev-$(echo ${ver} | sed -e 's/^[a-zA-Z]//g')"
     download_link="https://github.com/shadowsocks/shadowsocks-libev/archive/${ver}.tar.gz"
@@ -208,12 +202,17 @@ download_files(){
 
 # Config shadowsocks
 config_shadowsocks(){
+    local server_value="\"0.0.0.0\""
+    if get_ipv6; then
+        server_value="[\"[::0]\",\"0.0.0.0\"]"
+    fi
+
     if [ ! -d /etc/shadowsocks-libev ]; then
         mkdir -p /etc/shadowsocks-libev
     fi
     cat > /etc/shadowsocks-libev/config.json<<-EOF
 {
-    "server":"0.0.0.0",
+    "server":${server_value},
     "server_port":${shadowsocksport},
     "local_address":"127.0.0.1",
     "local_port":1080,
