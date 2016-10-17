@@ -189,7 +189,7 @@ pre_install(){
 download_files(){
     cd ${cur_dir}
     if is_64bit; then
-        if ! wget -c http://dl.teddysun.com/shadowsocks/shadowsocks-server-linux64-1.1.5.gz; then
+        if ! wget --no-check-certificate -c https://github.com/shadowsocks/shadowsocks-go/releases/download/1.1.5/shadowsocks-server-linux64-1.1.5.gz; then
             echo "Failed to download shadowsocks-server-linux64-1.1.5.gz"
             exit 1
         fi
@@ -202,7 +202,7 @@ download_files(){
         fi
         mv -f shadowsocks-server-linux64-1.1.5 /usr/bin/shadowsocks-server
     else
-        if ! wget -c http://dl.teddysun.com/shadowsocks/shadowsocks-server-linux32-1.1.5.gz; then
+        if ! wget --no-check-certificate -c https://github.com/shadowsocks/shadowsocks-go/releases/download/1.1.5/shadowsocks-server-linux32-1.1.5.gz; then
             echo "Failed to download shadowsocks-server-linux32-1.1.5.gz"
             exit 1
         fi
