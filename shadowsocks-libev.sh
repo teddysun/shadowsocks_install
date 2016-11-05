@@ -189,6 +189,7 @@ pre_install(){
         fi
     elif [ ${status} -eq 2 ]; then
         print_info
+        get_latest_version
         echo "Latest version: ${shadowsocks_libev_ver}"
         echo
     fi
