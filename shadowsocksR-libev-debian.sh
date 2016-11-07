@@ -49,7 +49,7 @@ get_latest_version(){
     [ -z ${ver} ] && echo "Error: Get shadowsocks-libev latest version failed" && exit 1
     shadowsocks_libev_ver="shadowsocks-libev-$(echo ${ver} | sed -e 's/^[a-zA-Z]//g')"
     download_link="https://github.com/breakwa11/shadowsocks-libev/archive/master.zip"
-    init_script_link="https://raw.githubusercontent.com/teddysun/shadowsocks_install/master/shadowsocksR-libev-debian"
+    init_script_link="https://raw.githubusercontent.com/wayrt7/shadowsocks_install/patch-1/shadowsocksR-libev-debian"
 }
 
 check_installed(){
