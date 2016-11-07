@@ -53,7 +53,7 @@ do_start() {
         exit 0
     else
         echo -n $"Starting ${NAME}: "
-        daemon $DAEMON -u -c $CONF -f $PID_FILE
+        daemon $DAEMON -b 0.0.0.0  -u -c $CONF -f $PID_FILE
     fi
 
     RETVAL=$?
