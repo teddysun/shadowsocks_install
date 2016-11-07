@@ -1,0 +1,98 @@
+#!/bin/bash
+# chkconfig: 2345 90 10
+# description: A secure socks5 proxy, designed to protect your Internet traffic.
+
+### BEGIN INIT INFO
+# Provides:          Shadowsocks-libev
+# Required-Start:    $network $syslog
+# Required-Stop:     $network
+# Default-Start:     2 3 4 5
+# Default-Stop:      0 1 6
+# Short-Description: Fast tunnel proxy that helps you bypass firewalls
+# Description:       Start or stop the Shadowsocks-libev server
+### END INIT INFO
+
+# Author: Teddysun <i@teddysun.com>
+
+# Source function library
+. /etc/rc.d/init.d/functions
+
+# Check that networking is up.
+[ ${NETWORKING} ="yes" ] || exit 0
+
+if [ -f /usr/local/bin/ss-server ]; then
+    DAEMON=/usr/local/bin/ss-server
+elif [ -f /usr/bin/ss-server ]; then
+    DAEMON=/usr/bin/ss-server
+fi
+NAME=Shadowsocks-libev
+CONF=/etc/shadowsocks-libev/config.json
+PID_DIR=/var/run
+PID_FILE=$PID_DIR/shadowsocks-libev.pid
+RET_VAL=0
+
+[ -x $DAEMON ] || exit 0
+
+if [ ! -d $PID_DIR ]; then
+    mkdir -p $PID_DIR
+    if [ $? -ne 0 ]; then
+        echo "Creating PID directory $PID_DIR failed"
+        exit 1
+    fi
+fi
+
+if [ ! -f $CONF ]; then
+    echo "$NAME config file $CONF not found"
+    exit 1
+fi
+
+do_start() {
+    if [ -f $PID_FILE ]; then
+        read PID < $PID_FILE
+        echo "$NAME (pid $PID) is already running..."
+        exit 0
+    else
+        echo -n $"Starting ${NAME}: "
+        daemon $DAEMON -u -c $CONF -f $PID_FILE
+    fi
+
+    RETVAL=$?
+    [ $RETVAL -eq 0 ] && success
+    echo
+}
+
+do_stop() {
+    echo -n $"Stopping ${NAME}: "
+    killproc -p $PID_FILE
+    RETVAL=$?
+    [ $RETVAL -eq 0 ]
+    rm -f $PID_FILE
+    echo
+}
+
+do_status() {
+    if [ -f $PID_FILE ]; then
+        read PID < $PID_FILE
+        echo "$NAME (pid $PID) is running..."
+    else
+        echo "$NAME is stopped"
+        RETVAL=1
+    fi
+}
+
+do_restart() {
+    do_stop
+    do_start
+}
+
+case "$1" in
+    start|stop|restart|status)
+    do_$1
+    ;;
+    *)
+    echo "Usage: $0 { start | stop | restart | status }"
+    RET_VAL=1
+    ;;
+esac
+
+exit $RETVAL
