@@ -152,7 +152,7 @@ pre_install(){
         echo "Installed version: ${installed_ver}"
         echo "Latest version: ${latest_ver}"
         echo "Upgrade shadowsocks libev to latest version..."
-        ps -ef | grep -v grep | grep -i "ss-server" > /dev/null 2>&1
+        ps -ef | grep -v grep | grep -i "ss-redir" > /dev/null 2>&1
         if [ $? -eq 0 ]; then
             /etc/init.d/shadowsocks stop
         fi
@@ -316,7 +316,7 @@ uninstall_shadowsocks_libev(){
     [ -z ${answer} ] && answer="n"
 
     if [ "${answer}" == "y" ] || [ "${answer}" == "Y" ]; then
-        ps -ef | grep -v grep | grep -i "ss-server" > /dev/null 2>&1
+        ps -ef | grep -v grep | grep -i "ss-redir" > /dev/null 2>&1
         if [ $? -eq 0 ]; then
             /etc/init.d/shadowsocks stop
         fi
