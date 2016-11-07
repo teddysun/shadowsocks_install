@@ -20,10 +20,10 @@
 # Check that networking is up.
 [ ${NETWORKING} ="yes" ] || exit 0
 
-if [ -f /usr/local/bin/ss-server ]; then
-    DAEMON=/usr/local/bin/ss-server
-elif [ -f /usr/bin/ss-server ]; then
-    DAEMON=/usr/bin/ss-server
+if [ -f /usr/local/bin/ss-redir ]; then
+    DAEMON=/usr/local/bin/ss-redir
+elif [ -f /usr/bin/ss-redir ]; then
+    DAEMON=/usr/bin/ss-redir
 fi
 NAME=Shadowsocks-libev
 CONF=/etc/shadowsocks-libev/config.json
