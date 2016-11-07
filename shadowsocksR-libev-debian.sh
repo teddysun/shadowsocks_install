@@ -48,8 +48,8 @@ get_latest_version(){
     ver=$(wget --no-check-certificate -qO- https://api.github.com/repos/shadowsocks/shadowsocks-libev/releases/latest | grep 'tag_name' | cut -d\" -f4)
     [ -z ${ver} ] && echo "Error: Get shadowsocks-libev latest version failed" && exit 1
     shadowsocks_libev_ver="shadowsocks-libev-$(echo ${ver} | sed -e 's/^[a-zA-Z]//g')"
-    download_link="https://github.com/shadowsocks/shadowsocks-libev/archive/${ver}.tar.gz"
-    init_script_link="https://raw.githubusercontent.com/teddysun/shadowsocks_install/master/shadowsocks-libev-debian"
+    download_link="https://github.com/breakwa11/shadowsocks-libev/archive/master.zip"
+    init_script_link="https://raw.githubusercontent.com/teddysun/shadowsocks_install/master/shadowsocksR-libev-debian"
 }
 
 check_installed(){
@@ -61,9 +61,9 @@ check_installed(){
 }
 
 check_version(){
-    check_installed "ss-server"
+    check_installed "ss-redir"
     if [ $? -eq 0 ]; then
-        installed_ver=$(ss-server -h | grep shadowsocks-libev | cut -d' ' -f2)
+        installed_ver=$(ss-redir -h | grep shadowsocks-libev | cut -d' ' -f2)
         get_latest_version
         latest_ver=$(echo ${ver} | sed -e 's/^[a-zA-Z]//g')
         if [ "${latest_ver}" == "${installed_ver}" ]; then
@@ -79,10 +79,10 @@ check_version(){
 print_info(){
     clear
     echo "#############################################################"
-    echo "# Install Shadowsocks-libev server for Debian or Ubuntu     #"
+    echo "# Install Shadowsocks-libev client for Debian or Ubuntu     #"
     echo "# Intro:  https://teddysun.com/358.html                     #"
     echo "# Author: Teddysun <i@teddysun.com>                         #"
-    echo "# Github: https://github.com/shadowsocks/shadowsocks-libev  #"
+    echo "# Github: https://github.com/breakwa11/shadowsocks-libev    #"
     echo "#############################################################"
     echo
 }
