@@ -12,7 +12,7 @@
 # @cyfdecyf   <https://twitter.com/cyfdecyf>
 # @madeye     <https://github.com/madeye>
 # 
-# Intro:  https://teddysun.com/xxx.html
+# Intro:  https://teddysun.com/486.html
 
 red='\033[0;31m'
 green='\033[0;32m'
@@ -229,7 +229,7 @@ error_detect_depends(){
     ${command}
     if [ $? != 0 ]; then
         echo -e "Failed to install ${red}${depend}${plain}"
-        echo "Please visit our website: https://teddysun.com/xxx.html for help"
+        echo "Please visit our website: https://teddysun.com/486.html for help"
         exit 1
     fi
 }
@@ -656,7 +656,7 @@ install_main(){
     fi
 
     echo
-    echo "Welcome to visit: https://teddysun.com/xxx.html"
+    echo "Welcome to visit: https://teddysun.com/486.html"
     echo "Enjoy it!"
     echo
 }
@@ -819,6 +819,8 @@ uninstall_shadowsocks() {
         uninstall_shadowsocks_go
     elif [ -f ${shadowsocks_libev_init} ]; then
         uninstall_shadowsocks_libev
+    else
+        echo "uninstall cancelled, any shaowsocks server not found..."
     fi
 }
 
