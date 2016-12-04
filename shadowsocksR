@@ -16,7 +16,11 @@
 
 NAME=ShadowsocksR
 BIN=/usr/local/shadowsocks/server.py
-CONF=/etc/shadowsocks.json
+if [ -f /etc/shadowsocks-r/config.json ]; then
+    CONF=/etc/shadowsocks-r/config.json
+elif [ -f /etc/shadowsocks.json ]; then
+    CONF=/etc/shadowsocks.json
+fi
 RETVAL=0
 
 check_running(){

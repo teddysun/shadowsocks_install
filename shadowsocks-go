@@ -22,7 +22,11 @@
 
 NAME=Shadowsocks-go
 BIN=/usr/bin/shadowsocks-server
-CONF=/etc/shadowsocks/config.json
+if [ -f /etc/shadowsocks-go/config.json ]; then
+    CONF=/etc/shadowsocks-go/config.json
+elif [ -f /etc/shadowsocks/config.json ]; then
+    CONF=/etc/shadowsocks/config.json
+fi
 PID_DIR=/var/run
 PID_FILE=$PID_DIR/shadowsocks-go.pid
 RET_VAL=0
