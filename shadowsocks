@@ -42,7 +42,7 @@ do_start(){
         echo "$NAME (pid $PID) is already running..."
         exit 0
     else
-        $BIN -c $CONF -d start
+        $BIN -c $CONF -qq -d start
         RETVAL=$?
         if [ $RETVAL -eq 0 ]; then
             echo "Starting $NAME success"
