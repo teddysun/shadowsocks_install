@@ -16,7 +16,7 @@ echo "#"
 echo "# Author: Teddysun <i@teddysun.com>"
 echo "#"
 echo "#############################################################"
-echo ""
+echo
 
 # Get Nodejs latest version
 NODEJS_VER=`curl -s https://nodejs.org/en/download/ | awk -F'<strong>' '/Current version/{print $2}' | cut -d '<' -f 1`
