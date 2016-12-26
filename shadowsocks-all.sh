@@ -351,7 +351,7 @@ fi
 install_dependencies() {
     if check_sys packageManager yum; then
         yum_depends=(
-            unzip gzip openssl openssl-devel gcc swig python python-devel python-setuptools libtool libevent xmlto
+            unzip gzip openssl openssl-devel gcc swig python python-devel python-setuptools pcre pcre-devel libtool libevent xmlto
             autoconf automake make curl curl-devel zlib-devel perl perl-devel cpio expat-devel gettext-devel asciidoc
         )
         for depend in ${yum_depends[@]}; do
