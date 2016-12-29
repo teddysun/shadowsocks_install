@@ -33,7 +33,7 @@ shadowsocks_python_config="/etc/shadowsocks-python/config.json"
 shadowsocks_python_centos="https://raw.githubusercontent.com/teddysun/shadowsocks_install/master/shadowsocks"
 shadowsocks_python_debian="https://raw.githubusercontent.com/teddysun/shadowsocks_install/master/shadowsocks-debian"
 
-shadowsocks_r_file="shadowsocks-manyuser"
+shadowsocks_r_file="shadowsocksr-manyuser"
 shadowsocks_r_url="https://github.com/shadowsocksr/shadowsocksr/archive/manyuser.zip"
 shadowsocks_r_init="/etc/init.d/shadowsocks-r"
 shadowsocks_r_config="/etc/shadowsocks-r/config.json"
