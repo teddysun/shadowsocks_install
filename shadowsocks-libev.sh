@@ -328,7 +328,7 @@ firewall_set(){
 install_shadowsocks(){
     tar zxf ${shadowsocks_libev_ver}.tar.gz
     cd ${shadowsocks_libev_ver}
-    ./configure
+    ./configure --disable-documentation
     make && make install
     if [ $? -eq 0 ]; then
         chmod +x /etc/init.d/shadowsocks
