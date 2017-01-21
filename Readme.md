@@ -41,9 +41,4 @@ haproxy.sh
 - Description: Auto Install haproxy for Shadowsocks Server
 - Intro: https://shadowsocks.be/10.html
 
-shadowsocks-nodejs.sh (Deprecated)
-===============
-- Description: Auto Install Shadowsocks(NodeJS) Server for CentOS
-- Intro: https://teddysun.com/355.html
-
 Copyright (C) 2014-2016 Teddysun <i@teddysun.com>
