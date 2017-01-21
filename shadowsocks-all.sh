@@ -40,8 +40,8 @@ shadowsocks_r_config="/etc/shadowsocks-r/config.json"
 shadowsocks_r_centos="https://raw.githubusercontent.com/teddysun/shadowsocks_install/master/shadowsocksR"
 shadowsocks_r_debian="https://raw.githubusercontent.com/teddysun/shadowsocks_install/master/shadowsocksR-debian"
 
-shadowsocks_go_file_64="shadowsocks-server-linux64-1.1.5"
-shadowsocks_go_url_64="https://github.com/shadowsocks/shadowsocks-go/releases/download/1.1.5/shadowsocks-server-linux64-1.1.5.gz"
+shadowsocks_go_file_64="shadowsocks-server-linux64-1.2.0"
+shadowsocks_go_url_64="https://github.com/shadowsocks/shadowsocks-go/releases/download/1.2.0/shadowsocks-server-linux64-1.2.0.tar.gz"
 shadowsocks_go_file_32="shadowsocks-server-linux32-1.1.5"
 shadowsocks_go_url_32="https://github.com/shadowsocks/shadowsocks-go/releases/download/1.1.5/shadowsocks-server-linux32-1.1.5.gz"
 shadowsocks_go_init="/etc/init.d/shadowsocks-go"
@@ -189,7 +189,7 @@ download_files() {
         fi
     elif [ "${selected}" == "3" ]; then
         if is_64bit; then
-            download "${shadowsocks_go_file_64}.gz" "${shadowsocks_go_url_64}"
+            download "${shadowsocks_go_file_64}.tar.gz" "${shadowsocks_go_url_64}"
         else
             download "${shadowsocks_go_file_32}.gz" "${shadowsocks_go_url_32}"
         fi
@@ -529,17 +529,17 @@ install_shadowsocks_r() {
 install_shadowsocks_go() {
     cd ${cur_dir}
     if is_64bit; then
-        gzip -d ${shadowsocks_go_file_64}.gz
+        tar zxf ${shadowsocks_go_file_64}.tar.gz
         if [ $? -ne 0 ];then
-            echo "Decompress ${shadowsocks_go_file_64}.gz failed, please check gzip command."
+            echo "Decompress ${shadowsocks_go_file_64}.tar.gz failed."
             install_cleanup
             exit 1
         fi
-        mv -f ${shadowsocks_go_file_64} /usr/bin/shadowsocks-server
+        mv -f shadowsocks-server /usr/bin/shadowsocks-server
     else
         gzip -d ${shadowsocks_go_file_32}.gz
         if [ $? -ne 0 ];then
-            echo "Decompress ${shadowsocks_go_file_32}.gz failed, please check gzip command."
+            echo "Decompress ${shadowsocks_go_file_32}.gz failed."
             install_cleanup
             exit 1
         fi
@@ -666,7 +666,7 @@ install_cleanup(){
     rm -rf ${libsodium_file} ${libsodium_file}.tar.gz
     rm -rf ${shadowsocks_python_file} ${shadowsocks_python_file}.zip
     rm -rf ${shadowsocks_r_file} ${shadowsocks_r_file}.zip
-    rm -rf ${shadowsocks_go_file_64}.gz ${shadowsocks_go_file_32}.gz
+    rm -rf ${shadowsocks_go_file_64}.tar.gz ${shadowsocks_go_file_32}.gz
     rm -rf ${shadowsocks_libev_file} ${shadowsocks_libev_file}.tar.gz
 }
 
