@@ -191,15 +191,15 @@ pre_install(){
 download_files(){
     cd ${cur_dir}
     if is_64bit; then
-        if ! wget --no-check-certificate -c https://github.com/shadowsocks/shadowsocks-go/releases/download/1.2.0/shadowsocks-server-linux64-1.2.0.tar.gz; then
-            echo "Failed to download shadowsocks-server-linux64-1.2.0.tar.gz"
+        if ! wget --no-check-certificate -c https://github.com/shadowsocks/shadowsocks-go/releases/download/1.2.1/shadowsocks-server.tar.gz; then
+            echo "Failed to download shadowsocks-server.tar.gz"
             exit 1
         fi
-        tar zxf shadowsocks-server-linux64-1.2.0.tar.gz
+        tar zxf shadowsocks-server.tar.gz
         if [ $? -eq 0 ]; then
-            echo "Decompress shadowsocks-server-linux64-1.2.0.tar.gz success."
+            echo "Decompress shadowsocks-server.tar.gz success."
         else
-            echo "Decompress shadowsocks-server-linux64-1.2.0.tar.gz failed."
+            echo "Decompress shadowsocks-server.tar.gz failed."
             exit 1
         fi
         mv -f shadowsocks-server /usr/bin/shadowsocks-server
