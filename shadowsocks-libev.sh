@@ -61,7 +61,7 @@ get_latest_version(){
     [ -z ${ver} ] && echo "Error: Get shadowsocks-libev latest version failed" && exit 1
     shadowsocks_libev_ver="shadowsocks-libev-$(echo ${ver} | sed -e 's/^[a-zA-Z]//g')"
     download_link="https://github.com/shadowsocks/shadowsocks-libev/archive/${ver}.tar.gz"
-    init_script_link="https://raw.githubusercontent.com/teddysun/shadowsocks_install/master/shadowsocks-libev"
+    init_script_link="https://raw.githubusercontent.com/qpzm1258/shadowsocks_install/master/shadowsocks-libev.sh"
 }
 
 check_installed(){
@@ -332,7 +332,7 @@ firewall_set(){
 install_shadowsocks(){
     tar zxf ${shadowsocks_libev_ver}.tar.gz
     cd ${shadowsocks_libev_ver}
-    ./configure
+    ./configure --disable-documentation
     make && make install
     if [ $? -eq 0 ]; then
         chmod +x /etc/init.d/shadowsocks
