@@ -207,7 +207,7 @@ download_files() {
     elif [ "${selected}" == "4" ]; then
         get_libev_ver
         shadowsocks_libev_file="shadowsocks-libev-$(echo ${libev_ver} | sed -e 's/^[a-zA-Z]//g')"
-        shadowsocks_libev_url="https://github.com/shadowsocks/shadowsocks-libev/releases/download/${ver}/${shadowsocks_libev_file}.tar.gz"
+        shadowsocks_libev_url="https://github.com/shadowsocks/shadowsocks-libev/releases/download/${libev_ver}/${shadowsocks_libev_file}.tar.gz"
 
         download "${shadowsocks_libev_file}.tar.gz" "${shadowsocks_libev_url}"
         if check_sys packageManager yum; then
