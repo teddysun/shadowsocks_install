@@ -26,6 +26,10 @@ software=(Shadowsocks-Python ShadowsocksR Shadowsocks-Go Shadowsocks-libev)
 
 libsodium_file="libsodium-1.0.11"
 libsodium_url="https://github.com/jedisct1/libsodium/releases/download/1.0.11/libsodium-1.0.11.tar.gz"
+
+mbedtls_file="mbedtls-2.4.0"
+mbedtls_url="https://tls.mbed.org/download/mbedtls-2.4.0-gpl.tgz"
+
 shadowsocks_python_file="shadowsocks-master"
 shadowsocks_python_url="https://github.com/shadowsocks/shadowsocks/archive/master.zip"
 shadowsocks_python_init="/etc/init.d/shadowsocks-python"
@@ -144,7 +148,7 @@ get_ipv6(){
 get_libev_ver(){
     #libev_ver=$(wget --no-check-certificate -qO- https://api.github.com/repos/shadowsocks/shadowsocks-libev/releases/latest | grep 'tag_name' | cut -d\" -f4)
     # The specified version
-    libev_ver="v2.5.6"
+    libev_ver="v3.0.1"
     [ -z ${libev_ver} ] && echo "${red}Error:${plain} Get shadowsocks-libev latest version failed" && exit 1
 }
 
@@ -173,8 +177,9 @@ download() {
 download_files() {
     cd ${cur_dir}
 
+    download "${libsodium_file}.tar.gz" "${libsodium_url}"
+
     if   [ "${selected}" == "1" ]; then
-        download "${libsodium_file}.tar.gz" "${libsodium_url}"
         download "${shadowsocks_python_file}.zip" "${shadowsocks_python_url}"
         if check_sys packageManager yum; then
             download "${shadowsocks_python_init}" "${shadowsocks_python_centos}"
@@ -182,7 +187,6 @@ download_files() {
             download "${shadowsocks_python_init}" "${shadowsocks_python_debian}"
         fi
     elif [ "${selected}" == "2" ]; then
-        download "${libsodium_file}.tar.gz" "${libsodium_url}"
         download "${shadowsocks_r_file}.zip" "${shadowsocks_r_url}"
         if check_sys packageManager yum; then
             download "${shadowsocks_r_init}" "${shadowsocks_r_centos}"
@@ -203,12 +207,13 @@ download_files() {
     elif [ "${selected}" == "4" ]; then
         get_libev_ver
         shadowsocks_libev_file="shadowsocks-libev-$(echo ${libev_ver} | sed -e 's/^[a-zA-Z]//g')"
-        shadowsocks_libev_url="https://github.com/shadowsocks/shadowsocks-libev/archive/${libev_ver}.tar.gz"
+        shadowsocks_libev_url="https://github.com/shadowsocks/shadowsocks-libev/releases/download/${ver}/${shadowsocks_libev_file}.tar.gz"
 
         download "${shadowsocks_libev_file}.tar.gz" "${shadowsocks_libev_url}"
         if check_sys packageManager yum; then
             download "${shadowsocks_libev_init}" "${shadowsocks_libev_centos}"
         elif check_sys packageManager apt; then
+            download "${mbedtls_file}-gpl.tgz" "${mbedtls_url}"
             download "${shadowsocks_libev_init}" "${shadowsocks_libev_debian}"
         fi
     fi
@@ -353,16 +358,20 @@ fi
 install_dependencies() {
     if check_sys packageManager yum; then
         yum_depends=(
+            epel-release
             unzip gzip openssl openssl-devel gcc swig python python-devel python-setuptools pcre pcre-devel libtool libevent xmlto
             autoconf automake make curl curl-devel zlib-devel perl perl-devel cpio expat-devel gettext-devel asciidoc
+            udns-devel libev-devel mbedtls-devel
         )
         for depend in ${yum_depends[@]}; do
             error_detect_depends "yum -y install ${depend}"
         done
+        [ -f /usr/include/libev/ev.h ] && ln -sf /usr/include/libev/ev.h /usr/include/ev.h
     elif check_sys packageManager apt; then
         apt_depends=(
-            build-essential unzip gzip python python-dev python-pip python-m2crypto curl openssl libssl-dev
+            gettext build-essential unzip gzip python python-dev python-pip python-m2crypto curl openssl libssl-dev
             autoconf automake libtool gcc swig make perl cpio xmlto asciidoc libpcre3 libpcre3-dev zlib1g-dev
+            libudns-dev libev-dev
         )
         apt-get -y update
         for depend in ${apt_depends[@]}; do
@@ -456,17 +465,29 @@ install_prepare() {
 }
 
 install_libsodium() {
-    cd ${cur_dir}
-    tar zxf ${libsodium_file}.tar.gz
-    cd ${libsodium_file}
-    ./configure && make && make install
-    if [ $? -ne 0 ]; then
-        echo -e "${red}Error:${plain} ${libsodium_file} install failed."
-        install_cleanup
-        exit 1
+    if [ ! -f /usr/local/lib/libsodium.a ]; then
+        cd ${cur_dir}
+        tar zxf ${libsodium_file}.tar.gz
+        cd ${libsodium_file}
+        ./configure && make && make install
+        if [ $? -ne 0 ]; then
+            echo -e "${red}Error:${plain} ${libsodium_file} install failed."
+            install_cleanup
+            exit 1
+        fi
+        echo "/usr/local/lib" > /etc/ld.so.conf.d/local.conf
+        ldconfig
+    else
+        echo -e "${green}Info:${plain} ${libsodium_file} already installed."
     fi
-    echo "/usr/local/lib" > /etc/ld.so.conf.d/local.conf
-    ldconfig
+}
+
+install_mbedtls() {
+    cd ${cur_dir}
+    tar xf ${mbedtls_file}-gpl.tgz
+    cd ${mbedtls_file}
+    make SHARED=1 CFLAGS=-fPIC
+    make install
 }
 
 install_shadowsocks_python() {
@@ -639,13 +660,13 @@ install_completed_libev() {
 }
 
 install_main(){
+    install_libsodium
+
     if   [ "${selected}" == "1" ]; then
-        install_libsodium
         install_shadowsocks_python
         install_completed_python
     elif [ "${selected}" == "2" ]; then
         if [ "${yes_no}" == "y" -o "${yes_no}" == "Y" ] || [ ! -f ${shadowsocks_python_init} ]; then
-            install_libsodium
             install_shadowsocks_r
             install_completed_r
         fi
@@ -653,6 +674,9 @@ install_main(){
         install_shadowsocks_go
         install_completed_go
     elif [ "${selected}" == "4" ]; then
+        if check_sys packageManager apt; then
+            install_mbedtls
+        fi
         install_shadowsocks_libev
         install_completed_libev
     fi
@@ -666,6 +690,7 @@ install_main(){
 install_cleanup(){
     cd ${cur_dir}
     rm -rf ${libsodium_file} ${libsodium_file}.tar.gz
+    rm -rf ${mbedtls_file} ${mbedtls_file}-gpl.tgz
     rm -rf ${shadowsocks_python_file} ${shadowsocks_python_file}.zip
     rm -rf ${shadowsocks_r_file} ${shadowsocks_r_file}.zip
     rm -rf ${shadowsocks_go_file_64}.tar.gz ${shadowsocks_go_file_32}.gz

@@ -57,10 +57,10 @@ get_char(){
 get_latest_version(){
     #ver=$(wget --no-check-certificate -qO- https://api.github.com/repos/shadowsocks/shadowsocks-libev/releases/latest | grep 'tag_name' | cut -d\" -f4)
     # The specified version
-    ver="v2.5.6"
+    ver="v3.0.1"
     [ -z ${ver} ] && echo "Error: Get shadowsocks-libev latest version failed" && exit 1
     shadowsocks_libev_ver="shadowsocks-libev-$(echo ${ver} | sed -e 's/^[a-zA-Z]//g')"
-    download_link="https://github.com/shadowsocks/shadowsocks-libev/archive/${ver}.tar.gz"
+    download_link="https://github.com/shadowsocks/shadowsocks-libev/releases/download/${ver}/${shadowsocks_libev_ver}.tar.gz"
     init_script_link="https://raw.githubusercontent.com/teddysun/shadowsocks_install/master/shadowsocks-libev-debian"
 }
 
@@ -214,13 +214,13 @@ pre_install(){
     # Update System
     apt-get -y update
     # Install necessary dependencies
-    apt-get -y --no-install-recommends install build-essential autoconf libtool openssl libssl-dev zlib1g-dev xmlto asciidoc libpcre3 libpcre3-dev
-    echo
-    cd ${cur_dir}
+    apt-get -y --no-install-recommends install gettext build-essential autoconf automake libtool openssl libssl-dev zlib1g-dev xmlto asciidoc libpcre3-dev libudns-dev libev-dev
 }
 
 # Download latest shadowsocks-libev
 download_files(){
+    cd ${cur_dir}
+
     if [ -f ${shadowsocks_libev_ver}.tar.gz ]; then
         echo "${shadowsocks_libev_ver}.tar.gz [found]"
     else
@@ -228,6 +228,16 @@ download_files(){
             echo "Failed to download ${shadowsocks_libev_ver}.tar.gz"
             exit 1
         fi
+    fi
+
+    if ! wget --no-check-certificate -O libsodium-1.0.11.tar.gz https://github.com/jedisct1/libsodium/releases/download/1.0.11/libsodium-1.0.11.tar.gz; then
+        echo "Failed to download libsodium-1.0.11.tar.gz"
+        exit 1
+    fi
+
+    if ! wget --no-check-certificate -O mbedtls-2.4.0-gpl.tgz https://tls.mbed.org/download/mbedtls-2.4.0-gpl.tgz; then
+        echo "Failed to download mbedtls-2.4.0-gpl.tgz"
+        exit 1
     fi
 
     # Download init script
@@ -262,6 +272,23 @@ EOF
 
 # Install Shadowsocks-libev
 install_shadowsocks(){
+    tar zxf libsodium-1.0.11.tar.gz
+    cd libsodium-1.0.11
+    ./configure && make && make install
+    if [ $? -ne 0 ]; then
+        echo "libsodium install failed!"
+        exit 1
+    fi
+    echo "/usr/local/lib" > /etc/ld.so.conf.d/local.conf
+    ldconfig
+
+    cd ${cur_dir}
+    tar xf mbedtls-2.4.0-gpl.tgz
+    cd mbedtls-2.4.0
+    make SHARED=1 CFLAGS=-fPIC
+    make install
+
+    cd ${cur_dir}
     tar zxf ${shadowsocks_libev_ver}.tar.gz
     cd ${shadowsocks_libev_ver}
     ./configure
@@ -284,6 +311,8 @@ install_shadowsocks(){
 
     cd ${cur_dir}
     rm -rf ${shadowsocks_libev_ver} ${shadowsocks_libev_ver}.tar.gz
+    rm -rf libsodium-1.0.11 libsodium-1.0.11.tar.gz
+    rm -rf mbedtls-2.4.0 mbedtls-2.4.0-gpl.tgz
 
     clear
     echo
