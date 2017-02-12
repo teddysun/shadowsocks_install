@@ -475,11 +475,12 @@ install_libsodium() {
             install_cleanup
             exit 1
         fi
-        echo "/usr/local/lib" > /etc/ld.so.conf.d/local.conf
-        ldconfig
     else
         echo -e "${green}Info:${plain} ${libsodium_file} already installed."
     fi
+
+    echo "/usr/local/lib" > /etc/ld.so.conf.d/local.conf
+    ldconfig
 }
 
 install_mbedtls() {
