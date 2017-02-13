@@ -27,7 +27,7 @@ i=0
 for init in ${shadowsocks_init[@]}; do
     pid=""
     if [ -f ${init} ]; then
-        ${init} status &>/dev/null
+        ${init} status > /dev/null 2>&1
         if [ $? -eq 0 ]; then
             for bin in ${shadowsocks[@]}; do
                 pid=`ps -ef | grep -v grep | grep -i "${bin}" | awk '{print $2}'` 
