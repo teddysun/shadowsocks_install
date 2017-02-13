@@ -2,7 +2,7 @@
 PATH=/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin:/usr/local/sbin:~/bin
 export PATH
 #===================================================================#
-#   System Required:  CentOS6 or 7                                  #
+#   System Required:  CentOS 6 or 7                                 #
 #   Description: Install Shadowsocks-libev server for CentOS 6 or 7 #
 #   Author: Teddysun <i@teddysun.com>                               #
 #   Thanks: @madeye <https://github.com/madeye>                     #
@@ -11,6 +11,9 @@ export PATH
 
 # Current folder
 cur_dir=`pwd`
+
+libsodium_file="libsodium-1.0.11"
+libsodium_url="https://github.com/jedisct1/libsodium/releases/download/1.0.11/libsodium-1.0.11.tar.gz"
 
 # Make sure only root can run our script
 rootness(){
@@ -262,8 +265,8 @@ download_files(){
         fi
     fi
 
-    if ! wget --no-check-certificate -O libsodium-1.0.11.tar.gz https://github.com/jedisct1/libsodium/releases/download/1.0.11/libsodium-1.0.11.tar.gz; then
-        echo "Failed to download libsodium-1.0.11.tar.gz"
+    if ! wget --no-check-certificate -O ${libsodium_file}.tar.gz ${libsodium_url}; then
+        echo "Failed to download ${libsodium_file}.tar.gz"
         exit 1
     fi
 
@@ -338,13 +341,17 @@ firewall_set(){
 
 # Install Shadowsocks-libev
 install_shadowsocks(){
-    tar zxf libsodium-1.0.11.tar.gz
-    cd libsodium-1.0.11
-    ./configure && make && make install
-    if [ $? -ne 0 ]; then
-        echo "libsodium install failed!"
-        exit 1
+    if [ ! -f /usr/local/lib/libsodium.a ]; then
+        cd ${cur_dir}
+        tar zxf ${libsodium_file}.tar.gz
+        cd ${libsodium_file}
+        ./configure && make && make install
+        if [ $? -ne 0 ]; then
+            echo "${libsodium_file} install failed!"
+            exit 1
+        fi
     fi
+
     echo "/usr/local/lib" > /etc/ld.so.conf.d/local.conf
     ldconfig
 
@@ -373,7 +380,7 @@ install_shadowsocks(){
 
     cd ${cur_dir}
     rm -rf ${shadowsocks_libev_ver} ${shadowsocks_libev_ver}.tar.gz
-    rm -rf libsodium-1.0.11 libsodium-1.0.11.tar.gz
+    rm -rf ${libsodium_file} ${libsodium_file}.tar.gz
 
     clear
     echo
