@@ -44,10 +44,10 @@ shadowsocks_r_config="/etc/shadowsocks-r/config.json"
 shadowsocks_r_centos="https://raw.githubusercontent.com/teddysun/shadowsocks_install/master/shadowsocksR"
 shadowsocks_r_debian="https://raw.githubusercontent.com/teddysun/shadowsocks_install/master/shadowsocksR-debian"
 
-shadowsocks_go_file_64="shadowsocks-server"
-shadowsocks_go_url_64="https://github.com/shadowsocks/shadowsocks-go/releases/download/1.2.1/shadowsocks-server.tar.gz"
-shadowsocks_go_file_32="shadowsocks-server-linux32-1.1.5"
-shadowsocks_go_url_32="https://github.com/shadowsocks/shadowsocks-go/releases/download/1.1.5/shadowsocks-server-linux32-1.1.5.gz"
+shadowsocks_go_file_64="shadowsocks-server-linux64-1.2.1"
+shadowsocks_go_url_64="http://dl.teddysun.com/shadowsocks/shadowsocks-server-linux64-1.2.1.gz"
+shadowsocks_go_file_32="shadowsocks-server-linux32-1.2.1"
+shadowsocks_go_url_32="http://dl.teddysun.com/shadowsocks/shadowsocks-server-linux32-1.2.1.gz"
 shadowsocks_go_init="/etc/init.d/shadowsocks-go"
 shadowsocks_go_config="/etc/shadowsocks-go/config.json"
 shadowsocks_go_centos="https://raw.githubusercontent.com/teddysun/shadowsocks_install/master/shadowsocks-go"
@@ -148,7 +148,7 @@ get_ipv6(){
 get_libev_ver(){
     #libev_ver=$(wget --no-check-certificate -qO- https://api.github.com/repos/shadowsocks/shadowsocks-libev/releases/latest | grep 'tag_name' | cut -d\" -f4)
     # The specified version
-    libev_ver="v3.0.1"
+    libev_ver="v3.0.2"
     [ -z ${libev_ver} ] && echo "${red}Error:${plain} Get shadowsocks-libev latest version failed" && exit 1
 }
 
@@ -553,13 +553,13 @@ install_shadowsocks_r() {
 install_shadowsocks_go() {
     cd ${cur_dir}
     if is_64bit; then
-        tar zxf ${shadowsocks_go_file_64}.tar.gz
+        gzip -d ${shadowsocks_go_file_64}.gz
         if [ $? -ne 0 ];then
-            echo -e "${red}Error:${plain} Decompress ${shadowsocks_go_file_64}.tar.gz failed."
+            echo -e "${red}Error:${plain} Decompress ${shadowsocks_go_file_64}.gz failed."
             install_cleanup
             exit 1
         fi
-        mv -f shadowsocks-server /usr/bin/shadowsocks-server
+        mv -f ${shadowsocks_go_file_64} /usr/bin/shadowsocks-server
     else
         gzip -d ${shadowsocks_go_file_32}.gz
         if [ $? -ne 0 ];then
