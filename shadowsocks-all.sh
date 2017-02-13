@@ -152,9 +152,30 @@ get_libev_ver(){
     [ -z ${libev_ver} ] && echo "${red}Error:${plain} Get shadowsocks-libev latest version failed" && exit 1
 }
 
+get_opsy(){
+    [ -f /etc/redhat-release ] && awk '{print ($1,$3~/^[0-9]/?$3:$4)}' /etc/redhat-release && return
+    [ -f /etc/os-release ] && awk -F'[= "]' '/PRETTY_NAME/{print $3,$4,$5}' /etc/os-release && return
+    [ -f /etc/lsb-release ] && awk -F'[="]+' '/DESCRIPTION/{print $2}' /etc/lsb-release && return
+}
+
 is_64bit() {
     if [ `getconf WORD_BIT` = '32' ] && [ `getconf LONG_BIT` = '64' ] ; then
         return 0
+    else
+        return 1
+    fi
+}
+
+debianversion(){
+    if check_sys sysRelease debian;then
+        local version=$( get_opsy )
+        local code=${1}
+        local main_ver=$( echo ${version} | sed 's/[^0-9]//g')
+        if [ "${main_ver}" == "${code}" ];then
+            return 0
+        else
+            return 1
+        fi
     else
         return 1
     fi
@@ -373,6 +394,13 @@ install_dependencies() {
             autoconf automake libtool gcc swig make perl cpio xmlto asciidoc libpcre3 libpcre3-dev zlib1g-dev
             libudns-dev libev-dev
         )
+        # Check jessie in source.list
+        if debianversion 7; then
+            grep "jessie" /etc/apt/sources.list > /dev/null 2>&1
+            if [ $? -ne 0 ] && [ -r /etc/apt/sources.list ]; then
+                echo "deb http://http.us.debian.org/debian jessie main" >> /etc/apt/sources.list
+            fi
+        fi
         apt-get -y update
         for depend in ${apt_depends[@]}; do
             error_detect_depends "apt-get -y install ${depend}"

@@ -12,6 +12,12 @@ export PATH
 # Current folder
 cur_dir=`pwd`
 
+libsodium_file="libsodium-1.0.11"
+libsodium_url="https://github.com/jedisct1/libsodium/releases/download/1.0.11/libsodium-1.0.11.tar.gz"
+
+mbedtls_file="mbedtls-2.4.0"
+mbedtls_url="https://tls.mbed.org/download/mbedtls-2.4.0-gpl.tgz"
+
 # Make sure only root can run our script
 rootness(){
     if [[ $EUID -ne 0 ]]; then
@@ -62,6 +68,12 @@ get_latest_version(){
     shadowsocks_libev_ver="shadowsocks-libev-$(echo ${ver} | sed -e 's/^[a-zA-Z]//g')"
     download_link="https://github.com/shadowsocks/shadowsocks-libev/releases/download/${ver}/${shadowsocks_libev_ver}.tar.gz"
     init_script_link="https://raw.githubusercontent.com/teddysun/shadowsocks_install/master/shadowsocks-libev-debian"
+}
+
+get_opsy(){
+    [ -f /etc/redhat-release ] && awk '{print ($1,$3~/^[0-9]/?$3:$4)}' /etc/redhat-release && return
+    [ -f /etc/os-release ] && awk -F'[= "]' '/PRETTY_NAME/{print $3,$4,$5}' /etc/os-release && return
+    [ -f /etc/lsb-release ] && awk -F'[="]+' '/DESCRIPTION/{print $2}' /etc/lsb-release && return
 }
 
 check_installed(){
@@ -145,6 +157,21 @@ check_sys(){
     fi
 }
 
+debianversion(){
+    if check_sys sysRelease debian;then
+        local version=$( get_opsy )
+        local code=${1}
+        local main_ver=$( echo ${version} | sed 's/[^0-9]//g')
+        if [ "${main_ver}" == "${code}" ];then
+            return 0
+        else
+            return 1
+        fi
+    else
+        return 1
+    fi
+}
+
 # Pre-installation settings
 pre_install(){
     # Check OS system
@@ -211,6 +238,14 @@ pre_install(){
     echo
     echo "Press any key to start...or press Ctrl+C to cancel"
     char=`get_char`
+
+    # Check jessie in source.list
+    if debianversion 7; then
+        grep "jessie" /etc/apt/sources.list > /dev/null 2>&1
+        if [ $? -ne 0 ] && [ -r /etc/apt/sources.list ]; then
+            echo "deb http://http.us.debian.org/debian jessie main" >> /etc/apt/sources.list
+        fi
+    fi
     # Update System
     apt-get -y update
     # Install necessary dependencies
@@ -230,13 +265,13 @@ download_files(){
         fi
     fi
 
-    if ! wget --no-check-certificate -O libsodium-1.0.11.tar.gz https://github.com/jedisct1/libsodium/releases/download/1.0.11/libsodium-1.0.11.tar.gz; then
-        echo "Failed to download libsodium-1.0.11.tar.gz"
+    if ! wget --no-check-certificate -O ${libsodium_file}.tar.gz ${libsodium_url}; then
+        echo "Failed to download ${libsodium_file}.tar.gz"
         exit 1
     fi
 
-    if ! wget --no-check-certificate -O mbedtls-2.4.0-gpl.tgz https://tls.mbed.org/download/mbedtls-2.4.0-gpl.tgz; then
-        echo "Failed to download mbedtls-2.4.0-gpl.tgz"
+    if ! wget --no-check-certificate -O ${mbedtls_file}-gpl.tgz ${mbedtls_url}; then
+        echo "Failed to download ${mbedtls_file}-gpl.tgz"
         exit 1
     fi
 
@@ -272,19 +307,23 @@ EOF
 
 # Install Shadowsocks-libev
 install_shadowsocks(){
-    tar zxf libsodium-1.0.11.tar.gz
-    cd libsodium-1.0.11
-    ./configure && make && make install
-    if [ $? -ne 0 ]; then
-        echo "libsodium install failed!"
-        exit 1
+    if [ ! -f /usr/local/lib/libsodium.a ]; then
+        cd ${cur_dir}
+        tar zxf ${libsodium_file}.tar.gz
+        cd ${libsodium_file}
+        ./configure && make && make install
+        if [ $? -ne 0 ]; then
+            echo "${libsodium_file} install failed!"
+            exit 1
+        fi
     fi
+
     echo "/usr/local/lib" > /etc/ld.so.conf.d/local.conf
     ldconfig
 
     cd ${cur_dir}
-    tar xf mbedtls-2.4.0-gpl.tgz
-    cd mbedtls-2.4.0
+    tar xf ${mbedtls_file}-gpl.tgz
+    cd ${mbedtls_file}
     make SHARED=1 CFLAGS=-fPIC
     make install
 
@@ -296,6 +335,7 @@ install_shadowsocks(){
     if [ $? -eq 0 ]; then
         chmod +x /etc/init.d/shadowsocks
         update-rc.d -f shadowsocks defaults
+        ldconfig
         # Run shadowsocks in the background
         /etc/init.d/shadowsocks start
         if [ $? -eq 0 ]; then
@@ -311,8 +351,8 @@ install_shadowsocks(){
 
     cd ${cur_dir}
     rm -rf ${shadowsocks_libev_ver} ${shadowsocks_libev_ver}.tar.gz
-    rm -rf libsodium-1.0.11 libsodium-1.0.11.tar.gz
-    rm -rf mbedtls-2.4.0 mbedtls-2.4.0-gpl.tgz
+    rm -rf ${libsodium_file} ${libsodium_file}.tar.gz
+    rm -rf ${mbedtls_file} ${mbedtls_file}-gpl.tgz
 
     clear
     echo
