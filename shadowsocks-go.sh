@@ -191,31 +191,31 @@ pre_install(){
 download_files(){
     cd ${cur_dir}
     if is_64bit; then
-        if ! wget --no-check-certificate -c https://github.com/shadowsocks/shadowsocks-go/releases/download/1.2.1/shadowsocks-server.tar.gz; then
-            echo "Failed to download shadowsocks-server.tar.gz"
+        if ! wget -c http://dl.teddysun.com/shadowsocks/shadowsocks-server-linux64-1.2.1.gz; then
+            echo "Failed to download shadowsocks-server-linux64-1.2.1.gz"
             exit 1
         fi
-        tar zxf shadowsocks-server.tar.gz
+        gzip -d shadowsocks-server-linux64-1.2.1.gz
         if [ $? -eq 0 ]; then
-            echo "Decompress shadowsocks-server.tar.gz success."
+            echo "Decompress shadowsocks-server-linux64-1.2.1.gz success"
         else
-            echo "Decompress shadowsocks-server.tar.gz failed."
+            echo "Decompress shadowsocks-server-linux64-1.2.1.gz failed"
             exit 1
         fi
-        mv -f shadowsocks-server /usr/bin/shadowsocks-server
+        mv -f shadowsocks-server-linux64-1.2.1 /usr/bin/shadowsocks-server
     else
-        if ! wget --no-check-certificate -c https://github.com/shadowsocks/shadowsocks-go/releases/download/1.1.5/shadowsocks-server-linux32-1.1.5.gz; then
-            echo "Failed to download shadowsocks-server-linux32-1.1.5.gz"
+        if ! wget -c http://dl.teddysun.com/shadowsocks/shadowsocks-server-linux32-1.2.1.gz; then
+            echo "Failed to download shadowsocks-server-linux32-1.2.1.gz"
             exit 1
         fi
-        gzip -d shadowsocks-server-linux32-1.1.5.gz
+        gzip -d shadowsocks-server-linux32-1.2.1.gz
         if [ $? -eq 0 ]; then
-            echo "Decompress shadowsocks-server-linux32-1.1.5.gz success."
+            echo "Decompress shadowsocks-server-linux32-1.2.1.gz success"
         else
-            echo "Decompress shadowsocks-server-linux32-1.1.5.gz failed."
+            echo "Decompress shadowsocks-server-linux32-1.2.1.gz failed"
             exit 1
         fi
-        mv -f shadowsocks-server-linux32-1.1.5 /usr/bin/shadowsocks-server
+        mv -f shadowsocks-server-linux32-1.2.1 /usr/bin/shadowsocks-server
     fi
 
     # Download start script
