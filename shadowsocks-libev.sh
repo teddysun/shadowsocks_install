@@ -447,14 +447,11 @@ install_shadowsocks_libev(){
 action=$1
 [ -z $1 ] && action=install
 case "$action" in
-    install)
-    install_shadowsocks_libev
-    ;;
-    uninstall)
-    uninstall_shadowsocks_libev
-    ;;
+    install|uninstall)
+        ${action}_shadowsocks_libev
+        ;;
     *)
-    echo "Arguments error! [${action}]"
-    echo "Usage: `basename $0` {install|uninstall}"
-    ;;
+        echo "Arguments error! [${action}]"
+        echo "Usage: `basename $0` [install|uninstall]"
+        ;;
 esac

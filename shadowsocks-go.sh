@@ -376,10 +376,10 @@ action=$1
 [ -z $1 ] && action=install
 case "$action" in
     install|uninstall)
-    ${action}_shadowsocks_go
-    ;;
+        ${action}_shadowsocks_go
+        ;;
     *)
-    echo "Arguments error! [${action}]"
-    echo "Usage: `basename $0` {install|uninstall}"
-    ;;
+        echo "Arguments error! [${action}]"
+        echo "Usage: `basename $0` [install|uninstall]"
+        ;;
 esac
