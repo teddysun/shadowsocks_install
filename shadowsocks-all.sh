@@ -722,7 +722,7 @@ install_cleanup(){
     rm -rf ${mbedtls_file} ${mbedtls_file}-gpl.tgz
     rm -rf ${shadowsocks_python_file} ${shadowsocks_python_file}.zip
     rm -rf ${shadowsocks_r_file} ${shadowsocks_r_file}.zip
-    rm -rf ${shadowsocks_go_file_64}.tar.gz ${shadowsocks_go_file_32}.gz
+    rm -rf ${shadowsocks_go_file_64}.gz ${shadowsocks_go_file_32}.gz
     rm -rf ${shadowsocks_libev_file} ${shadowsocks_libev_file}.tar.gz
 }
 
