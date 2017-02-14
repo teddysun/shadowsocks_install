@@ -216,7 +216,7 @@ download_files() {
         fi
     elif [ "${selected}" == "3" ]; then
         if is_64bit; then
-            download "${shadowsocks_go_file_64}.tar.gz" "${shadowsocks_go_url_64}"
+            download "${shadowsocks_go_file_64}.gz" "${shadowsocks_go_url_64}"
         else
             download "${shadowsocks_go_file_32}.gz" "${shadowsocks_go_url_32}"
         fi
