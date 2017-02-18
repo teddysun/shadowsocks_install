@@ -633,6 +633,7 @@ install_shadowsocks_libev() {
         elif check_sys packageManager apt; then
             update-rc.d -f ${service_name} defaults
         fi
+        ldconfig
         ${shadowsocks_libev_init} start
     else
         echo
