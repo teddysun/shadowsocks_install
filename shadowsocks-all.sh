@@ -146,9 +146,7 @@ get_ipv6(){
 }
 
 get_libev_ver(){
-    #libev_ver=$(wget --no-check-certificate -qO- https://api.github.com/repos/shadowsocks/shadowsocks-libev/releases/latest | grep 'tag_name' | cut -d\" -f4)
-    # The specified version
-    libev_ver="v3.0.2"
+    libev_ver=$(wget --no-check-certificate -qO- https://api.github.com/repos/shadowsocks/shadowsocks-libev/releases/latest | grep 'tag_name' | cut -d\" -f4)
     [ -z ${libev_ver} ] && echo "${red}Error:${plain} Get shadowsocks-libev latest version failed" && exit 1
 }
 
@@ -387,7 +385,6 @@ install_dependencies() {
         for depend in ${yum_depends[@]}; do
             error_detect_depends "yum -y install ${depend}"
         done
-        [ -f /usr/include/libev/ev.h ] && ln -sf /usr/include/libev/ev.h /usr/include/ev.h
     elif check_sys packageManager apt; then
         apt_depends=(
             gettext build-essential unzip gzip python python-dev python-pip python-m2crypto curl openssl libssl-dev
