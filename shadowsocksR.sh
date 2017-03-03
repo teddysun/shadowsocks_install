@@ -328,7 +328,7 @@ install(){
 # Install cleanup
 install_cleanup(){
     cd ${cur_dir}
-    rm -rf manyuser.zip shadowsocks-manyuser libsodium-1.0.11.tar.gz libsodium-1.0.11
+    rm -rf manyuser.zip shadowsocksr-manyuser libsodium-1.0.11.tar.gz libsodium-1.0.11
 }
 
 
