@@ -253,13 +253,9 @@ pre_install(){
 download_files(){
     cd ${cur_dir}
 
-    if [ -f ${shadowsocks_libev_ver}.tar.gz ]; then
-        echo "${shadowsocks_libev_ver}.tar.gz [found]"
-    else
-        if ! wget --no-check-certificate -O ${shadowsocks_libev_ver}.tar.gz ${download_link}; then
-            echo "Failed to download ${shadowsocks_libev_ver}.tar.gz"
-            exit 1
-        fi
+    if ! wget --no-check-certificate -O ${shadowsocks_libev_ver}.tar.gz ${download_link}; then
+        echo "Failed to download ${shadowsocks_libev_ver}.tar.gz"
+        exit 1
     fi
 
     if ! wget --no-check-certificate -O ${libsodium_file}.tar.gz ${libsodium_url}; then
@@ -338,20 +334,18 @@ firewall_set(){
 
 # Install Shadowsocks-libev
 install_shadowsocks(){
-    if [ ! -f /usr/local/lib/libsodium.a ]; then
+    if [ ! -f /usr/lib/libsodium.a ]; then
         cd ${cur_dir}
         tar zxf ${libsodium_file}.tar.gz
         cd ${libsodium_file}
-        ./configure && make && make install
+        ./configure --prefix=/usr && make && make install
         if [ $? -ne 0 ]; then
             echo "${libsodium_file} install failed!"
             exit 1
         fi
     fi
 
-    echo "/usr/local/lib" > /etc/ld.so.conf.d/local.conf
     ldconfig
-
     cd ${cur_dir}
     tar zxf ${shadowsocks_libev_ver}.tar.gz
     cd ${shadowsocks_libev_ver}

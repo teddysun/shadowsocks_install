@@ -490,11 +490,11 @@ install_prepare() {
 }
 
 install_libsodium() {
-    if [ ! -f /usr/local/lib/libsodium.a ]; then
+    if [ ! -f /usr/lib/libsodium.a ]; then
         cd ${cur_dir}
         tar zxf ${libsodium_file}.tar.gz
         cd ${libsodium_file}
-        ./configure && make && make install
+        ./configure --prefix=/usr && make && make install
         if [ $? -ne 0 ]; then
             echo -e "${red}Error:${plain} ${libsodium_file} install failed."
             install_cleanup
@@ -503,17 +503,18 @@ install_libsodium() {
     else
         echo -e "${green}Info:${plain} ${libsodium_file} already installed."
     fi
-
-    echo "/usr/local/lib" > /etc/ld.so.conf.d/local.conf
-    ldconfig
 }
 
 install_mbedtls() {
-    cd ${cur_dir}
-    tar xf ${mbedtls_file}-gpl.tgz
-    cd ${mbedtls_file}
-    make SHARED=1 CFLAGS=-fPIC
-    make install
+    if [ ! -f /usr/lib/libmbedtls.a ]; then
+        cd ${cur_dir}
+        tar xf ${mbedtls_file}-gpl.tgz
+        cd ${mbedtls_file}
+        make SHARED=1 CFLAGS=-fPIC
+        make DESTDIR=/usr install
+    else
+        echo -e "${green}Info:${plain} ${mbedtls_file} already installed."
+    fi
 }
 
 install_shadowsocks_python() {

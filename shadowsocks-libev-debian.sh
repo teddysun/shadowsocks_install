@@ -254,13 +254,9 @@ pre_install(){
 download_files(){
     cd ${cur_dir}
 
-    if [ -f ${shadowsocks_libev_ver}.tar.gz ]; then
-        echo "${shadowsocks_libev_ver}.tar.gz [found]"
-    else
-        if ! wget --no-check-certificate -O ${shadowsocks_libev_ver}.tar.gz ${download_link}; then
-            echo "Failed to download ${shadowsocks_libev_ver}.tar.gz"
-            exit 1
-        fi
+    if ! wget --no-check-certificate -O ${shadowsocks_libev_ver}.tar.gz ${download_link}; then
+        echo "Failed to download ${shadowsocks_libev_ver}.tar.gz"
+        exit 1
     fi
 
     if ! wget --no-check-certificate -O ${libsodium_file}.tar.gz ${libsodium_url}; then
@@ -305,25 +301,26 @@ EOF
 
 # Install Shadowsocks-libev
 install_shadowsocks(){
-    if [ ! -f /usr/local/lib/libsodium.a ]; then
+    if [ ! -f /usr/lib/libsodium.a ]; then
         cd ${cur_dir}
         tar zxf ${libsodium_file}.tar.gz
         cd ${libsodium_file}
-        ./configure && make && make install
+        ./configure --prefix=/usr && make && make install
         if [ $? -ne 0 ]; then
             echo "${libsodium_file} install failed!"
             exit 1
         fi
     fi
 
-    echo "/usr/local/lib" > /etc/ld.so.conf.d/local.conf
-    ldconfig
+    if [ ! -f /usr/lib/libmbedtls.a ]; then
+        cd ${cur_dir}
+        tar xf ${mbedtls_file}-gpl.tgz
+        cd ${mbedtls_file}
+        make SHARED=1 CFLAGS=-fPIC
+        make DESTDIR=/usr install
+    fi
 
-    cd ${cur_dir}
-    tar xf ${mbedtls_file}-gpl.tgz
-    cd ${mbedtls_file}
-    make SHARED=1 CFLAGS=-fPIC
-    make install
+    ldconfig
 
     cd ${cur_dir}
     tar zxf ${shadowsocks_libev_ver}.tar.gz
