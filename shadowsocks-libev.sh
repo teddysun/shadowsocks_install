@@ -12,8 +12,8 @@ export PATH
 # Current folder
 cur_dir=`pwd`
 
-libsodium_file="libsodium-1.0.11"
-libsodium_url="https://github.com/jedisct1/libsodium/releases/download/1.0.11/libsodium-1.0.11.tar.gz"
+libsodium_file="libsodium-1.0.12"
+libsodium_url="https://github.com/jedisct1/libsodium/releases/download/1.0.12/libsodium-1.0.12.tar.gz"
 
 # Make sure only root can run our script
 rootness(){
