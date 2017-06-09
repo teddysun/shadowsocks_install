@@ -20,7 +20,11 @@ elif [ -f /usr/local/bin/ssserver ]; then
     BIN=/usr/local/bin/ssserver
 fi
 NAME=Shadowsocks
-CONF=/etc/shadowsocks.json
+if [ -f /etc/shadowsocks-python/config.json ]; then
+    CONF=/etc/shadowsocks-python/config.json
+elif [ -f /etc/shadowsocks.json ]; then
+    CONF=/etc/shadowsocks.json
+fi
 RETVAL=0
 
 check_running(){

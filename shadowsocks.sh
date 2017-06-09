@@ -49,22 +49,22 @@ check_sys(){
     if [[ -f /etc/redhat-release ]]; then
         release="centos"
         systemPackage="yum"
-    elif cat /etc/issue | grep -q -E -i "debian"; then
+    elif cat /etc/issue | grep -Eqi "debian"; then
         release="debian"
         systemPackage="apt"
-    elif cat /etc/issue | grep -q -E -i "ubuntu"; then
+    elif cat /etc/issue | grep -Eqi "ubuntu"; then
         release="ubuntu"
         systemPackage="apt"
-    elif cat /etc/issue | grep -q -E -i "centos|red hat|redhat"; then
+    elif cat /etc/issue | grep -Eqi "centos|red hat|redhat"; then
         release="centos"
         systemPackage="yum"
-    elif cat /proc/version | grep -q -E -i "debian"; then
+    elif cat /proc/version | grep -Eqi "debian"; then
         release="debian"
         systemPackage="apt"
-    elif cat /proc/version | grep -q -E -i "ubuntu"; then
+    elif cat /proc/version | grep -Eqi "ubuntu"; then
         release="ubuntu"
         systemPackage="apt"
-    elif cat /proc/version | grep -q -E -i "centos|red hat|redhat"; then
+    elif cat /proc/version | grep -Eqi "centos|red hat|redhat"; then
         release="centos"
         systemPackage="yum"
     fi
@@ -117,6 +117,16 @@ get_ip(){
     [ ! -z ${IP} ] && echo ${IP} || echo
 }
 
+get_char(){
+    SAVEDSTTY=`stty -g`
+    stty -echo
+    stty cbreak
+    dd if=/dev/tty bs=1 count=1 2> /dev/null
+    stty -raw
+    stty echo
+    stty $SAVEDSTTY
+}
+
 # Pre-installation settings
 pre_install(){
     if check_sys packageManager yum || check_sys packageManager apt; then
@@ -160,15 +170,7 @@ pre_install(){
         echo "Input error, please input correct number"
     fi
     done
-    get_char(){
-        SAVEDSTTY=`stty -g`
-        stty -echo
-        stty cbreak
-        dd if=/dev/tty bs=1 count=1 2> /dev/null
-        stty -raw
-        stty echo
-        stty $SAVEDSTTY
-    }
+
     echo
     echo "Press any key to start...or Press Ctrl+C to cancel"
     char=`get_char`
@@ -185,8 +187,8 @@ pre_install(){
 # Download files
 download_files(){
     # Download libsodium file
-    if ! wget --no-check-certificate -O libsodium-1.0.11.tar.gz https://github.com/jedisct1/libsodium/releases/download/1.0.11/libsodium-1.0.11.tar.gz; then
-        echo "Failed to download libsodium-1.0.11.tar.gz!"
+    if ! wget --no-check-certificate -O libsodium-1.0.12.tar.gz https://github.com/jedisct1/libsodium/releases/download/1.0.12/libsodium-1.0.12.tar.gz; then
+        echo "Failed to download libsodium-1.0.12.tar.gz!"
         exit 1
     fi
     # Download Shadowsocks file
@@ -266,15 +268,18 @@ firewall_set(){
 # Install Shadowsocks
 install(){
     # Install libsodium
-    tar zxf libsodium-1.0.11.tar.gz
-    cd libsodium-1.0.11
-    ./configure && make && make install
-    if [ $? -ne 0 ]; then
-        echo "libsodium install failed!"
-        install_cleanup
-        exit 1
+    if [ ! -f /usr/lib/libsodium.a ]; then
+        cd ${cur_dir}
+        tar zxf libsodium-1.0.12.tar.gz
+        cd libsodium-1.0.12
+        ./configure --prefix=/usr && make && make install
+        if [ $? -ne 0 ]; then
+            echo "libsodium install failed!"
+            install_cleanup
+            exit 1
+        fi
     fi
-    echo "/usr/local/lib" > /etc/ld.so.conf.d/local.conf
+
     ldconfig
     # Install Shadowsocks
     cd ${cur_dir}
@@ -322,7 +327,7 @@ install(){
 # Install cleanup
 install_cleanup(){
     cd ${cur_dir}
-    rm -rf shadowsocks-master.zip shadowsocks-master libsodium-1.0.11.tar.gz libsodium-1.0.11
+    rm -rf shadowsocks-master.zip shadowsocks-master libsodium-1.0.12.tar.gz libsodium-1.0.12
 }
 
 # Uninstall Shadowsocks
@@ -376,10 +381,10 @@ action=$1
 [ -z $1 ] && action=install
 case "$action" in
     install|uninstall)
-    ${action}_shadowsocks
-    ;;
+        ${action}_shadowsocks
+        ;;
     *)
-    echo "Arguments error! [${action}]"
-    echo "Usage: `basename $0` {install|uninstall}"
+        echo "Arguments error! [${action}]"
+        echo "Usage: `basename $0` [install|uninstall]"
     ;;
 esac

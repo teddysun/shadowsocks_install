@@ -41,22 +41,22 @@ check_sys(){
     if [[ -f /etc/redhat-release ]]; then
         release="centos"
         systemPackage="yum"
-    elif cat /etc/issue | grep -q -E -i "debian"; then
+    elif cat /etc/issue | grep -Eqi "debian"; then
         release="debian"
         systemPackage="apt"
-    elif cat /etc/issue | grep -q -E -i "ubuntu"; then
+    elif cat /etc/issue | grep -Eqi "ubuntu"; then
         release="ubuntu"
         systemPackage="apt"
-    elif cat /etc/issue | grep -q -E -i "centos|red hat|redhat"; then
+    elif cat /etc/issue | grep -Eqi "centos|red hat|redhat"; then
         release="centos"
         systemPackage="yum"
-    elif cat /proc/version | grep -q -E -i "debian"; then
+    elif cat /proc/version | grep -Eqi "debian"; then
         release="debian"
         systemPackage="apt"
-    elif cat /proc/version | grep -q -E -i "ubuntu"; then
+    elif cat /proc/version | grep -Eqi "ubuntu"; then
         release="ubuntu"
         systemPackage="apt"
-    elif cat /proc/version | grep -q -E -i "centos|red hat|redhat"; then
+    elif cat /proc/version | grep -Eqi "centos|red hat|redhat"; then
         release="centos"
         systemPackage="yum"
     fi
@@ -125,6 +125,16 @@ get_ip(){
     [ ! -z ${IP} ] && echo ${IP} || echo
 }
 
+get_char(){
+    SAVEDSTTY=`stty -g`
+    stty -echo
+    stty cbreak
+    dd if=/dev/tty bs=1 count=1 2> /dev/null
+    stty -raw
+    stty echo
+    stty $SAVEDSTTY
+}
+
 # Pre-installation settings
 pre_install(){
     if ! check_sys packageManager yum && ! check_sys packageManager apt; then
@@ -162,15 +172,7 @@ pre_install(){
         echo "Input error, please input correct number"
     fi
     done
-    get_char(){
-        SAVEDSTTY=`stty -g`
-        stty -echo
-        stty cbreak
-        dd if=/dev/tty bs=1 count=1 2> /dev/null
-        stty -raw
-        stty echo
-        stty $SAVEDSTTY
-    }
+
     echo
     echo "Press any key to start...or Press Ctrl+C to cancel"
     char=`get_char`
@@ -189,31 +191,31 @@ pre_install(){
 download_files(){
     cd ${cur_dir}
     if is_64bit; then
-        if ! wget --no-check-certificate -c https://github.com/shadowsocks/shadowsocks-go/releases/download/1.1.5/shadowsocks-server-linux64-1.1.5.gz; then
-            echo "Failed to download shadowsocks-server-linux64-1.1.5.gz"
+        if ! wget -c http://dl.teddysun.com/shadowsocks/shadowsocks-server-linux64-1.2.1.gz; then
+            echo "Failed to download shadowsocks-server-linux64-1.2.1.gz"
             exit 1
         fi
-        gzip -d shadowsocks-server-linux64-1.1.5.gz
+        gzip -d shadowsocks-server-linux64-1.2.1.gz
         if [ $? -eq 0 ]; then
-            echo "Decompress shadowsocks-server-linux64-1.1.5.gz success."
+            echo "Decompress shadowsocks-server-linux64-1.2.1.gz success"
         else
-            echo "Decompress shadowsocks-server-linux64-1.1.5.gz failed! Please check gzip command."
+            echo "Decompress shadowsocks-server-linux64-1.2.1.gz failed"
             exit 1
         fi
-        mv -f shadowsocks-server-linux64-1.1.5 /usr/bin/shadowsocks-server
+        mv -f shadowsocks-server-linux64-1.2.1 /usr/bin/shadowsocks-server
     else
-        if ! wget --no-check-certificate -c https://github.com/shadowsocks/shadowsocks-go/releases/download/1.1.5/shadowsocks-server-linux32-1.1.5.gz; then
-            echo "Failed to download shadowsocks-server-linux32-1.1.5.gz"
+        if ! wget -c http://dl.teddysun.com/shadowsocks/shadowsocks-server-linux32-1.2.1.gz; then
+            echo "Failed to download shadowsocks-server-linux32-1.2.1.gz"
             exit 1
         fi
-        gzip -d shadowsocks-server-linux32-1.1.5.gz
+        gzip -d shadowsocks-server-linux32-1.2.1.gz
         if [ $? -eq 0 ]; then
-            echo "Decompress shadowsocks-server-linux32-1.1.5.gz success."
+            echo "Decompress shadowsocks-server-linux32-1.2.1.gz success"
         else
-            echo "Decompress shadowsocks-server-linux32-1.1.5.gz failed! Please check gzip command."
+            echo "Decompress shadowsocks-server-linux32-1.2.1.gz failed"
             exit 1
         fi
-        mv -f shadowsocks-server-linux32-1.1.5 /usr/bin/shadowsocks-server
+        mv -f shadowsocks-server-linux32-1.2.1 /usr/bin/shadowsocks-server
     fi
 
     # Download start script
@@ -289,7 +291,7 @@ firewall_set(){
 # Install Shadowsocks-go
 install(){
 
-    if [ -s /usr/bin/shadowsocks-server ]; then
+    if [ -f /usr/bin/shadowsocks-server ]; then
         echo "shadowsocks-go install success!"
         chmod +x /usr/bin/shadowsocks-server
         chmod +x /etc/init.d/shadowsocks
@@ -374,10 +376,10 @@ action=$1
 [ -z $1 ] && action=install
 case "$action" in
     install|uninstall)
-    ${action}_shadowsocks_go
-    ;;
+        ${action}_shadowsocks_go
+        ;;
     *)
-    echo "Arguments error! [${action}]"
-    echo "Usage: `basename $0` {install|uninstall}"
-    ;;
+        echo "Arguments error! [${action}]"
+        echo "Usage: `basename $0` [install|uninstall]"
+        ;;
 esac
