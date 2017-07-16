@@ -15,8 +15,8 @@ cur_dir=`pwd`
 libsodium_file="libsodium-1.0.12"
 libsodium_url="https://github.com/jedisct1/libsodium/releases/download/1.0.12/libsodium-1.0.12.tar.gz"
 
-mbedtls_file="mbedtls-2.4.2"
-mbedtls_url="https://tls.mbed.org/download/mbedtls-2.4.2-gpl.tgz"
+mbedtls_file="mbedtls-2.5.1"
+mbedtls_url="https://tls.mbed.org/download/mbedtls-2.5.1-gpl.tgz"
 
 # Make sure only root can run our script
 rootness(){
@@ -247,32 +247,57 @@ pre_install(){
     # Update System
     apt-get -y update
     # Install necessary dependencies
-    apt-get -y --no-install-recommends install gettext build-essential autoconf automake libtool openssl libssl-dev zlib1g-dev xmlto asciidoc libpcre3-dev libudns-dev libev-dev
+    apt-get -y --no-install-recommends install gettext build-essential autoconf automake libtool openssl libssl-dev zlib1g-dev libpcre3-dev libudns-dev libev-dev
+}
+
+download() {
+    local filename=$(basename $1)
+    if [ -f ${1} ]; then
+        echo "${filename} [found]"
+    else
+        echo "${filename} not found, download now..."
+        wget --no-check-certificate -c -t3 -T60 -O ${1} ${2}
+        if [ $? -ne 0 ]; then
+            echo "Error: Download ${filename} failed."
+            exit 1
+        fi
+    fi
 }
 
 # Download latest shadowsocks-libev
 download_files(){
     cd ${cur_dir}
 
-    if ! wget --no-check-certificate -O ${shadowsocks_libev_ver}.tar.gz ${download_link}; then
-        echo "Failed to download ${shadowsocks_libev_ver}.tar.gz"
-        exit 1
-    fi
+    download "${shadowsocks_libev_ver}.tar.gz" "${download_link}"
+    download "${libsodium_file}.tar.gz" "${libsodium_url}"
+    download "${mbedtls_file}-gpl.tgz" "${mbedtls_url}"
+    download "/etc/init.d/shadowsocks" "${init_script_link}"
+}
 
-    if ! wget --no-check-certificate -O ${libsodium_file}.tar.gz ${libsodium_url}; then
-        echo "Failed to download ${libsodium_file}.tar.gz"
-        exit 1
+install_libsodium() {
+    if [ ! -f /usr/lib/libsodium.a ]; then
+        cd ${cur_dir}
+        tar zxf ${libsodium_file}.tar.gz
+        cd ${libsodium_file}
+        ./configure --prefix=/usr && make && make install
+        if [ $? -ne 0 ]; then
+            echo "Error: ${libsodium_file} install failed."
+            exit 1
+        fi
+    else
+        echo "Info: ${libsodium_file} already installed."
     fi
+}
 
-    if ! wget --no-check-certificate -O ${mbedtls_file}-gpl.tgz ${mbedtls_url}; then
-        echo "Failed to download ${mbedtls_file}-gpl.tgz"
-        exit 1
-    fi
-
-    # Download init script
-    if ! wget --no-check-certificate -O /etc/init.d/shadowsocks ${init_script_link}; then
-        echo "Failed to download shadowsocks-libev init script!"
-        exit 1
+install_mbedtls() {
+    if [ ! -f /usr/lib/libmbedtls.a ]; then
+        cd ${cur_dir}
+        tar xf ${mbedtls_file}-gpl.tgz
+        cd ${mbedtls_file}
+        make SHARED=1 CFLAGS=-fPIC
+        make DESTDIR=/usr install
+    else
+        echo "Info: ${mbedtls_file} already installed."
     fi
 }
 
@@ -301,31 +326,15 @@ EOF
 
 # Install Shadowsocks-libev
 install_shadowsocks(){
-    if [ ! -f /usr/lib/libsodium.a ]; then
-        cd ${cur_dir}
-        tar zxf ${libsodium_file}.tar.gz
-        cd ${libsodium_file}
-        ./configure --prefix=/usr && make && make install
-        if [ $? -ne 0 ]; then
-            echo "${libsodium_file} install failed!"
-            exit 1
-        fi
-    fi
-
-    if [ ! -f /usr/lib/libmbedtls.a ]; then
-        cd ${cur_dir}
-        tar xf ${mbedtls_file}-gpl.tgz
-        cd ${mbedtls_file}
-        make SHARED=1 CFLAGS=-fPIC
-        make DESTDIR=/usr install
-    fi
+    install_libsodium
+    install_mbedtls
 
     ldconfig
 
     cd ${cur_dir}
     tar zxf ${shadowsocks_libev_ver}.tar.gz
     cd ${shadowsocks_libev_ver}
-    ./configure
+    ./configure --disable-documentation
     make && make install
     if [ $? -eq 0 ]; then
         chmod +x /etc/init.d/shadowsocks
