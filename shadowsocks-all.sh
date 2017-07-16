@@ -27,8 +27,8 @@ software=(Shadowsocks-Python ShadowsocksR Shadowsocks-Go Shadowsocks-libev)
 libsodium_file="libsodium-1.0.12"
 libsodium_url="https://github.com/jedisct1/libsodium/releases/download/1.0.12/libsodium-1.0.12.tar.gz"
 
-mbedtls_file="mbedtls-2.4.2"
-mbedtls_url="https://tls.mbed.org/download/mbedtls-2.4.2-gpl.tgz"
+mbedtls_file="mbedtls-2.5.1"
+mbedtls_url="https://tls.mbed.org/download/mbedtls-2.5.1-gpl.tgz"
 
 shadowsocks_python_file="shadowsocks-master"
 shadowsocks_python_url="https://github.com/shadowsocks/shadowsocks/archive/master.zip"
@@ -229,10 +229,10 @@ download_files() {
         shadowsocks_libev_url="https://github.com/shadowsocks/shadowsocks-libev/releases/download/${libev_ver}/${shadowsocks_libev_file}.tar.gz"
 
         download "${shadowsocks_libev_file}.tar.gz" "${shadowsocks_libev_url}"
+        download "${mbedtls_file}-gpl.tgz" "${mbedtls_url}"
         if check_sys packageManager yum; then
             download "${shadowsocks_libev_init}" "${shadowsocks_libev_centos}"
         elif check_sys packageManager apt; then
-            download "${mbedtls_file}-gpl.tgz" "${mbedtls_url}"
             download "${shadowsocks_libev_init}" "${shadowsocks_libev_debian}"
         fi
     fi
@@ -380,7 +380,7 @@ install_dependencies() {
             epel-release
             unzip gzip openssl openssl-devel gcc swig python python-devel python-setuptools pcre pcre-devel libtool libevent xmlto
             autoconf automake make curl curl-devel zlib-devel perl perl-devel cpio expat-devel gettext-devel asciidoc
-            udns-devel libev-devel mbedtls-devel
+            udns-devel libev-devel
         )
         for depend in ${yum_depends[@]}; do
             error_detect_depends "yum -y install ${depend}"
@@ -621,7 +621,7 @@ install_shadowsocks_libev() {
     cd ${cur_dir}
     tar zxf ${shadowsocks_libev_file}.tar.gz
     cd ${shadowsocks_libev_file}
-    ./configure && make && make install
+    ./configure --disable-documentation && make && make install
     if [ $? -eq 0 ]; then
         chmod +x ${shadowsocks_libev_init}
         local service_name=$(basename ${shadowsocks_libev_init})
@@ -702,9 +702,7 @@ install_main(){
         install_shadowsocks_go
         install_completed_go
     elif [ "${selected}" == "4" ]; then
-        if check_sys packageManager apt; then
-            install_mbedtls
-        fi
+        install_mbedtls
         install_shadowsocks_libev
         install_completed_libev
     fi
