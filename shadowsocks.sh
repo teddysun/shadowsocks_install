@@ -187,8 +187,8 @@ pre_install(){
 # Download files
 download_files(){
     # Download libsodium file
-    if ! wget --no-check-certificate -O libsodium-1.0.12.tar.gz https://github.com/jedisct1/libsodium/releases/download/1.0.12/libsodium-1.0.12.tar.gz; then
-        echo "Failed to download libsodium-1.0.12.tar.gz!"
+    if ! wget --no-check-certificate -O libsodium-1.0.13.tar.gz https://github.com/jedisct1/libsodium/releases/download/1.0.13/libsodium-1.0.13.tar.gz; then
+        echo "Failed to download libsodium-1.0.13.tar.gz!"
         exit 1
     fi
     # Download Shadowsocks file
@@ -270,8 +270,8 @@ install(){
     # Install libsodium
     if [ ! -f /usr/lib/libsodium.a ]; then
         cd ${cur_dir}
-        tar zxf libsodium-1.0.12.tar.gz
-        cd libsodium-1.0.12
+        tar zxf libsodium-1.0.13.tar.gz
+        cd libsodium-1.0.13
         ./configure --prefix=/usr && make && make install
         if [ $? -ne 0 ]; then
             echo "libsodium install failed!"
@@ -327,7 +327,7 @@ install(){
 # Install cleanup
 install_cleanup(){
     cd ${cur_dir}
-    rm -rf shadowsocks-master.zip shadowsocks-master libsodium-1.0.12.tar.gz libsodium-1.0.12
+    rm -rf shadowsocks-master.zip shadowsocks-master libsodium-1.0.13.tar.gz libsodium-1.0.13
 }
 
 # Uninstall Shadowsocks
