@@ -47,7 +47,7 @@ yellow='\033[0;33m'
 plain='\033[0m'
 
 # Make sure only root can run our script
-[[ $EUID -ne 0 ]] && echo -e "${red}Error:${plain} This script must be run as root!" && exit 1
+[[ $EUID -ne 0 ]] && echo -e "[${red}Error${plain}] This script must be run as root!" && exit 1
 
 # Disable selinux
 disable_selinux(){
@@ -151,11 +151,11 @@ pre_install(){
     if check_sys packageManager yum || check_sys packageManager apt; then
         # Not support CentOS 5
         if centosversion 5; then
-            echo -e "${red}Error:${plain} Not supported CentOS 5, please change to CentOS 6+/Debian 7+/Ubuntu 12+ and try again."
+            echo -e "$[{red}Error${plain}] Not supported CentOS 5, please change to CentOS 6+/Debian 7+/Ubuntu 12+ and try again."
             exit 1
         fi
     else
-        echo -e "${red}Error:${plain} Your OS is not supported. please change OS to CentOS/Debian/Ubuntu and try again."
+        echo -e "[${red}Error${plain}] Your OS is not supported. please change OS to CentOS/Debian/Ubuntu and try again."
         exit 1
     fi
     # Set shadowsocks config password
@@ -289,7 +289,7 @@ firewall_set(){
                 echo "port ${shadowsocksport} has already been set up."
             fi
         else
-            echo "[${yellow}Warning${plain}] iptables looks like shutdown or not installed, please manually set it if necessary."
+            echo -e "[${yellow}Warning${plain}] iptables looks like shutdown or not installed, please manually set it if necessary."
         fi
     elif centosversion 7; then
         systemctl status firewalld > /dev/null 2>&1
