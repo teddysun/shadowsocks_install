@@ -221,12 +221,12 @@ pre_install(){
     echo
     echo "Press any key to start...or Press Ctrl+C to cancel"
     char=`get_char`
-    #Install necessary dependencies
+    # Install necessary dependencies
     if check_sys packageManager yum; then
-        yum install -y unzip openssl-devel gcc swig python python-devel python-setuptools autoconf libtool libevent automake make curl curl-devel zlib-devel perl perl-devel cpio expat-devel gettext-devel
+        yum install -y python python-devel openssl openssl-devel curl wget unzip gcc automake autoconf make libtool
     elif check_sys packageManager apt; then
         apt-get -y update
-        apt-get -y install python python-dev python-pip python-setuptools python-m2crypto curl wget unzip gcc swig automake make perl cpio build-essential
+        apt-get -y install python python-dev openssl libssl-dev curl wget unzip gcc automake autoconf make libtool
     fi
     cd ${cur_dir}
 }
