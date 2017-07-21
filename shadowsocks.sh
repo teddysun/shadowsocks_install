@@ -19,16 +19,35 @@ echo "# Github: https://github.com/shadowsocks/shadowsocks        #"
 echo "#############################################################"
 echo
 
-#Current folder
+# Current folder
 cur_dir=`pwd`
+# Stream Ciphers
+ciphers=(
+aes-256-gcm
+aes-192-gcm
+aes-128-gcm
+aes-256-ctr
+aes-192-ctr
+aes-128-ctr
+aes-256-cfb
+aes-192-cfb
+aes-128-cfb
+camellia-128-cfb
+camellia-192-cfb
+camellia-256-cfb
+chacha20-ietf-poly1305
+chacha20-ietf
+chacha20
+rc4-md5
+)
+# Color
+red='\033[0;31m'
+green='\033[0;32m'
+yellow='\033[0;33m'
+plain='\033[0m'
 
 # Make sure only root can run our script
-rootness(){
-    if [[ $EUID -ne 0 ]]; then
-        echo "Error:This script must be run as root!" 1>&2
-        exit 1
-    fi
-}
+[[ $EUID -ne 0 ]] && echo -e "${red}Error:${plain} This script must be run as root!" && exit 1
 
 # Disable selinux
 disable_selinux(){
@@ -132,15 +151,15 @@ pre_install(){
     if check_sys packageManager yum || check_sys packageManager apt; then
         # Not support CentOS 5
         if centosversion 5; then
-            echo "Error: Not supported CentOS 5, please change to CentOS 6+/Debian 7+/Ubuntu 12+ and try again."
+            echo -e "${red}Error:${plain} Not supported CentOS 5, please change to CentOS 6+/Debian 7+/Ubuntu 12+ and try again."
             exit 1
         fi
     else
-        echo "Error: Your OS is not supported. please change OS to CentOS/Debian/Ubuntu and try again."
+        echo -e "${red}Error:${plain} Your OS is not supported. please change OS to CentOS/Debian/Ubuntu and try again."
         exit 1
     fi
     # Set shadowsocks config password
-    echo "Please input password for shadowsocks-python:"
+    echo "Please input password for shadowsocks-python"
     read -p "(Default password: teddysun.com):" shadowsockspwd
     [ -z "${shadowsockspwd}" ] && shadowsockspwd="teddysun.com"
     echo
@@ -151,7 +170,7 @@ pre_install(){
     # Set shadowsocks config port
     while true
     do
-    echo -e "Please input port for shadowsocks-python [1-65535]:"
+    echo "Please input port for shadowsocks-python [1-65535]"
     read -p "(Default port: 8989):" shadowsocksport
     [ -z "$shadowsocksport" ] && shadowsocksport="8989"
     expr ${shadowsocksport} + 0 &>/dev/null
@@ -164,11 +183,39 @@ pre_install(){
             echo
             break
         else
-            echo "Input error, please input correct number"
+            echo -e "[${red}Error${plain}] Input error, please input a number between 1 and 65535"
         fi
     else
-        echo "Input error, please input correct number"
+        echo -e "[${red}Error${plain}] Input error, please input a number between 1 and 65535"
     fi
+    done
+
+    # Set shadowsocks config stream ciphers
+    while true
+    do
+    echo -e "Please select stream cipher for shadowsocks-python:"
+    for ((i=1;i<=${#ciphers[@]};i++ )); do
+        hint="${ciphers[$i-1]}"
+        echo -e "${green}${i}${plain}) ${hint}"
+    done
+    read -p "Which cipher you'd select(Default: ${ciphers[0]}):" pick
+    [ -z "$pick" ] && pick=1
+    expr ${pick} + 0 &>/dev/null
+    if [ $? -ne 0 ]; then
+        echo -e "[${red}Error${plain}] Input error, please input a number"
+        continue
+    fi
+    if [[ "$pick" -lt 1 || "$pick" -gt ${#ciphers[@]} ]]; then
+        echo -e "[${red}Error${plain}] Input error, please input a number between 1 and ${#ciphers[@]}"
+        continue
+    fi
+    shadowsockscipher=${ciphers[$pick-1]}
+    echo
+    echo "---------------------------"
+    echo "cipher = ${shadowsockscipher}"
+    echo "---------------------------"
+    echo
+    break
     done
 
     echo
@@ -188,23 +235,23 @@ pre_install(){
 download_files(){
     # Download libsodium file
     if ! wget --no-check-certificate -O libsodium-1.0.13.tar.gz https://github.com/jedisct1/libsodium/releases/download/1.0.13/libsodium-1.0.13.tar.gz; then
-        echo "Failed to download libsodium-1.0.13.tar.gz!"
+        echo -e "[${red}Error${plain}] Failed to download libsodium-1.0.13.tar.gz!"
         exit 1
     fi
     # Download Shadowsocks file
     if ! wget --no-check-certificate -O shadowsocks-master.zip https://github.com/shadowsocks/shadowsocks/archive/master.zip; then
-        echo "Failed to download shadowsocks python file!"
+        echo -e "[${red}Error${plain}] Failed to download shadowsocks python file!"
         exit 1
     fi
     # Download Shadowsocks init script
     if check_sys packageManager yum; then
         if ! wget --no-check-certificate https://raw.githubusercontent.com/teddysun/shadowsocks_install/master/shadowsocks -O /etc/init.d/shadowsocks; then
-            echo "Failed to download shadowsocks chkconfig file!"
+            echo -e "[${red}Error${plain}] Failed to download shadowsocks chkconfig file!"
             exit 1
         fi
     elif check_sys packageManager apt; then
         if ! wget --no-check-certificate https://raw.githubusercontent.com/teddysun/shadowsocks_install/master/shadowsocks-debian -O /etc/init.d/shadowsocks; then
-            echo "Failed to download shadowsocks chkconfig file!"
+            echo -e "[${red}Error${plain}] Failed to download shadowsocks chkconfig file!"
             exit 1
         fi
     fi
@@ -220,7 +267,7 @@ config_shadowsocks(){
     "local_port":1080,
     "password":"${shadowsockspwd}",
     "timeout":300,
-    "method":"aes-256-cfb",
+    "method":"${shadowsockscipher}",
     "fast_open":false
 }
 EOF
@@ -239,10 +286,10 @@ firewall_set(){
                 /etc/init.d/iptables save
                 /etc/init.d/iptables restart
             else
-                echo "port ${shadowsocksport} has been set up."
+                echo "port ${shadowsocksport} has already been set up."
             fi
         else
-            echo "WARNING: iptables looks like shutdown or not installed, please manually set it if necessary."
+            echo "[${yellow}Warning${plain}] iptables looks like shutdown or not installed, please manually set it if necessary."
         fi
     elif centosversion 7; then
         systemctl status firewalld > /dev/null 2>&1
@@ -258,7 +305,7 @@ firewall_set(){
                 firewall-cmd --permanent --zone=public --add-port=${shadowsocksport}/udp
                 firewall-cmd --reload
             else
-                echo "WARNING: Try to start firewalld failed. please enable port ${shadowsocksport} manually if necessary."
+                echo -e "[${yellow}Warning${plain}] Try to start firewalld failed. please enable port ${shadowsocksport} manually if necessary."
             fi
         fi
     fi
@@ -274,7 +321,7 @@ install(){
         cd libsodium-1.0.13
         ./configure --prefix=/usr && make && make install
         if [ $? -ne 0 ]; then
-            echo "libsodium install failed!"
+            echo -e "[${red}Error${plain}] libsodium install failed!"
             install_cleanup
             exit 1
         fi
@@ -285,7 +332,7 @@ install(){
     cd ${cur_dir}
     unzip -q shadowsocks-master.zip
     if [ $? -ne 0 ];then
-        echo "unzip shadowsocks-master.zip failed! please check unzip command."
+        echo -e "[${red}Error${plain}] unzip shadowsocks-master.zip failed! please check unzip command."
         install_cleanup
         exit 1
     fi
@@ -304,20 +351,18 @@ install(){
         /etc/init.d/shadowsocks start
     else
         echo
-        echo "Shadowsocks install failed! please visit https://teddysun.com/342.html and contact."
+        echo -e "[${red}Error${plain}] Shadowsocks install failed! please visit https://teddysun.com/342.html and contact."
         install_cleanup
         exit 1
     fi
 
     clear
     echo
-    echo "Congratulations, shadowsocks server install completed!"
-    echo -e "Your Server IP: \033[41;37m $(get_ip) \033[0m"
-    echo -e "Your Server Port: \033[41;37m ${shadowsocksport} \033[0m"
-    echo -e "Your Password: \033[41;37m ${shadowsockspwd} \033[0m"
-    echo -e "Your Local IP: \033[41;37m 127.0.0.1 \033[0m"
-    echo -e "Your Local Port: \033[41;37m 1080 \033[0m"
-    echo -e "Your Encryption Method: \033[41;37m aes-256-cfb \033[0m"
+    echo -e "Congratulations, Shadowsocks-python server install completed!"
+    echo -e "Your Server IP        : \033[41;37m $(get_ip) \033[0m"
+    echo -e "Your Server Port      : \033[41;37m ${shadowsocksport} \033[0m"
+    echo -e "Your Password         : \033[41;37m ${shadowsockspwd} \033[0m"
+    echo -e "Your Encryption Method: \033[41;37m ${shadowsockscipher} \033[0m"
     echo
     echo "Welcome to visit:https://teddysun.com/342.html"
     echo "Enjoy it!"
@@ -364,7 +409,6 @@ uninstall_shadowsocks(){
 
 # Install Shadowsocks-python
 install_shadowsocks(){
-    rootness
     disable_selinux
     pre_install
     download_files
