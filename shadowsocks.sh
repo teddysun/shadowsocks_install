@@ -173,7 +173,7 @@ pre_install(){
     echo "Please input port for shadowsocks-python [1-65535]"
     read -p "(Default port: 8989):" shadowsocksport
     [ -z "$shadowsocksport" ] && shadowsocksport="8989"
-    expr ${shadowsocksport} + 0 &>/dev/null
+    expr ${shadowsocksport} + 1 &>/dev/null
     if [ $? -eq 0 ]; then
         if [ ${shadowsocksport} -ge 1 ] && [ ${shadowsocksport} -le 65535 ]; then
             echo
@@ -200,7 +200,7 @@ pre_install(){
     done
     read -p "Which cipher you'd select(Default: ${ciphers[0]}):" pick
     [ -z "$pick" ] && pick=1
-    expr ${pick} + 0 &>/dev/null
+    expr ${pick} + 1 &>/dev/null
     if [ $? -ne 0 ]; then
         echo -e "[${red}Error${plain}] Input error, please input a number"
         continue
