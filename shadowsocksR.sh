@@ -261,7 +261,7 @@ config_shadowsocks(){
     "password":"${shadowsockspwd}",
     "timeout":120,
     "method":"aes-256-cfb",
-    "protocol":"origin",
+    "protocol":"auth_sha1_v4_compatible",
     "protocol_param":"",
     "obfs":"plain",
     "obfs_param":"",
