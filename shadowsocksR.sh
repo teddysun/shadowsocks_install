@@ -21,14 +21,53 @@ echo
 
 #Current folder
 cur_dir=`pwd`
+# Stream Ciphers
+ciphers=(
+aes-256-cfb
+aes-192-cfb
+aes-128-cfb
+aes-256-cfb8
+aes-192-cfb8
+aes-128-cfb8
+aes-256-ctr
+aes-192-ctr
+aes-128-ctr
+chacha20-ietf
+chacha20
+rc4-md5
+rc4-md5-6
+)
+# Reference URL:
+# https://github.com/breakwa11/shadowsocks-rss/blob/master/ssr.md
+# https://github.com/breakwa11/shadowsocks-rss/wiki/config.json
+# Protocol
+protocols=(
+origin
+verify_deflate
+auth_sha1_v4
+auth_sha1_v4_compatible
+auth_aes128_md5
+auth_aes128_sha1
+auth_chain_a
+)
+# obfs
+obfs=(
+plain
+http_simple
+http_simple_compatible
+http_post
+http_post_compatible
+tls1.2_ticket_auth
+tls1.2_ticket_auth_compatible
+)
+# Color
+red='\033[0;31m'
+green='\033[0;32m'
+yellow='\033[0;33m'
+plain='\033[0m'
 
 # Make sure only root can run our script
-rootness(){
-    if [[ $EUID -ne 0 ]]; then
-       echo "Error: This script must be run as root!" 1>&2
-       exit 1
-    fi
-}
+[[ $EUID -ne 0 ]] && echo -e "[${red}Error${plain}] This script must be run as root!" && exit 1
 
 # Disable selinux
 disable_selinux(){
@@ -132,11 +171,11 @@ pre_install(){
     if check_sys packageManager yum || check_sys packageManager apt; then
         # Not support CentOS 5
         if centosversion 5; then
-            echo "Error: Not supported CentOS 5, please change to CentOS 6+/Debian 7+/Ubuntu 12+ and try again."
+            echo -e "$[{red}Error${plain}] Not supported CentOS 5, please change to CentOS 6+/Debian 7+/Ubuntu 12+ and try again."
             exit 1
         fi
     else
-        echo "Error: Your OS is not supported. please change OS to CentOS/Debian/Ubuntu and try again."
+        echo -e "[${red}Error${plain}] Your OS is not supported. please change OS to CentOS/Debian/Ubuntu and try again."
         exit 1
     fi
     # Set ShadowsocksR config password
@@ -154,7 +193,7 @@ pre_install(){
     echo -e "Please input port for ShadowsocksR [1-65535]:"
     read -p "(Default port: 8989):" shadowsocksport
     [ -z "${shadowsocksport}" ] && shadowsocksport="8989"
-    expr ${shadowsocksport} + 0 &>/dev/null
+    expr ${shadowsocksport} + 1 &>/dev/null
     if [ $? -eq 0 ]; then
         if [ ${shadowsocksport} -ge 1 ] && [ ${shadowsocksport} -le 65535 ]; then
             echo
@@ -164,11 +203,95 @@ pre_install(){
             echo
             break
         else
-            echo "Input error, please input correct number"
+            echo -e "[${red}Error${plain}] Input error, please input a number between 1 and 65535"
         fi
     else
-        echo "Input error, please input correct number"
+        echo -e "[${red}Error${plain}] Input error, please input a number between 1 and 65535"
     fi
+    done
+
+    # Set shadowsocksR config stream ciphers
+    while true
+    do
+    echo -e "Please select stream cipher for ShadowsocksR:"
+    for ((i=1;i<=${#ciphers[@]};i++ )); do
+        hint="${ciphers[$i-1]}"
+        echo -e "${green}${i}${plain}) ${hint}"
+    done
+    read -p "Which cipher you'd select(Default: ${ciphers[0]}):" pick
+    [ -z "$pick" ] && pick=1
+    expr ${pick} + 1 &>/dev/null
+    if [ $? -ne 0 ]; then
+        echo -e "[${red}Error${plain}] Input error, please input a number"
+        continue
+    fi
+    if [[ "$pick" -lt 1 || "$pick" -gt ${#ciphers[@]} ]]; then
+        echo -e "[${red}Error${plain}] Input error, please input a number between 1 and ${#ciphers[@]}"
+        continue
+    fi
+    shadowsockscipher=${ciphers[$pick-1]}
+    echo
+    echo "---------------------------"
+    echo "cipher = ${shadowsockscipher}"
+    echo "---------------------------"
+    echo
+    break
+    done
+
+    # Set shadowsocksR config protocol
+    while true
+    do
+    echo -e "Please select protocol for ShadowsocksR:"
+    for ((i=1;i<=${#protocols[@]};i++ )); do
+        hint="${protocols[$i-1]}"
+        echo -e "${green}${i}${plain}) ${hint}"
+    done
+    read -p "Which protocol you'd select(Default: ${protocols[0]}):" protocol
+    [ -z "$protocol" ] && protocol=1
+    expr ${protocol} + 1 &>/dev/null
+    if [ $? -ne 0 ]; then
+        echo -e "[${red}Error${plain}] Input error, please input a number"
+        continue
+    fi
+    if [[ "$protocol" -lt 1 || "$protocol" -gt ${#protocols[@]} ]]; then
+        echo -e "[${red}Error${plain}] Input error, please input a number between 1 and ${#protocols[@]}"
+        continue
+    fi
+    shadowsockprotocol=${protocols[$protocol-1]}
+    echo
+    echo "---------------------------"
+    echo "protocol = ${shadowsockprotocol}"
+    echo "---------------------------"
+    echo
+    break
+    done
+
+    # Set shadowsocksR config obfs
+    while true
+    do
+    echo -e "Please select obfs for ShadowsocksR:"
+    for ((i=1;i<=${#obfs[@]};i++ )); do
+        hint="${obfs[$i-1]}"
+        echo -e "${green}${i}${plain}) ${hint}"
+    done
+    read -p "Which obfs you'd select(Default: ${obfs[0]}):" r_obfs
+    [ -z "$r_obfs" ] && r_obfs=1
+    expr ${r_obfs} + 1 &>/dev/null
+    if [ $? -ne 0 ]; then
+        echo -e "[${red}Error${plain}] Input error, please input a number"
+        continue
+    fi
+    if [[ "$r_obfs" -lt 1 || "$r_obfs" -gt ${#obfs[@]} ]]; then
+        echo -e "[${red}Error${plain}] Input error, please input a number between 1 and ${#obfs[@]}"
+        continue
+    fi
+    shadowsockobfs=${obfs[$r_obfs-1]}
+    echo
+    echo "---------------------------"
+    echo "obfs = ${shadowsockobfs}"
+    echo "---------------------------"
+    echo
+    break
     done
 
     echo
@@ -176,10 +299,10 @@ pre_install(){
     char=`get_char`
     # Install necessary dependencies
     if check_sys packageManager yum; then
-        yum install -y unzip openssl-devel gcc swig python python-devel python-setuptools autoconf libtool libevent automake make curl curl-devel zlib-devel perl perl-devel cpio expat-devel gettext-devel
+        yum install -y python python-devel openssl openssl-devel curl wget unzip gcc automake autoconf make libtool
     elif check_sys packageManager apt; then
         apt-get -y update
-        apt-get -y install python python-dev python-pip python-m2crypto curl wget unzip gcc swig automake make perl cpio build-essential
+        apt-get -y install python python-dev openssl libssl-dev curl wget unzip gcc automake autoconf make libtool
     fi
     cd ${cur_dir}
 }
@@ -188,23 +311,23 @@ pre_install(){
 download_files(){
     # Download libsodium file
     if ! wget --no-check-certificate -O libsodium-1.0.13.tar.gz https://github.com/jedisct1/libsodium/releases/download/1.0.13/libsodium-1.0.13.tar.gz; then
-        echo "Failed to download libsodium-1.0.13.tar.gz!"
+        echo -e "[${red}Error${plain}] Failed to download libsodium-1.0.13.tar.gz!"
         exit 1
     fi
     # Download ShadowsocksR file
     if ! wget --no-check-certificate -O manyuser.zip https://github.com/shadowsocksr/shadowsocksr/archive/manyuser.zip; then
-        echo "Failed to download ShadowsocksR file!"
+        echo -e "[${red}Error${plain}] Failed to download ShadowsocksR file!"
         exit 1
     fi
     # Download ShadowsocksR init script
     if check_sys packageManager yum; then
         if ! wget --no-check-certificate https://raw.githubusercontent.com/teddysun/shadowsocks_install/master/shadowsocksR -O /etc/init.d/shadowsocks; then
-            echo "Failed to download ShadowsocksR chkconfig file!"
+            echo -e "[${red}Error${plain}] Failed to download ShadowsocksR chkconfig file!"
             exit 1
         fi
     elif check_sys packageManager apt; then
         if ! wget --no-check-certificate https://raw.githubusercontent.com/teddysun/shadowsocks_install/master/shadowsocksR-debian -O /etc/init.d/shadowsocks; then
-            echo "Failed to download ShadowsocksR chkconfig file!"
+            echo -e "[${red}Error${plain}] Failed to download ShadowsocksR chkconfig file!"
             exit 1
         fi
     fi
@@ -226,7 +349,7 @@ firewall_set(){
                 echo "port ${shadowsocksport} has been set up."
             fi
         else
-            echo "WARNING: iptables looks like shutdown or not installed, please manually set it if necessary."
+            echo -e "[${yellow}Warning${plain}] iptables looks like shutdown or not installed, please manually set it if necessary."
         fi
     elif centosversion 7; then
         systemctl status firewalld > /dev/null 2>&1
@@ -242,7 +365,7 @@ firewall_set(){
                 firewall-cmd --permanent --zone=public --add-port=${shadowsocksport}/udp
                 firewall-cmd --reload
             else
-                echo "WARNING: Try to start firewalld failed. please enable port ${shadowsocksport} manually if necessary."
+                echo -e "[${yellow}Warning${plain}] Try to start firewalld failed. please enable port ${shadowsocksport} manually if necessary."
             fi
         fi
     fi
@@ -254,16 +377,16 @@ config_shadowsocks(){
     cat > /etc/shadowsocks.json<<-EOF
 {
     "server":"0.0.0.0",
-    "server_ipv6":"::",
+    "server_ipv6":"[::]",
     "server_port":${shadowsocksport},
     "local_address":"127.0.0.1",
     "local_port":1080,
     "password":"${shadowsockspwd}",
     "timeout":120,
-    "method":"aes-256-cfb",
-    "protocol":"origin",
+    "method":"${shadowsockscipher}",
+    "protocol":"${shadowsockprotocol}",
     "protocol_param":"",
-    "obfs":"plain",
+    "obfs":"${shadowsockobfs}",
     "obfs_param":"",
     "redirect":"",
     "dns_ipv6":false,
@@ -282,7 +405,7 @@ install(){
         cd libsodium-1.0.13
         ./configure --prefix=/usr && make && make install
         if [ $? -ne 0 ]; then
-            echo "libsodium install failed!"
+            echo -e "[${red}Error${plain}] libsodium install failed!"
             install_cleanup
             exit 1
         fi
@@ -305,20 +428,15 @@ install(){
 
         clear
         echo
-        echo "Congratulations, ShadowsocksR install completed!"
-        echo -e "Server IP: \033[41;37m $(get_ip) \033[0m"
-        echo -e "Server Port: \033[41;37m ${shadowsocksport} \033[0m"
-        echo -e "Password: \033[41;37m ${shadowsockspwd} \033[0m"
-        echo -e "Local IP: \033[41;37m 127.0.0.1 \033[0m"
-        echo -e "Local Port: \033[41;37m 1080 \033[0m"
-        echo -e "Protocol: \033[41;37m origin \033[0m"
-        echo -e "obfs: \033[41;37m plain \033[0m"
-        echo -e "Encryption Method: \033[41;37m aes-256-cfb \033[0m"
+        echo -e "Congratulations, ShadowsocksR server install completed!"
+        echo -e "Your Server IP        : \033[41;37m $(get_ip) \033[0m"
+        echo -e "Your Server Port      : \033[41;37m ${shadowsocksport} \033[0m"
+        echo -e "Your Password         : \033[41;37m ${shadowsockspwd} \033[0m"
+        echo -e "Your Protocol         : \033[41;37m ${shadowsockprotocol} \033[0m"
+        echo -e "Your obfs             : \033[41;37m ${shadowsockobfs} \033[0m"
+        echo -e "Your Encryption Method: \033[41;37m ${shadowsockscipher} \033[0m"
         echo
         echo "Welcome to visit:https://shadowsocks.be/9.html"
-        echo "If you want to change protocol & obfs, please visit reference URL:"
-        echo "https://github.com/breakwa11/shadowsocks-rss/wiki/Server-Setup"
-        echo
         echo "Enjoy it!"
         echo
     else
@@ -336,7 +454,7 @@ install_cleanup(){
 
 
 # Uninstall ShadowsocksR
-uninstall_shadowsocks(){
+uninstall_shadowsocksr(){
     printf "Are you sure uninstall ShadowsocksR? (y/n)"
     printf "\n"
     read -p "(Default: n):" answer
@@ -364,16 +482,15 @@ uninstall_shadowsocks(){
 }
 
 # Install ShadowsocksR
-install_shadowsocks(){
-    rootness
+install_shadowsocksr(){
     disable_selinux
     pre_install
     download_files
     config_shadowsocks
-    install
     if check_sys packageManager yum; then
         firewall_set
     fi
+    install
     install_cleanup
 }
 
@@ -382,7 +499,7 @@ action=$1
 [ -z $1 ] && action=install
 case "$action" in
     install|uninstall)
-        ${action}_shadowsocks
+        ${action}_shadowsocksr
         ;;
     *)
         echo "Arguments error! [${action}]"
