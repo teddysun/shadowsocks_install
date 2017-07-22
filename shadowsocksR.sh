@@ -23,6 +23,7 @@ echo
 cur_dir=`pwd`
 # Stream Ciphers
 ciphers=(
+none
 aes-256-cfb
 aes-192-cfb
 aes-128-cfb
@@ -59,6 +60,8 @@ http_post
 http_post_compatible
 tls1.2_ticket_auth
 tls1.2_ticket_auth_compatible
+tls1.2_ticket_fastauth
+tls1.2_ticket_fastauth_compatible
 )
 # Color
 red='\033[0;31m'
@@ -218,8 +221,8 @@ pre_install(){
         hint="${ciphers[$i-1]}"
         echo -e "${green}${i}${plain}) ${hint}"
     done
-    read -p "Which cipher you'd select(Default: ${ciphers[0]}):" pick
-    [ -z "$pick" ] && pick=1
+    read -p "Which cipher you'd select(Default: ${ciphers[1]}):" pick
+    [ -z "$pick" ] && pick=2
     expr ${pick} + 1 &>/dev/null
     if [ $? -ne 0 ]; then
         echo -e "[${red}Error${plain}] Input error, please input a number"
