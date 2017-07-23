@@ -1084,16 +1084,59 @@ uninstall_shadowsocks_libev() {
 }
 
 uninstall_shadowsocks() {
-    if   [ -f ${shadowsocks_python_init} ]; then
-        uninstall_shadowsocks_python
-    elif [ -f ${shadowsocks_r_init} ]; then
-        uninstall_shadowsocks_r
-    elif [ -f ${shadowsocks_go_init} ]; then
-        uninstall_shadowsocks_go
-    elif [ -f ${shadowsocks_libev_init} ]; then
-        uninstall_shadowsocks_libev
-    else
-        echo -e "${green}Info:${plain} uninstall cancelled, shadowsocks server not found..."
+    while true
+    do
+    echo  "Which Shadowsocks server you want to uninstall?"
+    for ((i=1;i<=${#software[@]};i++ )); do
+        hint="${software[$i-1]}"
+        echo -e "${green}${i}${plain}) ${hint}"
+    done
+    read -p "Please enter a number [1-4]:" un_select
+    case "${un_select}" in
+        1|2|3|4)
+        echo
+        echo "You choose = ${software[${un_select}-1]}"
+        echo
+        break
+        ;;
+        *)
+        echo -e "${red}Error:${plain} Please only enter a number [1-4]"
+        ;;
+    esac
+    done
+
+    if   [ "${un_select}" == "1" ]; then
+        if [ -f ${shadowsocks_python_init} ]; then
+            uninstall_shadowsocks_python
+        else
+            echo -e "${red}Error:${plain} ${software[${un_select}-1]} not installed, please check it and try again."
+            echo
+            exit 1
+        fi
+    elif [ "${un_select}" == "2" ]; then
+        if [ -f ${shadowsocks_r_init} ]; then
+            uninstall_shadowsocks_r
+        else
+            echo -e "${red}Error:${plain} ${software[${un_select}-1]} not installed, please check it and try again."
+            echo
+            exit 1
+        fi
+    elif [ "${un_select}" == "3" ]; then
+        if [ -f ${shadowsocks_go_init} ]; then
+            uninstall_shadowsocks_go
+        else
+            echo -e "${red}Error:${plain} ${software[${un_select}-1]} not installed, please check it and try again."
+            echo
+            exit 1
+        fi
+    elif [ "${un_select}" == "4" ]; then
+        if [ -f ${shadowsocks_libev_init} ]; then
+            uninstall_shadowsocks_libev
+        else
+            echo -e "${red}Error:${plain} ${software[${un_select}-1]} not installed, please check it and try again."
+            echo
+            exit 1
+        fi
     fi
 }
 
