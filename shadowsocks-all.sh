@@ -353,7 +353,7 @@ config_firewall() {
                 echo -e "${green}Info:${plain} port ${green}${shadowsocksport}${plain} already be enabled."
             fi
         else
-            echo -e "${yellow}Warning:${plain} iptables looks like shutdown or not installed, please enable port ${shadowsocksport} manually if necessary."
+            echo -e "${yellow}Warning:${plain} iptables looks like not running or not installed, please enable port ${shadowsocksport} manually if necessary."
         fi
     elif centosversion 7; then
         systemctl status firewalld > /dev/null 2>&1
@@ -362,15 +362,7 @@ config_firewall() {
             firewall-cmd --permanent --zone=public --add-port=${shadowsocksport}/udp
             firewall-cmd --reload
         else
-            echo -e "${yellow}Warning:${plain} firewalld looks like not running, try to start..."
-            systemctl start firewalld
-            if [ $? -eq 0 ]; then
-                firewall-cmd --permanent --zone=public --add-port=${shadowsocksport}/tcp
-                firewall-cmd --permanent --zone=public --add-port=${shadowsocksport}/udp
-                firewall-cmd --reload
-            else
-                echo -e "${yellow}Warning:${plain} Start firewalld failed, please enable port ${shadowsocksport} manually if necessary."
-            fi
+            echo -e "${yellow}Warning:${plain} firewalld looks like not running or not installed, please enable port ${shadowsocksport} manually if necessary."
         fi
     fi
 }
