@@ -853,7 +853,6 @@ install_shadowsocks_libev() {
         elif check_sys packageManager apt; then
             update-rc.d -f ${service_name} defaults
         fi
-        ldconfig
         ${shadowsocks_libev_init} start
     else
         echo
@@ -908,6 +907,10 @@ install_completed_libev() {
 
 install_main(){
     install_libsodium
+    if ! ldconfig -p | grep -wq "/usr/lib"; then
+        echo "/usr/lib" > /etc/ld.so.conf.d/lib.conf
+    fi
+    ldconfig
 
     if   [ "${selected}" == "1" ]; then
         install_shadowsocks_python
