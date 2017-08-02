@@ -32,9 +32,11 @@ aes-128-cfb
 camellia-128-cfb
 camellia-192-cfb
 camellia-256-cfb
+xchacha20-ietf-poly1305
 chacha20-ietf-poly1305
 chacha20-ietf
 chacha20
+salsa20
 rc4-md5
 )
 # Color
@@ -194,6 +196,24 @@ centosversion(){
     fi
 }
 
+version_ge(){
+    test "$(echo "$@" | tr " " "\n" | sort -rV | head -n 1)" == "$1"
+}
+
+# autoconf version
+autoconfversion(){
+    if [ "$(command -v "autoconf")" ]; then
+        local version=$(autoconf --version | grep autoconf | awk '{print $4}')
+        if version_ge ${version} 2.67; then
+            return 0
+        else
+            return 1
+        fi
+    else
+        return 1
+    fi
+}
+
 # Pre-installation settings
 pre_install(){
     # Check OS system
@@ -295,7 +315,7 @@ pre_install(){
     char=`get_char`
     #Install necessary dependencies
     yum install -y epel-release && yum makecache
-    yum install -y unzip openssl openssl-devel gettext gcc autoconf libtool automake make asciidoc xmlto udns-devel libev-devel pcre pcre-devel
+    yum install -y unzip openssl openssl-devel gettext gcc autoconf libtool automake make asciidoc xmlto udns-devel libev-devel pcre pcre-devel git
 }
 
 download() {

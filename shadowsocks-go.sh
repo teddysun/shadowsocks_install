@@ -19,7 +19,7 @@ echo "# Github: https://github.com/shadowsocks/shadowsocks-go     #"
 echo "#############################################################"
 echo
 
-#Current folder
+# Current folder
 cur_dir=`pwd`
 # Stream Ciphers
 ciphers=(
@@ -31,6 +31,7 @@ aes-192-ctr
 aes-128-ctr
 chacha20-ietf
 chacha20
+salsa20
 rc4-md5
 )
 # Color
