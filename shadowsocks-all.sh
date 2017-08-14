@@ -451,13 +451,16 @@ fi
 
 install_dependencies() {
     if check_sys packageManager yum; then
-        yum install -y epel-release
-        [ ! -f /etc/yum.repos.d/epel.repo ] && echo -e "${red}Error:${plain} Install EPEL repo failed, please check it." && exit 1
-        yum --enablerepo=epel -y install udns-devel
+        echo -e "[${green}Info${plain}] Adding the EPEL repository..."
+        yum install -y epel-release yum-utils
+        [ ! -f /etc/yum.repos.d/epel.repo ] && echo -e "${red}Error:${plain} Install EPEL repository failed, please check it." && exit 1
+        yum-config-manager --enable epel
+        echo -e "[${green}Info${plain}] Adding the EPEL repository complete..."
+
         yum_depends=(
             unzip gzip openssl openssl-devel gcc python python-devel python-setuptools pcre pcre-devel libtool libevent xmlto
             autoconf automake make curl curl-devel zlib-devel perl perl-devel cpio expat-devel gettext-devel asciidoc
-            libev-devel
+            libev-devel udns-devel
         )
         for depend in ${yum_depends[@]}; do
             error_detect_depends "yum -y install ${depend}"

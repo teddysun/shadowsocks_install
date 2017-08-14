@@ -314,7 +314,11 @@ pre_install(){
     echo "Press any key to start...or press Ctrl+C to cancel"
     char=`get_char`
     #Install necessary dependencies
-    yum install -y epel-release && yum makecache
+    echo -e "[${green}Info${plain}] Adding the EPEL repository..."
+    yum install -y epel-release yum-utils
+    [ ! -f /etc/yum.repos.d/epel.repo ] && echo -e "${red}Error${plain} Install EPEL repository failed, please check it." && exit 1
+    yum-config-manager --enable epel
+    echo -e "[${green}Info${plain}] Adding the EPEL repository complete..."
     yum install -y unzip openssl openssl-devel gettext gcc autoconf libtool automake make asciidoc xmlto udns-devel libev-devel pcre pcre-devel git
 }
 
