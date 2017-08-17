@@ -428,15 +428,7 @@ firewall_set(){
             firewall-cmd --permanent --zone=public --add-port=${shadowsocksport}/udp
             firewall-cmd --reload
         else
-            echo -e "[${green}Info${plain}] Firewalld looks like not running, try to start..."
-            systemctl start firewalld
-            if [ $? -eq 0 ]; then
-                firewall-cmd --permanent --zone=public --add-port=${shadowsocksport}/tcp
-                firewall-cmd --permanent --zone=public --add-port=${shadowsocksport}/udp
-                firewall-cmd --reload
-            else
-                echo -e "[${yellow}Warning${plain}] Try to start firewalld failed. please enable port ${shadowsocksport} manually if necessary."
-            fi
+            echo -e "${yellow}Warning${plain} firewalld looks like not running or not installed, please enable port ${shadowsocksport} manually if necessary."
         fi
     fi
     echo -e "[${green}Info${plain}] firewall set completed..."
