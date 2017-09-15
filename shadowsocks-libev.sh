@@ -15,8 +15,8 @@ cur_dir=`pwd`
 libsodium_file="libsodium-1.0.13"
 libsodium_url="https://github.com/jedisct1/libsodium/releases/download/1.0.13/libsodium-1.0.13.tar.gz"
 
-mbedtls_file="mbedtls-2.5.1"
-mbedtls_url="http://dl.teddysun.com/files/mbedtls-2.5.1-gpl.tgz"
+mbedtls_file="mbedtls-2.6.0"
+mbedtls_url="http://dl.teddysun.com/files/mbedtls-2.6.0-gpl.tgz"
 
 # Stream Ciphers
 ciphers=(
@@ -315,11 +315,11 @@ pre_install(){
     char=`get_char`
     #Install necessary dependencies
     echo -e "[${green}Info${plain}] Adding the EPEL repository..."
-    yum install -y epel-release yum-utils
+    [ ! -f /etc/yum.repos.d/epel.repo ] && yum install -y epel-release yum-utils
     [ ! -f /etc/yum.repos.d/epel.repo ] && echo -e "${red}Error${plain} Install EPEL repository failed, please check it." && exit 1
-    yum-config-manager --enable epel
+    [ -f /etc/yum.repos.d/epel.repo ] && yum-config-manager --enable epel
     echo -e "[${green}Info${plain}] Adding the EPEL repository complete..."
-    yum install -y unzip openssl openssl-devel gettext gcc autoconf libtool automake make asciidoc xmlto udns-devel libev-devel pcre pcre-devel git
+    yum install -y unzip openssl openssl-devel gettext gcc autoconf libtool automake make asciidoc xmlto udns-devel libev-devel pcre pcre-devel git c-ares-devel
 }
 
 download() {

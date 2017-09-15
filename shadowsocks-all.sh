@@ -34,8 +34,8 @@ software=(Shadowsocks-Python ShadowsocksR Shadowsocks-Go Shadowsocks-libev)
 libsodium_file="libsodium-1.0.13"
 libsodium_url="https://github.com/jedisct1/libsodium/releases/download/1.0.13/libsodium-1.0.13.tar.gz"
 
-mbedtls_file="mbedtls-2.5.1"
-mbedtls_url="http://dl.teddysun.com/files/mbedtls-2.5.1-gpl.tgz"
+mbedtls_file="mbedtls-2.6.0"
+mbedtls_url="http://dl.teddysun.com/files/mbedtls-2.6.0-gpl.tgz"
 
 shadowsocks_python_file="shadowsocks-master"
 shadowsocks_python_url="https://github.com/shadowsocks/shadowsocks/archive/master.zip"
@@ -452,15 +452,15 @@ fi
 install_dependencies() {
     if check_sys packageManager yum; then
         echo -e "[${green}Info${plain}] Adding the EPEL repository..."
-        yum install -y epel-release yum-utils
+        [ ! -f /etc/yum.repos.d/epel.repo ] && yum install -y epel-release yum-utils
         [ ! -f /etc/yum.repos.d/epel.repo ] && echo -e "${red}Error:${plain} Install EPEL repository failed, please check it." && exit 1
-        yum-config-manager --enable epel
+        [ -f /etc/yum.repos.d/epel.repo ] && yum-config-manager --enable epel
         echo -e "[${green}Info${plain}] Adding the EPEL repository complete..."
 
         yum_depends=(
             unzip gzip openssl openssl-devel gcc python python-devel python-setuptools pcre pcre-devel libtool libevent xmlto
             autoconf automake make curl curl-devel zlib-devel perl perl-devel cpio expat-devel gettext-devel asciidoc
-            libev-devel udns-devel
+            libev-devel udns-devel c-ares-devel
         )
         for depend in ${yum_depends[@]}; do
             error_detect_depends "yum -y install ${depend}"
@@ -469,7 +469,7 @@ install_dependencies() {
         apt_depends=(
             gettext build-essential unzip gzip python python-dev python-setuptools curl openssl libssl-dev
             autoconf automake libtool gcc make perl cpio libpcre3 libpcre3-dev zlib1g-dev
-            libudns-dev libev-dev
+            libudns-dev libev-dev libc-ares-dev
         )
         # Check jessie in source.list
         if debianversion 7; then
