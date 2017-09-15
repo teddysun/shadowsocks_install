@@ -275,7 +275,7 @@ EOF
 
 # Firewall set
 firewall_set(){
-    echo "firewall set start..."
+    echo -e "[${green}Info${plain}] firewall set start..."
     if centosversion 6; then
         /etc/init.d/iptables status > /dev/null 2>&1
         if [ $? -eq 0 ]; then
@@ -286,7 +286,7 @@ firewall_set(){
                 /etc/init.d/iptables save
                 /etc/init.d/iptables restart
             else
-                echo "port ${shadowsocksport} has already been set up."
+                echo -e "[${green}Info${plain}] port ${shadowsocksport} has already been set up."
             fi
         else
             echo -e "[${yellow}Warning${plain}] iptables looks like shutdown or not installed, please manually set it if necessary."
@@ -298,10 +298,10 @@ firewall_set(){
             firewall-cmd --permanent --zone=public --add-port=${shadowsocksport}/udp
             firewall-cmd --reload
         else
-            echo -e "${yellow}Warning${plain} firewalld looks like not running or not installed, please enable port ${shadowsocksport} manually if necessary."
+            echo -e "[${yellow}Warning${plain}] firewalld looks like not running or not installed, please enable port ${shadowsocksport} manually if necessary."
         fi
     fi
-    echo "firewall set completed..."
+    echo -e "[${green}Info${plain}] firewall set completed..."
 }
 
 # Install Shadowsocks
