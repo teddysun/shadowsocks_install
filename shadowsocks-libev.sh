@@ -315,7 +315,8 @@ pre_install(){
     char=`get_char`
     #Install necessary dependencies
     echo -e "[${green}Info${plain}] Adding the EPEL repository..."
-    [ ! -f /etc/yum.repos.d/epel.repo ] && yum install -y epel-release yum-utils
+    [ ! -f /etc/yum.repos.d/epel.repo ] && yum install -y epel-release
+    [ ! "$(command -v yum-config-manager)" ] && yum install -y yum-utils
     [ ! -f /etc/yum.repos.d/epel.repo ] && echo -e "${red}Error${plain} Install EPEL repository failed, please check it." && exit 1
     [ -f /etc/yum.repos.d/epel.repo ] && yum-config-manager --enable epel
     echo -e "[${green}Info${plain}] Adding the EPEL repository complete..."

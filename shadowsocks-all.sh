@@ -26,7 +26,7 @@ green='\033[0;32m'
 yellow='\033[0;33m'
 plain='\033[0m'
 
-[[ $EUID -ne 0 ]] && echo -e "${red}Error:${plain} This script must be run as root!" && exit 1
+[[ $EUID -ne 0 ]] && echo -e "[${red}Error${plain}] This script must be run as root!" && exit 1
 
 cur_dir=$( pwd )
 software=(Shadowsocks-Python ShadowsocksR Shadowsocks-Go Shadowsocks-libev)
@@ -230,7 +230,7 @@ get_ipv6(){
 
 get_libev_ver(){
     libev_ver=$(wget --no-check-certificate -qO- https://api.github.com/repos/shadowsocks/shadowsocks-libev/releases/latest | grep 'tag_name' | cut -d\" -f4)
-    [ -z ${libev_ver} ] && echo -e "${red}Error:${plain} Get shadowsocks-libev latest version failed" && exit 1
+    [ -z ${libev_ver} ] && echo -e "[${red}Error${plain}] Get shadowsocks-libev latest version failed" && exit 1
 }
 
 get_opsy(){
@@ -270,7 +270,7 @@ download() {
         echo "${filename} not found, download now..."
         wget --no-check-certificate -c -t3 -T60 -O ${1} ${2}
         if [ $? -ne 0 ]; then
-            echo -e "${red}Error:${plain} Download ${filename} failed."
+            echo -e "[${red}Error${plain}] Download ${filename} failed."
             exit 1
         fi
     fi
@@ -337,7 +337,7 @@ error_detect_depends(){
     local depend=`echo "${command}" | awk '{print $4}'`
     ${command}
     if [ $? != 0 ]; then
-        echo -e "${red}Error:${plain} Failed to install ${red}${depend}${plain}"
+        echo -e "[${red}Error${plain}] Failed to install ${red}${depend}${plain}"
         echo "Please visit our website: https://teddysun.com/486.html for help"
         exit 1
     fi
@@ -354,10 +354,10 @@ config_firewall() {
                 /etc/init.d/iptables save
                 /etc/init.d/iptables restart
             else
-                echo -e "${green}Info:${plain} port ${green}${shadowsocksport}${plain} already be enabled."
+                echo -e "[${green}Info${plain}] port ${green}${shadowsocksport}${plain} already be enabled."
             fi
         else
-            echo -e "${yellow}Warning:${plain} iptables looks like not running or not installed, please enable port ${shadowsocksport} manually if necessary."
+            echo -e "[${yellow}Warning${plain}] iptables looks like not running or not installed, please enable port ${shadowsocksport} manually if necessary."
         fi
     elif centosversion 7; then
         systemctl status firewalld > /dev/null 2>&1
@@ -366,7 +366,7 @@ config_firewall() {
             firewall-cmd --permanent --zone=public --add-port=${shadowsocksport}/udp
             firewall-cmd --reload
         else
-            echo -e "${yellow}Warning:${plain} firewalld looks like not running or not installed, please enable port ${shadowsocksport} manually if necessary."
+            echo -e "[${yellow}Warning${plain}] firewalld looks like not running or not installed, please enable port ${shadowsocksport} manually if necessary."
         fi
     fi
 }
@@ -452,8 +452,9 @@ fi
 install_dependencies() {
     if check_sys packageManager yum; then
         echo -e "[${green}Info${plain}] Adding the EPEL repository..."
-        [ ! -f /etc/yum.repos.d/epel.repo ] && yum install -y epel-release yum-utils
-        [ ! -f /etc/yum.repos.d/epel.repo ] && echo -e "${red}Error:${plain} Install EPEL repository failed, please check it." && exit 1
+        [ ! -f /etc/yum.repos.d/epel.repo ] && yum install -y epel-release
+        [ ! "$(command -v yum-config-manager)" ] && yum install -y yum-utils
+        [ ! -f /etc/yum.repos.d/epel.repo ] && echo -e "[${red}Error${plain}] Install EPEL repository failed, please check it." && exit 1
         [ -f /etc/yum.repos.d/epel.repo ] && yum-config-manager --enable epel
         echo -e "[${green}Info${plain}] Adding the EPEL repository complete..."
 
@@ -498,7 +499,7 @@ install_check() {
 
 install_select() {
     if ! install_check; then
-        echo -e "${red}Error:${plain} Your OS is not supported to run it!"
+        echo -e "[${red}Error${plain}] Your OS is not supported to run it!"
         echo "Please change to CentOS 6+/Debian 7+/Ubuntu 12+ and try again."
         exit 1
     fi
@@ -521,13 +522,13 @@ install_select() {
         break
         ;;
         *)
-        echo -e "${red}Error:${plain} Please only enter a number [1-4]"
+        echo -e "[${red}Error${plain}] Please only enter a number [1-4]"
         ;;
     esac
     done
 
     if [ -f ${shadowsocks_python_init} ] && [ "${selected}" == "2" ]; then
-        echo -e "${yellow}Warning:${plain} ${red}${software[0]}${plain} has already be installed."
+        echo -e "[${yellow}Warning${plain}] ${red}${software[0]}${plain} has already be installed."
         printf "Are you sure continue install ${red}${software[1]}${plain}? [y/n]\n"
         read -p "(default: n):" yes_no
         [ -z ${yes_no} ] && yes_no="n"
@@ -558,10 +559,10 @@ install_prepare_port() {
             echo
             break
         else
-            echo -e "${red}Error:${plain} Please enter a correct number [1-65535]"
+            echo -e "[${red}Error${plain}] Please enter a correct number [1-65535]"
         fi
     else
-        echo -e "${red}Error:${plain} Please enter a correct number [1-65535]"
+        echo -e "[${red}Error${plain}] Please enter a correct number [1-65535]"
     fi
     done
 }
@@ -712,12 +713,12 @@ install_libsodium() {
         cd ${libsodium_file}
         ./configure --prefix=/usr && make && make install
         if [ $? -ne 0 ]; then
-            echo -e "${red}Error:${plain} ${libsodium_file} install failed."
+            echo -e "[${red}Error${plain}] ${libsodium_file} install failed."
             install_cleanup
             exit 1
         fi
     else
-        echo -e "${green}Info:${plain} ${libsodium_file} already installed."
+        echo -e "[${green}Info${plain}] ${libsodium_file} already installed."
     fi
 }
 
@@ -729,12 +730,12 @@ install_mbedtls() {
         make SHARED=1 CFLAGS=-fPIC
         make DESTDIR=/usr install
         if [ $? -ne 0 ]; then
-            echo -e "${red}Error:${plain} ${mbedtls_file} install failed."
+            echo -e "[${red}Error${plain}] ${mbedtls_file} install failed."
             install_cleanup
             exit 1
         fi
     else
-        echo -e "${green}Info:${plain} ${mbedtls_file} already installed."
+        echo -e "[${green}Info${plain}] ${mbedtls_file} already installed."
     fi
 }
 
@@ -742,7 +743,7 @@ install_shadowsocks_python() {
     cd ${cur_dir}
     unzip -q ${shadowsocks_python_file}.zip
     if [ $? -ne 0 ];then
-        echo -e "${red}Error:${plain} unzip ${shadowsocks_python_file}.zip failed, please check unzip command."
+        echo -e "[${red}Error${plain}] unzip ${shadowsocks_python_file}.zip failed, please check unzip command."
         install_cleanup
         exit 1
     fi
@@ -762,7 +763,7 @@ install_shadowsocks_python() {
         ${shadowsocks_python_init} start
     else
         echo
-        echo -e "${red}Error:${plain} ${software[0]} install failed."
+        echo -e "[${red}Error${plain}] ${software[0]} install failed."
         echo "Please email to Teddysun <i@teddysun.com> and contact."
         install_cleanup
         exit 1
@@ -773,7 +774,7 @@ install_shadowsocks_r() {
     cd ${cur_dir}
     unzip -q ${shadowsocks_r_file}.zip
     if [ $? -ne 0 ];then
-        echo -e "${red}Error:${plain} unzip ${shadowsocks_r_file}.zip failed, please check unzip command."
+        echo -e "[${red}Error${plain}] unzip ${shadowsocks_r_file}.zip failed, please check unzip command."
         install_cleanup
         exit 1
     fi
@@ -790,7 +791,7 @@ install_shadowsocks_r() {
         ${shadowsocks_r_init} start
     else
         echo
-        echo -e "${red}Error:${plain} ${software[1]} install failed."
+        echo -e "[${red}Error${plain}] ${software[1]} install failed."
         echo "Please email to Teddysun <i@teddysun.com> and contact."
         install_cleanup
         exit 1
@@ -802,7 +803,7 @@ install_shadowsocks_go() {
     if is_64bit; then
         gzip -d ${shadowsocks_go_file_64}.gz
         if [ $? -ne 0 ];then
-            echo -e "${red}Error:${plain} Decompress ${shadowsocks_go_file_64}.gz failed."
+            echo -e "[${red}Error${plain}] Decompress ${shadowsocks_go_file_64}.gz failed."
             install_cleanup
             exit 1
         fi
@@ -810,7 +811,7 @@ install_shadowsocks_go() {
     else
         gzip -d ${shadowsocks_go_file_32}.gz
         if [ $? -ne 0 ];then
-            echo -e "${red}Error:${plain} Decompress ${shadowsocks_go_file_32}.gz failed."
+            echo -e "[${red}Error${plain}] Decompress ${shadowsocks_go_file_32}.gz failed."
             install_cleanup
             exit 1
         fi
@@ -831,7 +832,7 @@ install_shadowsocks_go() {
         ${shadowsocks_go_init} start
     else
         echo
-        echo -e "${red}Error:${plain} ${software[2]} install failed."
+        echo -e "[${red}Error${plain}] ${software[2]} install failed."
         echo "Please email to Teddysun <i@teddysun.com> and contact."
         install_cleanup
         exit 1
@@ -856,7 +857,7 @@ install_shadowsocks_libev() {
         ${shadowsocks_libev_init} start
     else
         echo
-        echo -e "${red}Error:${plain} ${software[3]} install failed."
+        echo -e "[${red}Error${plain}] ${software[3]} install failed."
         echo "Please email to Teddysun <i@teddysun.com> and contact."
         install_cleanup
         exit 1
@@ -982,10 +983,10 @@ uninstall_shadowsocks_python() {
             cat /usr/local/shadowsocks_python.log | xargs rm -rf
             rm -f /usr/local/shadowsocks_python.log
         fi
-        echo -e "${green}Info:${plain} ${software[0]} uninstall success"
+        echo -e "[${green}Info${plain}] ${software[0]} uninstall success"
     else
         echo
-        echo -e "${green}Info:${plain} ${software[0]} uninstall cancelled, nothing to do..."
+        echo -e "[${green}Info${plain}] ${software[0]} uninstall cancelled, nothing to do..."
         echo
     fi
 }
@@ -1009,10 +1010,10 @@ uninstall_shadowsocks_r() {
         rm -f ${shadowsocks_r_init}
         rm -f /var/log/shadowsocks.log
         rm -fr /usr/local/shadowsocks
-        echo -e "${green}Info:${plain} ${software[1]} uninstall success"
+        echo -e "[${green}Info${plain}] ${software[1]} uninstall success"
     else
         echo
-        echo -e "${green}Info:${plain} ${software[1]} uninstall cancelled, nothing to do..."
+        echo -e "[${green}Info${plain}] ${software[1]} uninstall cancelled, nothing to do..."
         echo
     fi
 }
@@ -1035,10 +1036,10 @@ uninstall_shadowsocks_go() {
         rm -fr $(dirname ${shadowsocks_go_config})
         rm -f ${shadowsocks_go_init}
         rm -f /usr/bin/shadowsocks-server
-        echo -e "${green}Info:${plain} ${software[2]} uninstall success"
+        echo -e "[${green}Info${plain}] ${software[2]} uninstall success"
     else
         echo
-        echo -e "${green}Info:${plain} ${software[2]} uninstall cancelled, nothing to do..."
+        echo -e "[${green}Info${plain}] ${software[2]} uninstall cancelled, nothing to do..."
         echo
     fi
 }
@@ -1078,10 +1079,10 @@ uninstall_shadowsocks_libev() {
         rm -f /usr/local/share/man/man8/shadowsocks-libev.8
         rm -fr /usr/local/share/doc/shadowsocks-libev
         rm -f ${shadowsocks_libev_init}
-        echo -e "${green}Info:${plain} ${software[3]} uninstall success"
+        echo -e "[${green}Info${plain}] ${software[3]} uninstall success"
     else
         echo
-        echo -e "${green}Info:${plain} ${software[3]} uninstall cancelled, nothing to do..."
+        echo -e "[${green}Info${plain}] ${software[3]} uninstall cancelled, nothing to do..."
         echo
     fi
 }
@@ -1103,7 +1104,7 @@ uninstall_shadowsocks() {
         break
         ;;
         *)
-        echo -e "${red}Error:${plain} Please only enter a number [1-4]"
+        echo -e "[${red}Error${plain}] Please only enter a number [1-4]"
         ;;
     esac
     done
@@ -1112,7 +1113,7 @@ uninstall_shadowsocks() {
         if [ -f ${shadowsocks_python_init} ]; then
             uninstall_shadowsocks_python
         else
-            echo -e "${red}Error:${plain} ${software[${un_select}-1]} not installed, please check it and try again."
+            echo -e "[${red}Error${plain}] ${software[${un_select}-1]} not installed, please check it and try again."
             echo
             exit 1
         fi
@@ -1120,7 +1121,7 @@ uninstall_shadowsocks() {
         if [ -f ${shadowsocks_r_init} ]; then
             uninstall_shadowsocks_r
         else
-            echo -e "${red}Error:${plain} ${software[${un_select}-1]} not installed, please check it and try again."
+            echo -e "[${red}Error${plain}] ${software[${un_select}-1]} not installed, please check it and try again."
             echo
             exit 1
         fi
@@ -1128,7 +1129,7 @@ uninstall_shadowsocks() {
         if [ -f ${shadowsocks_go_init} ]; then
             uninstall_shadowsocks_go
         else
-            echo -e "${red}Error:${plain} ${software[${un_select}-1]} not installed, please check it and try again."
+            echo -e "[${red}Error${plain}] ${software[${un_select}-1]} not installed, please check it and try again."
             echo
             exit 1
         fi
@@ -1136,7 +1137,7 @@ uninstall_shadowsocks() {
         if [ -f ${shadowsocks_libev_init} ]; then
             uninstall_shadowsocks_libev
         else
-            echo -e "${red}Error:${plain} ${software[${un_select}-1]} not installed, please check it and try again."
+            echo -e "[${red}Error${plain}] ${software[${un_select}-1]} not installed, please check it and try again."
             echo
             exit 1
         fi
