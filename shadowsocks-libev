@@ -71,9 +71,14 @@ do_stop() {
 }
 
 do_status() {
-    if [ -f $PID_FILE ]; then
+    if [ -r $PID_FILE ]; then
         read PID < $PID_FILE
-        echo "$NAME (pid $PID) is running..."
+        if [ -d "/proc/$PID" ]; then
+            echo "$NAME (pid $PID) is running..."
+        else
+            rm -f $PID_FILE
+            echo "$NAME is stopped"
+        fi
     else
         echo "$NAME is stopped"
         RETVAL=1
