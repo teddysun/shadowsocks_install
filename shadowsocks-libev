@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 # chkconfig: 2345 90 10
 # description: A secure socks5 proxy, designed to protect your Internet traffic.
 
@@ -13,13 +13,6 @@
 ### END INIT INFO
 
 # Author: Teddysun <i@teddysun.com>
-
-# Source function library
-. /etc/rc.d/init.d/functions
-
-# Check that networking is up.
-[ ${NETWORKING} ="yes" ] || exit 0
-
 if [ -f /usr/local/bin/ss-server ]; then
     DAEMON=/usr/local/bin/ss-server
 elif [ -f /usr/bin/ss-server ]; then
@@ -46,42 +39,55 @@ if [ ! -f $CONF ]; then
     exit 1
 fi
 
-do_start() {
-    if [ -f $PID_FILE ]; then
-        read PID < $PID_FILE
-        echo "$NAME (pid $PID) is already running..."
-        exit 0
-    else
-        echo -n $"Starting ${NAME}: "
-        daemon $DAEMON -u -c $CONF -f $PID_FILE
-    fi
-
-    RETVAL=$?
-    [ $RETVAL -eq 0 ] && success
-    echo
-}
-
-do_stop() {
-    echo -n $"Stopping ${NAME}: "
-    killproc -p $PID_FILE
-    RETVAL=$?
-    [ $RETVAL -eq 0 ]
-    rm -f $PID_FILE
-    echo
-}
-
-do_status() {
+check_running() {
     if [ -r $PID_FILE ]; then
         read PID < $PID_FILE
         if [ -d "/proc/$PID" ]; then
-            echo "$NAME (pid $PID) is running..."
+            return 0
         else
             rm -f $PID_FILE
-            echo "$NAME is stopped"
+            return 1
         fi
     else
+        return 2
+    fi
+}
+
+do_status() {
+    check_running
+    case $? in
+        0)
+        echo "$NAME (pid $PID) is running..."
+        ;;
+        1|2)
         echo "$NAME is stopped"
-        RETVAL=1
+        RET_VAL=1
+        ;;
+    esac
+}
+
+do_start() {
+    if check_running; then
+        echo "$NAME (pid $PID) is already running..."
+        return 0
+    fi
+    $DAEMON -u -c $CONF -f $PID_FILE
+    if check_running; then
+        echo "Starting $NAME success"
+    else
+        echo "Starting $NAME failed"
+        RET_VAL=1
+    fi
+}
+
+do_stop() {
+    if check_running; then
+        kill -9 $PID
+        rm -f $PID_FILE
+        echo "Stopping $NAME success"
+    else
+        echo "$NAME is stopped"
+        RET_VAL=1
     fi
 }
 
@@ -100,4 +106,4 @@ case "$1" in
     ;;
 esac
 
-exit $RETVAL
+exit $RET_VAL
