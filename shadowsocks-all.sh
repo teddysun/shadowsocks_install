@@ -226,12 +226,14 @@ centosversion() {
 
 autoconf_version(){
     if [ ! "$(command -v autoconf)" ]; then
+        echo -e "[${green}Info${plain}] Starting install autoconf..."
         if check_sys packageManager yum; then
-            yum install -y autoconf
+            yum install -y autoconf > /dev/null 2>&1
         elif check_sys packageManager apt; then
-            apt-get -y update
-            apt-get -y install autoconf
+            apt-get -y update > /dev/null 2>&1
+            apt-get -y install autoconf > /dev/null 2>&1
         fi
+        echo -e "[${green}Info${plain}] Install autoconf completed."
     fi
     local autoconf_ver=$(autoconf --version | grep autoconf | grep -oE "[0-9.]+")
     if version_ge ${autoconf_ver} 2.67; then
@@ -724,7 +726,7 @@ install_prepare_libev_obfs() {
     if autoconf_version; then
         while true
         do
-        echo -e "Do you want to install simple-obfs for ${software[${selected}-1]}? [y/n]"
+        echo -e "Do you want install simple-obfs for ${software[${selected}-1]}? [y/n]"
         read -p "(default: n):" libev_obfs
         [ -z "$libev_obfs" ] && libev_obfs=n
         case "${libev_obfs}" in
