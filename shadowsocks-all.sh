@@ -140,6 +140,10 @@ tls1.2_ticket_auth_compatible
 tls1.2_ticket_fastauth
 tls1.2_ticket_fastauth_compatible
 )
+# libev obfuscating
+obfs_libev=(http tls)
+# initialization parameter
+libev_obfs=""
 
 disable_selinux() {
     if [ -s /etc/selinux/config ] && grep 'SELINUX=enforcing' /etc/selinux/config; then
@@ -193,6 +197,10 @@ check_sys() {
     fi
 }
 
+version_ge(){
+    test "$(echo "$@" | tr " " "\n" | sort -rV | head -n 1)" == "$1"
+}
+
 getversion() {
     if [[ -s /etc/redhat-release ]]; then
         grep -oE  "[0-9.]+" /etc/redhat-release
@@ -211,6 +219,23 @@ centosversion() {
         else
             return 1
         fi
+    else
+        return 1
+    fi
+}
+
+autoconf_version(){
+    if [ ! "$(command -v autoconf)" ]; then
+        if check_sys packageManager yum; then
+            yum install -y autoconf
+        elif check_sys packageManager apt; then
+            apt-get -y update
+            apt-get -y install autoconf
+        fi
+    fi
+    local autoconf_ver=$(autoconf --version | grep autoconf | grep -oE "[0-9.]+")
+    if version_ge ${autoconf_ver} 2.67; then
+        return 0
     else
         return 1
     fi
@@ -338,7 +363,7 @@ error_detect_depends(){
     ${command}
     if [ $? != 0 ]; then
         echo -e "[${red}Error${plain}] Failed to install ${red}${depend}${plain}"
-        echo "Please visit our website: https://teddysun.com/486.html for help"
+        echo "Please visit: https://teddysun.com/486.html and contact."
         exit 1
     fi
 }
@@ -435,7 +460,22 @@ elif [ "${selected}" == "4" ]; then
     if [ ! -d "$(dirname ${shadowsocks_libev_config})" ]; then
         mkdir -p $(dirname ${shadowsocks_libev_config})
     fi
-    cat > ${shadowsocks_libev_config}<<-EOF
+
+    if [ "${libev_obfs}" == "y" ] || [ "${libev_obfs}" == "Y" ]; then
+        cat > ${shadowsocks_libev_config}<<-EOF
+{
+    "server":${server_value},
+    "server_port":${shadowsocksport},
+    "local_address":"127.0.0.1",
+    "local_port":1080,
+    "password":"${shadowsockspwd}",
+    "timeout":300,
+    "method":"${shadowsockscipher}",
+    "plugin":"obfs-server --obfs ${shadowsocklibev_obfs}"
+}
+EOF
+    else
+        cat > ${shadowsocks_libev_config}<<-EOF
 {
     "server":${server_value},
     "server_port":${shadowsocksport},
@@ -446,6 +486,8 @@ elif [ "${selected}" == "4" ]; then
     "method":"${shadowsockscipher}"
 }
 EOF
+    fi
+
 fi
 }
 
@@ -461,7 +503,7 @@ install_dependencies() {
         yum_depends=(
             unzip gzip openssl openssl-devel gcc python python-devel python-setuptools pcre pcre-devel libtool libevent xmlto
             autoconf automake make curl curl-devel zlib-devel perl perl-devel cpio expat-devel gettext-devel asciidoc
-            libev-devel udns-devel c-ares-devel
+            libev-devel udns-devel c-ares-devel git
         )
         for depend in ${yum_depends[@]}; do
             error_detect_depends "yum -y install ${depend}"
@@ -470,7 +512,7 @@ install_dependencies() {
         apt_depends=(
             gettext build-essential unzip gzip python python-dev python-setuptools curl openssl libssl-dev
             autoconf automake libtool gcc make perl cpio libpcre3 libpcre3-dev zlib1g-dev
-            libudns-dev libev-dev libc-ares-dev
+            libudns-dev libev-dev libc-ares-dev git
         )
         # Check jessie in source.list
         if debianversion 7; then
@@ -526,14 +568,6 @@ install_select() {
         ;;
     esac
     done
-
-    if [ -f ${shadowsocks_python_init} ] && [ "${selected}" == "2" ]; then
-        echo -e "[${yellow}Warning${plain}] ${red}${software[0]}${plain} has already be installed."
-        printf "Are you sure continue install ${red}${software[1]}${plain}? [y/n]\n"
-        read -p "(default: n):" yes_no
-        [ -z ${yes_no} ] && yes_no="n"
-        [ "${yes_no}" != "y" -a "${yes_no}" != "Y" ] && echo -e "${red}${software[1]}${plain} install cancelled..." && exit 1
-    fi
 }
 
 install_prepare_password() {
@@ -686,12 +720,66 @@ install_prepare_obfs() {
     done
 }
 
+install_prepare_libev_obfs() {
+    if autoconf_version; then
+        while true
+        do
+        echo -e "Do you want to install simple-obfs for ${software[${selected}-1]}? [y/n]"
+        read -p "(default: n):" libev_obfs
+        [ -z "$libev_obfs" ] && libev_obfs=n
+        case "${libev_obfs}" in
+            y|Y|n|N)
+            echo
+            echo "You choose = ${libev_obfs}"
+            echo
+            break
+            ;;
+            *)
+            echo -e "[${red}Error${plain}] Please only enter [y/n]"
+            ;;
+        esac
+        done
+
+        if [ "${libev_obfs}" == "y" ] || [ "${libev_obfs}" == "Y" ]; then
+            while true
+            do
+            echo -e "Please select obfs for simple-obfs:"
+            for ((i=1;i<=${#obfs_libev[@]};i++ )); do
+                hint="${obfs_libev[$i-1]}"
+                echo -e "${green}${i}${plain}) ${hint}"
+            done
+            read -p "Which obfs you'd select(Default: ${obfs_libev[0]}):" r_libev_obfs
+            [ -z "$r_libev_obfs" ] && r_libev_obfs=1
+            expr ${r_libev_obfs} + 1 &>/dev/null
+            if [ $? -ne 0 ]; then
+                echo -e "[${red}Error${plain}] Input error, please input a number"
+                continue
+            fi
+            if [[ "$r_libev_obfs" -lt 1 || "$r_libev_obfs" -gt ${#obfs_libev[@]} ]]; then
+                echo -e "[${red}Error${plain}] Input error, please input a number between 1 and ${#obfs_libev[@]}"
+                continue
+            fi
+            shadowsocklibev_obfs=${obfs_libev[$r_libev_obfs-1]}
+            echo
+            echo "obfs = ${shadowsocklibev_obfs}"
+            echo
+            break
+            done
+        fi
+    else
+        echo -e "[${yellow}Warning${plain}] autoconf version is less than 2.67, simple-obfs for ${software[${selected}-1]} installation has been skipped"
+    fi
+}
+
 install_prepare() {
 
-    if   [[ "${selected}" == "1" || "${selected}" == "3" || "${selected}" == "4" ]]; then
+    if  [[ "${selected}" == "1" || "${selected}" == "3" || "${selected}" == "4" ]]; then
         install_prepare_password
         install_prepare_port
         install_prepare_cipher
+        if [ "${selected}" == "4" ]; then
+            install_prepare_libev_obfs
+        fi
     elif [ "${selected}" == "2" ]; then
         install_prepare_password
         install_prepare_port
@@ -760,11 +848,10 @@ install_shadowsocks_python() {
         elif check_sys packageManager apt; then
             update-rc.d -f ${service_name} defaults
         fi
-        ${shadowsocks_python_init} start
     else
         echo
         echo -e "[${red}Error${plain}] ${software[0]} install failed."
-        echo "Please email to Teddysun <i@teddysun.com> and contact."
+        echo "Please visit: https://teddysun.com/486.html and contact."
         install_cleanup
         exit 1
     fi
@@ -788,11 +875,10 @@ install_shadowsocks_r() {
         elif check_sys packageManager apt; then
             update-rc.d -f ${service_name} defaults
         fi
-        ${shadowsocks_r_init} start
     else
         echo
         echo -e "[${red}Error${plain}] ${software[1]} install failed."
-        echo "Please email to Teddysun <i@teddysun.com> and contact."
+        echo "Please visit; https://teddysun.com/486.html and contact."
         install_cleanup
         exit 1
     fi
@@ -829,11 +915,10 @@ install_shadowsocks_go() {
         elif check_sys packageManager apt; then
             update-rc.d -f ${service_name} defaults
         fi
-        ${shadowsocks_go_init} start
     else
         echo
         echo -e "[${red}Error${plain}] ${software[2]} install failed."
-        echo "Please email to Teddysun <i@teddysun.com> and contact."
+        echo "Please visit: https://teddysun.com/486.html and contact."
         install_cleanup
         exit 1
     fi
@@ -853,19 +938,37 @@ install_shadowsocks_libev() {
         elif check_sys packageManager apt; then
             update-rc.d -f ${service_name} defaults
         fi
-        ldconfig
-        ${shadowsocks_libev_init} start
     else
         echo
         echo -e "[${red}Error${plain}] ${software[3]} install failed."
-        echo "Please email to Teddysun <i@teddysun.com> and contact."
+        echo "Please visit: https://teddysun.com/486.html and contact."
         install_cleanup
         exit 1
     fi
 }
 
+install_shadowsocks_libev_obfs() {
+    if [ "${libev_obfs}" == "y" ] || [ "${libev_obfs}" == "Y" ]; then
+        cd ${cur_dir}
+        git clone https://github.com/shadowsocks/simple-obfs.git
+        cd simple-obfs
+        git submodule update --init --recursive
+        ./autogen.sh
+        ./configure --disable-documentation
+        make
+        make install
+        if [ ! "$(command -v obfs-server)" ]; then
+            echo -e "[${red}Error${plain}] simple-obfs for ${software[${selected}-1]} install failed."
+            echo "Please visit: https://teddysun.com/486.html and contact."
+            install_cleanup
+            exit 1
+        fi
+    fi
+}
+
 install_completed_python() {
     clear
+    ${shadowsocks_python_init} start
     echo
     echo -e "Congratulations, ${green}${software[0]}${plain} server install completed!"
     echo -e "Your Server IP        : ${red} $(get_ip) ${plain}"
@@ -876,6 +979,7 @@ install_completed_python() {
 
 install_completed_r() {
     clear
+    ${shadowsocks_r_init} start
     echo
     echo -e "Congratulations, ${green}${software[1]}${plain} server install completed!"
     echo -e "Your Server IP        : ${red} $(get_ip) ${plain}"
@@ -888,6 +992,7 @@ install_completed_r() {
 
 install_completed_go() {
     clear
+    ${shadowsocks_go_init} start
     echo
     echo -e "Congratulations, ${green}${software[2]}${plain} server install completed!"
     echo -e "Your Server IP        : ${red} $(get_ip) ${plain}"
@@ -898,11 +1003,16 @@ install_completed_go() {
 
 install_completed_libev() {
     clear
+    ldconfig
+    ${shadowsocks_libev_init} start
     echo
     echo -e "Congratulations, ${green}${software[3]}${plain} server install completed!"
     echo -e "Your Server IP        : ${red} $(get_ip) ${plain}"
     echo -e "Your Server Port      : ${red} ${shadowsocksport} ${plain}"
     echo -e "Your Password         : ${red} ${shadowsockspwd} ${plain}"
+    if [ "$(command -v obfs-server)" ]; then
+    echo -e "Your obfs             : ${red} ${shadowsocklibev_obfs} ${plain}"
+    fi
     echo -e "Your Encryption Method: ${red} ${shadowsockscipher} ${plain}"
 }
 
@@ -917,16 +1027,15 @@ install_main(){
         install_shadowsocks_python
         install_completed_python
     elif [ "${selected}" == "2" ]; then
-        if [ "${yes_no}" == "y" -o "${yes_no}" == "Y" ] || [ ! -f ${shadowsocks_python_init} ]; then
-            install_shadowsocks_r
-            install_completed_r
-        fi
+        install_shadowsocks_r
+        install_completed_r
     elif [ "${selected}" == "3" ]; then
         install_shadowsocks_go
         install_completed_go
     elif [ "${selected}" == "4" ]; then
         install_mbedtls
         install_shadowsocks_libev
+        install_shadowsocks_libev_obfs
         install_completed_libev
     fi
 
@@ -938,6 +1047,7 @@ install_main(){
 
 install_cleanup(){
     cd ${cur_dir}
+    rm -rf simple-obfs
     rm -rf ${libsodium_file} ${libsodium_file}.tar.gz
     rm -rf ${mbedtls_file} ${mbedtls_file}-gpl.tgz
     rm -rf ${shadowsocks_python_file} ${shadowsocks_python_file}.zip
@@ -1066,6 +1176,8 @@ uninstall_shadowsocks_libev() {
         rm -f /usr/local/bin/ss-manager
         rm -f /usr/local/bin/ss-redir
         rm -f /usr/local/bin/ss-nat
+        rm -f /usr/local/bin/obfs-local
+        rm -f /usr/local/bin/obfs-server
         rm -f /usr/local/lib/libshadowsocks-libev.a
         rm -f /usr/local/lib/libshadowsocks-libev.la
         rm -f /usr/local/include/shadowsocks.h
