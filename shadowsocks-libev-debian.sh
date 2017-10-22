@@ -12,8 +12,8 @@ export PATH
 # Current folder
 cur_dir=`pwd`
 
-libsodium_file="libsodium-1.0.13"
-libsodium_url="https://github.com/jedisct1/libsodium/releases/download/1.0.13/libsodium-1.0.13.tar.gz"
+libsodium_file="libsodium-1.0.15"
+libsodium_url="https://github.com/jedisct1/libsodium/releases/download/1.0.15/libsodium-1.0.15.tar.gz"
 
 mbedtls_file="mbedtls-2.6.0"
 mbedtls_url="http://dl.teddysun.com/files/mbedtls-2.6.0-gpl.tgz"
