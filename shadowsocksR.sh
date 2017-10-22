@@ -19,6 +19,9 @@ echo "# Github: https://github.com/shadowsocksr/shadowsocksr      #"
 echo "#############################################################"
 echo
 
+libsodium_file="libsodium-1.0.15"
+libsodium_url="https://github.com/jedisct1/libsodium/releases/download/1.0.15/libsodium-1.0.15.tar.gz"
+
 #Current folder
 cur_dir=`pwd`
 # Stream Ciphers
@@ -314,7 +317,7 @@ pre_install(){
 # Download files
 download_files(){
     # Download libsodium file
-    if ! wget --no-check-certificate -O libsodium-1.0.15.tar.gz https://github.com/jedisct1/libsodium/releases/download/1.0.15/libsodium-1.0.15.tar.gz; then
+    if ! wget --no-check-certificate -O ${libsodium_file}.tar.gz ${libsodium_url}; then
         echo -e "[${red}Error${plain}] Failed to download libsodium-1.0.15.tar.gz!"
         exit 1
     fi
@@ -397,8 +400,8 @@ install(){
     # Install libsodium
     if [ ! -f /usr/lib/libsodium.a ]; then
         cd ${cur_dir}
-        tar zxf libsodium-1.0.13.tar.gz
-        cd libsodium-1.0.13
+        tar zxf ${libsodium_file}.tar.gz
+        cd ${libsodium_file}
         ./configure --prefix=/usr && make && make install
         if [ $? -ne 0 ]; then
             echo -e "[${red}Error${plain}] libsodium install failed!"
@@ -445,7 +448,7 @@ install(){
 # Install cleanup
 install_cleanup(){
     cd ${cur_dir}
-    rm -rf manyuser.zip shadowsocksr-manyuser libsodium-1.0.13.tar.gz libsodium-1.0.13
+    rm -rf manyuser.zip shadowsocksr-manyuser ${libsodium_file}.tar.gz ${libsodium_file}
 }
 
 
