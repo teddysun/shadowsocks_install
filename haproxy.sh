@@ -9,6 +9,8 @@
 # Intro:  https://shadowsocks.be/10.html
 #
 
+cur_dir=`pwd`
+
 [[ $EUID -ne 0 ]] && echo "Error: This script must be run as root!" && exit 1
 
 clear
@@ -20,24 +22,56 @@ echo "# Author: Teddysun <i@teddysun.com>                         #"
 echo "#############################################################"
 echo
 
-checkos(){
-    if [[ -f /etc/redhat-release ]]; then
-        OS="centos"
+check_sys() {
+    local checkType=$1
+    local value=$2
+
+    local release=''
+    local systemPackage=''
+
+    if [ -f /etc/redhat-release ]; then
+        release="centos"
+        systemPackage="yum"
     elif cat /etc/issue | grep -Eqi "debian"; then
-        OS="debian"
+        release="debian"
+        systemPackage="apt"
     elif cat /etc/issue | grep -Eqi "ubuntu"; then
-        OS="ubuntu"
+        release="ubuntu"
+        systemPackage="apt"
     elif cat /etc/issue | grep -Eqi "centos|red hat|redhat"; then
-        OS="centos"
+        release="centos"
+        systemPackage="yum"
     elif cat /proc/version | grep -Eqi "debian"; then
-        OS="debian"
+        release="debian"
+        systemPackage="apt"
     elif cat /proc/version | grep -Eqi "ubuntu"; then
-        OS="ubuntu"
+        release="ubuntu"
+        systemPackage="apt"
     elif cat /proc/version | grep -Eqi "centos|red hat|redhat"; then
-        OS="centos"
+        release="centos"
+        systemPackage="yum"
+    fi
+
+    if [ ${checkType} == "sysRelease" ]; then
+        if [ "$value" == "$release" ]; then
+            return 0
+        else
+            return 1
+        fi
+    elif [ ${checkType} == "packageManager" ]; then
+        if [ "$value" == "$systemPackage" ]; then
+            return 0
+        else
+            return 1
+        fi
+    fi
+}
+
+install_check() {
+    if check_sys packageManager yum || check_sys packageManager apt; then
+        return 0
     else
-        echo "Not supported OS, Please reinstall OS and try again."
-        exit 1
+        return 1
     fi
 }
 
@@ -81,8 +115,14 @@ get_char(){
 
 # Pre-installation settings
 pre_install(){
+    if ! install_check; then
+        echo "Your OS is not supported to run it."
+        echo "Please change to CentOS 6+/Debian 7+/Ubuntu 12+ and try again."
+        exit 1
+    fi
+
     # Set haproxy config port
-    while :
+    while true
     do
     echo -e "Please enter a port for haproxy and Shadowsocks server [1-65535]"
     read -p "(Default port: 8989):" haproxyport
@@ -169,29 +209,29 @@ EOF
 
 install(){
     # Install haproxy
-    if [ "${OS}" == "centos" ]; then
+    if check_sys packageManager yum; then
         yum install -y haproxy
-    else
+    elif check_sys packageManager apt; then
         apt-get -y update
         apt-get install -y haproxy
     fi
 
     if [ -d /etc/haproxy ]; then
-        echo "haproxy install successed."
+        echo "haproxy install success."
 
         echo "Config haproxy start..."
         config_haproxy
         echo "Config haproxy completed..."
 
-        if [ "${OS}" == "centos" ]; then
+        if check_sys packageManager yum; then
             chkconfig --add haproxy
             chkconfig haproxy on
-        else
+        elif check_sys packageManager apt; then
             update-rc.d haproxy defaults
         fi
 
         # Start haproxy
-        /etc/init.d/haproxy start
+        service haproxy start
         if [ $? -eq 0 ]; then
             echo "haproxy start success..."
         else
@@ -205,7 +245,7 @@ install(){
 
     sleep 3
     # restart haproxy
-    /etc/init.d/haproxy restart
+    service haproxy restart
     # Active Internet connections confirm
     netstat -nxtlp
     echo
@@ -222,11 +262,10 @@ install(){
 
 # Install haproxy
 install_haproxy(){
-    checkos
     disable_selinux
     pre_install
     install
 }
 
 # Initialization step
-install_haproxy 2>&1 | tee ~/haproxy_for_shadowsocks.log
+install_haproxy 2>&1 | tee ${cur_dir}/haproxy_for_shadowsocks.log
