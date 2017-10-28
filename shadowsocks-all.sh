@@ -592,17 +592,14 @@ install_prepare_port() {
     [ -z "${shadowsocksport}" ] && shadowsocksport="8989"
     expr ${shadowsocksport} + 1 &>/dev/null
     if [ $? -eq 0 ]; then
-        if [ ${shadowsocksport} -ge 1 ] && [ ${shadowsocksport} -le 65535 ]; then
+        if [ ${shadowsocksport} -ge 1 ] && [ ${shadowsocksport} -le 65535 ] && [ ${shadowsocksport:0:1} != 0 ]; then
             echo
             echo "port = ${shadowsocksport}"
             echo
             break
-        else
-            echo -e "[${red}Error${plain}] Please enter a correct number [1-65535]"
         fi
-    else
-        echo -e "[${red}Error${plain}] Please enter a correct number [1-65535]"
     fi
+    echo -e "[${red}Error${plain}] Please enter a correct number [1-65535]"
     done
 }
 
@@ -620,11 +617,11 @@ install_prepare_cipher() {
         [ -z "$pick" ] && pick=1
         expr ${pick} + 1 &>/dev/null
         if [ $? -ne 0 ]; then
-            echo -e "[${red}Error${plain}] Input error, please input a number"
+            echo -e "[${red}Error${plain}] Please enter a number"
             continue
         fi
         if [[ "$pick" -lt 1 || "$pick" -gt ${#common_ciphers[@]} ]]; then
-            echo -e "[${red}Error${plain}] Input error, please input a number between 1 and ${#common_ciphers[@]}"
+            echo -e "[${red}Error${plain}] Please enter a number between 1 and ${#common_ciphers[@]}"
             continue
         fi
         shadowsockscipher=${common_ciphers[$pick-1]}
@@ -637,11 +634,11 @@ install_prepare_cipher() {
         [ -z "$pick" ] && pick=2
         expr ${pick} + 1 &>/dev/null
         if [ $? -ne 0 ]; then
-            echo -e "[${red}Error${plain}] Input error, please input a number"
+            echo -e "[${red}Error${plain}] Please enter a number"
             continue
         fi
         if [[ "$pick" -lt 1 || "$pick" -gt ${#r_ciphers[@]} ]]; then
-            echo -e "[${red}Error${plain}] Input error, please input a number between 1 and ${#r_ciphers[@]}"
+            echo -e "[${red}Error${plain}] Please enter a number between 1 and ${#r_ciphers[@]}"
             continue
         fi
         shadowsockscipher=${r_ciphers[$pick-1]}
@@ -654,11 +651,11 @@ install_prepare_cipher() {
         [ -z "$pick" ] && pick=1
         expr ${pick} + 1 &>/dev/null
         if [ $? -ne 0 ]; then
-            echo -e "[${red}Error${plain}] Input error, please input a number"
+            echo -e "[${red}Error${plain}] Please enter a number"
             continue
         fi
         if [[ "$pick" -lt 1 || "$pick" -gt ${#go_ciphers[@]} ]]; then
-            echo -e "[${red}Error${plain}] Input error, please input a number between 1 and ${#go_ciphers[@]}"
+            echo -e "[${red}Error${plain}] Please enter a number between 1 and ${#go_ciphers[@]}"
             continue
         fi
         shadowsockscipher=${go_ciphers[$pick-1]}
@@ -683,11 +680,11 @@ install_prepare_protocol() {
     [ -z "$protocol" ] && protocol=1
     expr ${protocol} + 1 &>/dev/null
     if [ $? -ne 0 ]; then
-        echo -e "[${red}Error${plain}] Input error, please input a number"
+        echo -e "[${red}Error${plain}] Please enter a number"
         continue
     fi
     if [[ "$protocol" -lt 1 || "$protocol" -gt ${#protocols[@]} ]]; then
-        echo -e "[${red}Error${plain}] Input error, please input a number between 1 and ${#protocols[@]}"
+        echo -e "[${red}Error${plain}] Please enter a number between 1 and ${#protocols[@]}"
         continue
     fi
     shadowsockprotocol=${protocols[$protocol-1]}
@@ -710,11 +707,11 @@ install_prepare_obfs() {
     [ -z "$r_obfs" ] && r_obfs=1
     expr ${r_obfs} + 1 &>/dev/null
     if [ $? -ne 0 ]; then
-        echo -e "[${red}Error${plain}] Input error, please input a number"
+        echo -e "[${red}Error${plain}] Please enter a number"
         continue
     fi
     if [[ "$r_obfs" -lt 1 || "$r_obfs" -gt ${#obfs[@]} ]]; then
-        echo -e "[${red}Error${plain}] Input error, please input a number between 1 and ${#obfs[@]}"
+        echo -e "[${red}Error${plain}] Please enter a number between 1 and ${#obfs[@]}"
         continue
     fi
     shadowsockobfs=${obfs[$r_obfs-1]}
@@ -757,11 +754,11 @@ install_prepare_libev_obfs() {
             [ -z "$r_libev_obfs" ] && r_libev_obfs=1
             expr ${r_libev_obfs} + 1 &>/dev/null
             if [ $? -ne 0 ]; then
-                echo -e "[${red}Error${plain}] Input error, please input a number"
+                echo -e "[${red}Error${plain}] Please enter a number"
                 continue
             fi
             if [[ "$r_libev_obfs" -lt 1 || "$r_libev_obfs" -gt ${#obfs_libev[@]} ]]; then
-                echo -e "[${red}Error${plain}] Input error, please input a number between 1 and ${#obfs_libev[@]}"
+                echo -e "[${red}Error${plain}] Please enter a number between 1 and ${#obfs_libev[@]}"
                 continue
             fi
             shadowsocklibev_obfs=${obfs_libev[$r_libev_obfs-1]}
