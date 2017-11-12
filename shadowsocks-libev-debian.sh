@@ -283,17 +283,10 @@ pre_install(){
     echo "Press any key to start...or press Ctrl+C to cancel"
     char=`get_char`
 
-    # Check jessie in source.list
-    if debianversion 7; then
-        grep "jessie" /etc/apt/sources.list > /dev/null 2>&1
-        if [ $? -ne 0 ] && [ -r /etc/apt/sources.list ]; then
-            echo "deb http://http.us.debian.org/debian jessie main" >> /etc/apt/sources.list
-        fi
-    fi
     # Update System
     apt-get -y update
     # Install necessary dependencies
-    apt-get -y --no-install-recommends install gettext build-essential autoconf automake libtool openssl libssl-dev zlib1g-dev libpcre3-dev libudns-dev libev-dev libc-ares-dev
+    apt-get -y --no-install-recommends install gettext build-essential autoconf automake libtool openssl libssl-dev zlib1g-dev libpcre3-dev libev-dev libc-ares-dev
 }
 
 download() {
