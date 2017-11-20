@@ -1016,8 +1016,8 @@ install_completed_libev() {
 
 qr_generate_python() {
     if [ "$(command -v qrencode)" ]; then
-        local tmp=$(echo -n "${shadowsockscipher}:${shadowsockspwd}" | base64 -w0)
-        local qr_code="ss://${tmp}@$(get_ip):${shadowsocksport}"
+        local tmp=$(echo -n "${shadowsockscipher}:${shadowsockspwd}@$(get_ip):${shadowsocksport}" | base64 -w0)
+        local qr_code="ss://${tmp}"
         echo
         echo "Your QR Code: (For Shadowsocks Windows, OSX, Android and iOS clients)"
         echo -e "${green} ${qr_code} ${plain}"
@@ -1043,8 +1043,8 @@ qr_generate_r() {
 
 qr_generate_go() {
     if [ "$(command -v qrencode)" ]; then
-        local tmp=$(echo -n "${shadowsockscipher}:${shadowsockspwd}" | base64 -w0)
-        local qr_code="ss://${tmp}@$(get_ip):${shadowsocksport}"
+        local tmp=$(echo -n "${shadowsockscipher}:${shadowsockspwd}@$(get_ip):${shadowsocksport}" | base64 -w0)
+        local qr_code="ss://${tmp}"
         echo
         echo "Your QR Code: (For Shadowsocks Windows, OSX, Android and iOS clients)"
         echo -e "${green} ${qr_code} ${plain}"
@@ -1056,8 +1056,8 @@ qr_generate_go() {
 
 qr_generate_libev() {
     if [ "$(command -v qrencode)" ]; then
-        local tmp=$(echo -n "${shadowsockscipher}:${shadowsockspwd}" | base64 -w0)
-        local qr_code="ss://${tmp}@$(get_ip):${shadowsocksport}"
+        local tmp=$(echo -n "${shadowsockscipher}:${shadowsockspwd}@$(get_ip):${shadowsocksport}" | base64 -w0)
+        local qr_code="ss://${tmp}"
         echo
         echo "Your QR Code: (For Shadowsocks Windows, OSX, Android and iOS clients)"
         echo -e "${green} ${qr_code} ${plain}"
