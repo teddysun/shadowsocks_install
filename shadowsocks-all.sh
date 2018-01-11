@@ -534,7 +534,7 @@ install_dependencies() {
             libev-devel c-ares-devel git qrencode
         )
         for depend in ${yum_depends[@]}; do
-            error_detect_depends "yum -y -q install ${depend}"
+            error_detect_depends "yum -y install ${depend}"
         done
     elif check_sys packageManager apt; then
         apt_depends=(
