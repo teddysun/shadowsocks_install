@@ -983,6 +983,7 @@ install_shadowsocks_libev_obfs() {
             install_cleanup
             exit 1
         fi
+        [ -f /usr/local/bin/obfs-server ] && ln -s /usr/local/bin/obfs-server /usr/bin
     fi
 }
 
