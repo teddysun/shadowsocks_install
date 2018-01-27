@@ -24,7 +24,7 @@ shadowsocks-go.sh
 shadowsocks-crond.sh
 ===============
 - Check Shadowsocks(All version) Server is running or not, and start it if not running
-- https://shadowsocks.be/6.html
+- https://teddysun.com/525.html
 
 shadowsocksR.sh
 ===============
@@ -41,4 +41,4 @@ haproxy.sh
 - Auto Install haproxy for Shadowsocks Server
 - https://shadowsocks.be/10.html
 
-Copyright (C) 2014-2017 Teddysun
+Copyright (C) 2014-2018 Teddysun
