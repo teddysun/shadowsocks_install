@@ -11,13 +11,17 @@
 # https://github.com/shadowsocks/shadowsocks-go
 # https://github.com/shadowsocks/shadowsocks-libev
 # https://github.com/shadowsocks/shadowsocks-windows
-# https://github.com/shadowsocksr/shadowsocksr
+# https://github.com/shadowsocksr-rm/shadowsocksr
+# https://github.com/shadowsocksrr/shadowsocksr
+# https://github.com/shadowsocksrr/shadowsocksr-csharp
 #
 # Thanks:
 # @clowwindy  <https://twitter.com/clowwindy>
 # @breakwa11  <https://twitter.com/breakwa11>
 # @cyfdecyf   <https://twitter.com/cyfdecyf>
 # @madeye     <https://github.com/madeye>
+# @linusyang  <https://github.com/linusyang>
+# @Akkariiin  <https://github.com/Akkariiin>
 # 
 # Intro:  https://teddysun.com/486.html
 
@@ -47,8 +51,8 @@ shadowsocks_python_config="/etc/shadowsocks-python/config.json"
 shadowsocks_python_centos="https://raw.githubusercontent.com/teddysun/shadowsocks_install/master/shadowsocks"
 shadowsocks_python_debian="https://raw.githubusercontent.com/teddysun/shadowsocks_install/master/shadowsocks-debian"
 
-shadowsocks_r_file="shadowsocksr-manyuser"
-shadowsocks_r_url="https://github.com/teddysun/shadowsocksr/archive/manyuser.zip"
+shadowsocks_r_file="shadowsocksr-3.2.1"
+shadowsocks_r_url="https://github.com/shadowsocksrr/shadowsocksr/archive/3.2.1.tar.gz"
 shadowsocks_r_init="/etc/init.d/shadowsocks-r"
 shadowsocks_r_config="/etc/shadowsocks-r/config.json"
 shadowsocks_r_centos="https://raw.githubusercontent.com/teddysun/shadowsocks_install/master/shadowsocksR"
@@ -114,12 +118,14 @@ aes-192-ctr
 aes-128-ctr
 chacha20-ietf
 chacha20
+salsa20
+xchacha20
+xsalsa20
 rc4-md5
-rc4-md5-6
 )
 # Reference URL:
-# https://github.com/breakwa11/shadowsocks-rss/blob/master/ssr.md
-# https://github.com/breakwa11/shadowsocks-rss/wiki/config.json
+# https://github.com/shadowsocksr-rm/shadowsocks-rss/blob/master/ssr.md
+# https://github.com/shadowsocksrr/shadowsocksr/commit/a3cf0254508992b7126ab1151df0c2f10bf82680
 # Protocol
 protocols=(
 origin
@@ -130,6 +136,10 @@ auth_aes128_md5
 auth_aes128_sha1
 auth_chain_a
 auth_chain_b
+auth_chain_c
+auth_chain_d
+auth_chain_e
+auth_chain_f
 )
 # obfs
 obfs=(
@@ -330,7 +340,7 @@ download_files() {
             download "${shadowsocks_python_init}" "${shadowsocks_python_debian}"
         fi
     elif [ "${selected}" == "2" ]; then
-        download "${shadowsocks_r_file}.zip" "${shadowsocks_r_url}"
+        download "${shadowsocks_r_file}.tar.gz" "${shadowsocks_r_url}"
         if check_sys packageManager yum; then
             download "${shadowsocks_r_init}" "${shadowsocks_r_centos}"
         elif check_sys packageManager apt; then
@@ -879,12 +889,7 @@ install_shadowsocks_python() {
 
 install_shadowsocks_r() {
     cd ${cur_dir}
-    unzip -q ${shadowsocks_r_file}.zip
-    if [ $? -ne 0 ];then
-        echo -e "[${red}Error${plain}] unzip ${shadowsocks_r_file}.zip failed, please check unzip command."
-        install_cleanup
-        exit 1
-    fi
+    tar zxf ${shadowsocks_r_file}.tar.gz
     mv ${shadowsocks_r_file}/shadowsocks /usr/local/
     if [ -f /usr/local/shadowsocks/server.py ]; then
         chmod +x ${shadowsocks_r_init}
@@ -1129,7 +1134,7 @@ install_cleanup(){
     rm -rf ${libsodium_file} ${libsodium_file}.tar.gz
     rm -rf ${mbedtls_file} ${mbedtls_file}-gpl.tgz
     rm -rf ${shadowsocks_python_file} ${shadowsocks_python_file}.zip
-    rm -rf ${shadowsocks_r_file} ${shadowsocks_r_file}.zip
+    rm -rf ${shadowsocks_r_file} ${shadowsocks_r_file}.tar.gz
     rm -rf ${shadowsocks_go_file_64}.gz ${shadowsocks_go_file_32}.gz
     rm -rf ${shadowsocks_libev_file} ${shadowsocks_libev_file}.tar.gz
 }
