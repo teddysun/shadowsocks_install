@@ -391,9 +391,9 @@ config_shadowsocks(){
     "protocol_param":"",
     "obfs":"${shadowsockobfs}",
     "obfs_param":"",
-    "redirect":"",
+    "redirect":["bing.com:443","cloudflare.com:443","www.apple.com:443","www.yahoo.com:443"],
     "dns_ipv6":false,
-    "fast_open":false,
+    "fast_open":true,
     "workers":1
 }
 EOF
