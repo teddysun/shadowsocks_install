@@ -7,15 +7,15 @@
 # Default-Start:     2 3 4 5
 # Default-Stop:      0 1 6
 # Short-Description: Fast tunnel proxy that helps you bypass firewalls
-# Description:       Start or stop the Shadowsocks-libev server
+# Description:       Start or stop the Shadowsocks-libev server (manager)
 ### END INIT INFO
 
 # Author: Teddysun <i@teddysun.com>
 
-if [ -f /usr/local/bin/ss-server ]; then
-    DAEMON=/usr/local/bin/ss-server
-elif [ -f /usr/bin/ss-server ]; then
-    DAEMON=/usr/bin/ss-server
+if [ -f /usr/local/bin/ss-manager ]; then
+    DAEMON=/usr/local/bin/ss-manager
+elif [ -f /usr/bin/ss-manager ]; then
+    DAEMON=/usr/bin/ss-manager
 fi
 NAME=Shadowsocks-libev
 CONF=/etc/shadowsocks-libev/config.json
