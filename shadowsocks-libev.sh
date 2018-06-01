@@ -397,7 +397,6 @@ config_shadowsocks(){
 {
     "server":${server_value},
     "server_port":${shadowsocksport},
-    "local_address":"127.0.0.1",
     "local_port":1080,
     "password":"${shadowsockspwd}",
     "timeout":600,
