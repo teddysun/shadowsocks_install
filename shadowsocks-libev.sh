@@ -171,6 +171,19 @@ check_sys(){
     fi
 }
 
+version_gt(){
+    test "$(echo "$@" | tr " " "\n" | sort -V | head -n 1)" != "$1"
+}
+
+check_kernel_version() {
+    local kernel_version=$(uname -r | cut -d- -f1)
+    if version_gt ${kernel_version} 3.7.0; then
+        return 0
+    else
+        return 1
+    fi
+}
+
 # Get version
 getversion(){
     if [[ -s /etc/redhat-release ]]; then
@@ -187,24 +200,6 @@ centosversion(){
         local version="$(getversion)"
         local main_ver=${version%%.*}
         if [ "$main_ver" == "$code" ]; then
-            return 0
-        else
-            return 1
-        fi
-    else
-        return 1
-    fi
-}
-
-version_ge(){
-    test "$(echo "$@" | tr " " "\n" | sort -rV | head -n 1)" == "$1"
-}
-
-# autoconf version
-autoconfversion(){
-    if [ "$(command -v "autoconf")" ]; then
-        local version=$(autoconf --version | grep autoconf | awk '{print $4}')
-        if version_ge ${version} 2.67; then
             return 0
         else
             return 1
@@ -390,6 +385,12 @@ config_shadowsocks(){
         server_value="[\"[::0]\",\"0.0.0.0\"]"
     fi
 
+    if check_kernel_version; then
+        fast_open="true"
+    else
+        fast_open="false"
+    fi
+
     if [ ! -d /etc/shadowsocks-libev ]; then
         mkdir -p /etc/shadowsocks-libev
     fi
@@ -400,7 +401,8 @@ config_shadowsocks(){
     "local_port":1080,
     "password":"${shadowsockspwd}",
     "timeout":600,
-    "method":"${shadowsockscipher}"
+    "method":"${shadowsockscipher}",
+    "fast_open":${fast_open}
 }
 EOF
 }
