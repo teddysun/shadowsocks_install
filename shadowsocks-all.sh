@@ -504,7 +504,8 @@ elif [ "${selected}" == "4" ]; then
     "timeout":300,
     "method":"${shadowsockscipher}",
     "fast_open":${fast_open},
-    "plugin":"obfs-server --obfs ${shadowsocklibev_obfs}"
+    "plugin":"obfs-server",
+    "plugin_opts":"obfs=${shadowsocklibev_obfs}"
 }
 EOF
     else
