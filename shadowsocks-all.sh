@@ -501,8 +501,11 @@ elif [ "${selected}" == "4" ]; then
     "local_port":1080,
     "password":"${shadowsockspwd}",
     "timeout":300,
+    "user":"nobody",
     "method":"${shadowsockscipher}",
     "fast_open":${fast_open},
+    "nameserver":"8.8.8.8",
+    "mode":"tcp_and_udp",
     "plugin":"obfs-server",
     "plugin_opts":"obfs=${shadowsocklibev_obfs}"
 }
@@ -515,8 +518,11 @@ EOF
     "local_port":1080,
     "password":"${shadowsockspwd}",
     "timeout":300,
+    "user":"nobody",
     "method":"${shadowsockscipher}",
-    "fast_open":${fast_open}
+    "fast_open":${fast_open},
+    "nameserver":"8.8.8.8",
+    "mode":"tcp_and_udp"
 }
 EOF
     fi
