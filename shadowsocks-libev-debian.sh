@@ -383,9 +383,12 @@ config_shadowsocks(){
     "server_port":${shadowsocksport},
     "local_port":1080,
     "password":"${shadowsockspwd}",
-    "timeout":600,
+    "timeout":300,
+    "user":"nobody",
     "method":"${shadowsockscipher}",
-    "fast_open":${fast_open}
+    "fast_open":${fast_open},
+    "nameserver":"8.8.8.8",
+    "mode":"tcp_and_udp"
 }
 EOF
 }
