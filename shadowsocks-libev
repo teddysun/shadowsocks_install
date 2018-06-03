@@ -13,6 +13,7 @@
 ### END INIT INFO
 
 # Author: Teddysun <i@teddysun.com>
+[[ $EUID -ne 0 ]] && echo -e "This script must be run as root!" && exit 1
 if [ -f /usr/local/bin/ss-server ]; then
     DAEMON=/usr/local/bin/ss-server
 elif [ -f /usr/bin/ss-server ]; then
@@ -20,7 +21,7 @@ elif [ -f /usr/bin/ss-server ]; then
 fi
 NAME=Shadowsocks-libev
 CONF=/etc/shadowsocks-libev/config.json
-PID_DIR=/var/run
+PID_DIR=/var/run/shadowsocks
 PID_FILE=$PID_DIR/shadowsocks-libev.pid
 RET_VAL=0
 

@@ -450,6 +450,9 @@ install_shadowsocks(){
     ./configure --disable-documentation
     make && make install
     if [ $? -eq 0 ]; then
+        mkdir -pv /var/run/shadowsocks
+        chown nobody.nobody /var/run/shadowsocks
+        chmod 700 /var/run/shadowsocks
         chmod +x /etc/init.d/shadowsocks
         chkconfig --add shadowsocks
         chkconfig shadowsocks on
