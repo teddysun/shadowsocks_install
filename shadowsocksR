@@ -24,8 +24,8 @@ fi
 RETVAL=0
 
 check_running(){
-    PID=`ps -ef | grep -v grep | grep -i "${BIN}" | awk '{print $2}'`
-    if [ ! -z "$PID" ]; then
+    PID=$(ps -ef | grep -v grep | grep -i "${BIN}" | awk '{print $2}')
+    if [ -n "$PID" ]; then
         return 0
     else
         return 1
