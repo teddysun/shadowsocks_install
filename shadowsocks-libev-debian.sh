@@ -181,13 +181,30 @@ version_gt(){
     test "$(echo "$@" | tr " " "\n" | sort -V | head -n 1)" != "$1"
 }
 
-check_kernel_version() {
+check_kernel_version(){
     local kernel_version=$(uname -r | cut -d- -f1)
     if version_gt ${kernel_version} 3.7.0; then
         return 0
     else
         return 1
     fi
+}
+
+check_kernel_headers(){
+    if check_sys packageManager yum; then
+        if rpm -qa | grep -q headers-$(uname -r); then
+            return 0
+        else
+            return 1
+        fi
+    elif check_sys packageManager apt; then
+        if dpkg -s linux-headers-$(uname -r) > /dev/null 2>&1; then
+            return 0
+        else
+            return 1
+        fi
+    fi
+    return 1
 }
 
 debianversion(){
@@ -368,7 +385,7 @@ config_shadowsocks(){
         server_value="[\"[::0]\",\"0.0.0.0\"]"
     fi
 
-    if check_kernel_version; then
+    if check_kernel_version && check_kernel_headers; then
         fast_open="true"
     else
         fast_open="false"

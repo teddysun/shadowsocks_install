@@ -158,7 +158,7 @@ obfs_libev=(http tls)
 # initialization parameter
 libev_obfs=""
 
-disable_selinux() {
+disable_selinux(){
     if [ -s /etc/selinux/config ] && grep 'SELINUX=enforcing' /etc/selinux/config; then
         sed -i 's/SELINUX=enforcing/SELINUX=disabled/g' /etc/selinux/config
         setenforce 0
@@ -218,7 +218,7 @@ version_gt(){
     test "$(echo "$@" | tr " " "\n" | sort -V | head -n 1)" != "$1"
 }
 
-check_kernel_version() {
+check_kernel_version(){
     local kernel_version=$(uname -r | cut -d- -f1)
     if version_gt ${kernel_version} 3.7.0; then
         return 0
@@ -227,7 +227,24 @@ check_kernel_version() {
     fi
 }
 
-getversion() {
+check_kernel_headers(){
+    if check_sys packageManager yum; then
+        if rpm -qa | grep -q headers-$(uname -r); then
+            return 0
+        else
+            return 1
+        fi
+    elif check_sys packageManager apt; then
+        if dpkg -s linux-headers-$(uname -r) > /dev/null 2>&1; then
+            return 0
+        else
+            return 1
+        fi
+    fi
+    return 1
+}
+
+getversion(){
     if [[ -s /etc/redhat-release ]]; then
         grep -oE  "[0-9.]+" /etc/redhat-release
     else
@@ -235,7 +252,7 @@ getversion() {
     fi
 }
 
-centosversion() {
+centosversion(){
     if check_sys sysRelease centos; then
         local code=$1
         local version="$(getversion)"
@@ -269,7 +286,7 @@ autoconf_version(){
     fi
 }
 
-get_ip() {
+get_ip(){
     local IP=$( ip addr | egrep -o '[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}' | egrep -v "^192\.168|^172\.1[6-9]\.|^172\.2[0-9]\.|^172\.3[0-2]\.|^10\.|^127\.|^255\.|^0\." | head -n 1 )
     [ -z ${IP} ] && IP=$( wget -qO- -t1 -T2 ipv4.icanhazip.com )
     [ -z ${IP} ] && IP=$( wget -qO- -t1 -T2 ipinfo.io/ip )
@@ -292,7 +309,7 @@ get_opsy(){
     [ -f /etc/lsb-release ] && awk -F'[="]+' '/DESCRIPTION/{print $2}' /etc/lsb-release && return
 }
 
-is_64bit() {
+is_64bit(){
     if [ `getconf WORD_BIT` = '32' ] && [ `getconf LONG_BIT` = '64' ] ; then
         return 0
     else
@@ -315,7 +332,7 @@ debianversion(){
     fi
 }
 
-download() {
+download(){
     local filename=$(basename $1)
     if [ -f ${1} ]; then
         echo "${filename} [found]"
@@ -329,7 +346,7 @@ download() {
     fi
 }
 
-download_files() {
+download_files(){
     cd ${cur_dir}
 
     if   [ "${selected}" == "1" ]; then
@@ -372,7 +389,7 @@ download_files() {
 
 }
 
-get_char() {
+get_char(){
     SAVEDSTTY=`stty -g`
     stty -echo
     stty cbreak
@@ -393,7 +410,7 @@ error_detect_depends(){
     fi
 }
 
-config_firewall() {
+config_firewall(){
     if centosversion 6; then
         /etc/init.d/iptables status > /dev/null 2>&1
         if [ $? -eq 0 ]; then
@@ -421,9 +438,9 @@ config_firewall() {
     fi
 }
 
-config_shadowsocks() {
+config_shadowsocks(){
 
-if check_kernel_version; then
+if check_kernel_version && check_kernel_headers; then
     fast_open="true"
 else
     fast_open="false"
@@ -530,7 +547,7 @@ EOF
 fi
 }
 
-install_dependencies() {
+install_dependencies(){
     if check_sys packageManager yum; then
         echo -e "[${green}Info${plain}] Checking the EPEL repository..."
         if [ ! -f /etc/yum.repos.d/epel.repo ]; then
@@ -564,7 +581,7 @@ install_dependencies() {
     fi
 }
 
-install_check() {
+install_check(){
     if check_sys packageManager yum || check_sys packageManager apt; then
         if centosversion 5; then
             return 1
@@ -575,7 +592,7 @@ install_check() {
     fi
 }
 
-install_select() {
+install_select(){
     if ! install_check; then
         echo -e "[${red}Error${plain}] Your OS is not supported to run it!"
         echo "Please change to CentOS 6+/Debian 7+/Ubuntu 12+ and try again."
@@ -606,7 +623,7 @@ install_select() {
     done
 }
 
-install_prepare_password() {
+install_prepare_password(){
     echo "Please enter password for ${software[${selected}-1]}"
     read -p "(Default password: teddysun.com):" shadowsockspwd
     [ -z "${shadowsockspwd}" ] && shadowsockspwd="teddysun.com"
@@ -635,7 +652,7 @@ install_prepare_port() {
     done
 }
 
-install_prepare_cipher() {
+install_prepare_cipher(){
     while true
     do
     echo -e "Please select stream cipher for ${software[${selected}-1]}:"
@@ -700,7 +717,7 @@ install_prepare_cipher() {
     done
 }
 
-install_prepare_protocol() {
+install_prepare_protocol(){
     while true
     do
     echo -e "Please select protocol for ${software[${selected}-1]}:"
@@ -727,7 +744,7 @@ install_prepare_protocol() {
     done
 }
 
-install_prepare_obfs() {
+install_prepare_obfs(){
     while true
     do
     echo -e "Please select obfs for ${software[${selected}-1]}:"
@@ -754,7 +771,7 @@ install_prepare_obfs() {
     done
 }
 
-install_prepare_libev_obfs() {
+install_prepare_libev_obfs(){
     if autoconf_version; then
         while true
         do
@@ -805,7 +822,7 @@ install_prepare_libev_obfs() {
     fi
 }
 
-install_prepare() {
+install_prepare(){
 
     if  [[ "${selected}" == "1" || "${selected}" == "3" || "${selected}" == "4" ]]; then
         install_prepare_password
@@ -828,7 +845,7 @@ install_prepare() {
 
 }
 
-install_libsodium() {
+install_libsodium(){
     if [ ! -f /usr/lib/libsodium.a ]; then
         cd ${cur_dir}
         download "${libsodium_file}.tar.gz" "${libsodium_url}"
@@ -845,7 +862,7 @@ install_libsodium() {
     fi
 }
 
-install_mbedtls() {
+install_mbedtls(){
     if [ ! -f /usr/lib/libmbedtls.a ]; then
         cd ${cur_dir}
         download "${mbedtls_file}-gpl.tgz" "${mbedtls_url}"
@@ -863,7 +880,7 @@ install_mbedtls() {
     fi
 }
 
-install_shadowsocks_python() {
+install_shadowsocks_python(){
     cd ${cur_dir}
     unzip -q ${shadowsocks_python_file}.zip
     if [ $? -ne 0 ];then
@@ -893,7 +910,7 @@ install_shadowsocks_python() {
     fi
 }
 
-install_shadowsocks_r() {
+install_shadowsocks_r(){
     cd ${cur_dir}
     tar zxf ${shadowsocks_r_file}.tar.gz
     mv ${shadowsocks_r_file}/shadowsocks /usr/local/
@@ -915,7 +932,7 @@ install_shadowsocks_r() {
     fi
 }
 
-install_shadowsocks_go() {
+install_shadowsocks_go(){
     cd ${cur_dir}
     if is_64bit; then
         gzip -d ${shadowsocks_go_file_64}.gz
@@ -955,7 +972,7 @@ install_shadowsocks_go() {
     fi
 }
 
-install_shadowsocks_libev() {
+install_shadowsocks_libev(){
     cd ${cur_dir}
     tar zxf ${shadowsocks_libev_file}.tar.gz
     cd ${shadowsocks_libev_file}
@@ -978,7 +995,7 @@ install_shadowsocks_libev() {
     fi
 }
 
-install_shadowsocks_libev_obfs() {
+install_shadowsocks_libev_obfs(){
     if [ "${libev_obfs}" == "y" ] || [ "${libev_obfs}" == "Y" ]; then
         cd ${cur_dir}
         git clone https://github.com/shadowsocks/simple-obfs.git
@@ -998,7 +1015,7 @@ install_shadowsocks_libev_obfs() {
     fi
 }
 
-install_completed_python() {
+install_completed_python(){
     clear
     ${shadowsocks_python_init} start
     echo
@@ -1009,7 +1026,7 @@ install_completed_python() {
     echo -e "Your Encryption Method: ${red} ${shadowsockscipher} ${plain}"
 }
 
-install_completed_r() {
+install_completed_r(){
     clear
     ${shadowsocks_r_init} start
     echo
@@ -1022,7 +1039,7 @@ install_completed_r() {
     echo -e "Your Encryption Method: ${red} ${shadowsockscipher} ${plain}"
 }
 
-install_completed_go() {
+install_completed_go(){
     clear
     ${shadowsocks_go_init} start
     echo
@@ -1033,7 +1050,7 @@ install_completed_go() {
     echo -e "Your Encryption Method: ${red} ${shadowsockscipher} ${plain}"
 }
 
-install_completed_libev() {
+install_completed_libev(){
     clear
     ldconfig
     ${shadowsocks_libev_init} start
@@ -1048,7 +1065,7 @@ install_completed_libev() {
     echo -e "Your Encryption Method: ${red} ${shadowsockscipher} ${plain}"
 }
 
-qr_generate_python() {
+qr_generate_python(){
     if [ "$(command -v qrencode)" ]; then
         local tmp=$(echo -n "${shadowsockscipher}:${shadowsockspwd}@$(get_ip):${shadowsocksport}" | base64 -w0)
         local qr_code="ss://${tmp}"
@@ -1061,7 +1078,7 @@ qr_generate_python() {
     fi
 }
 
-qr_generate_r() {
+qr_generate_r(){
     if [ "$(command -v qrencode)" ]; then
         local tmp1=$(echo -n "${shadowsockspwd}" | base64 -w0 | sed 's/=//g;s/\//_/g;s/+/-/g')
         local tmp2=$(echo -n "$(get_ip):${shadowsocksport}:${shadowsockprotocol}:${shadowsockscipher}:${shadowsockobfs}:${tmp1}/?obfsparam=" | base64 -w0)
@@ -1075,7 +1092,7 @@ qr_generate_r() {
     fi
 }
 
-qr_generate_go() {
+qr_generate_go(){
     if [ "$(command -v qrencode)" ]; then
         local tmp=$(echo -n "${shadowsockscipher}:${shadowsockspwd}@$(get_ip):${shadowsocksport}" | base64 -w0)
         local qr_code="ss://${tmp}"
@@ -1088,7 +1105,7 @@ qr_generate_go() {
     fi
 }
 
-qr_generate_libev() {
+qr_generate_libev(){
     if [ "$(command -v qrencode)" ]; then
         local tmp=$(echo -n "${shadowsockscipher}:${shadowsockspwd}@$(get_ip):${shadowsocksport}" | base64 -w0)
         local qr_code="ss://${tmp}"
@@ -1159,7 +1176,7 @@ install_shadowsocks(){
     install_cleanup
 }
 
-uninstall_shadowsocks_python() {
+uninstall_shadowsocks_python(){
     printf "Are you sure uninstall ${red}${software[0]}${plain}? [y/n]\n"
     read -p "(default: n):" answer
     [ -z ${answer} ] && answer="n"
@@ -1190,7 +1207,7 @@ uninstall_shadowsocks_python() {
     fi
 }
 
-uninstall_shadowsocks_r() {
+uninstall_shadowsocks_r(){
     printf "Are you sure uninstall ${red}${software[1]}${plain}? [y/n]\n"
     read -p "(default: n):" answer
     [ -z ${answer} ] && answer="n"
@@ -1217,7 +1234,7 @@ uninstall_shadowsocks_r() {
     fi
 }
 
-uninstall_shadowsocks_go() {
+uninstall_shadowsocks_go(){
     printf "Are you sure uninstall ${red}${software[2]}${plain}? [y/n]\n"
     read -p "(default: n):" answer
     [ -z ${answer} ] && answer="n"
@@ -1243,7 +1260,7 @@ uninstall_shadowsocks_go() {
     fi
 }
 
-uninstall_shadowsocks_libev() {
+uninstall_shadowsocks_libev(){
     printf "Are you sure uninstall ${red}${software[3]}${plain}? [y/n]\n"
     read -p "(default: n):" answer
     [ -z ${answer} ] && answer="n"
@@ -1288,7 +1305,7 @@ uninstall_shadowsocks_libev() {
     fi
 }
 
-uninstall_shadowsocks() {
+uninstall_shadowsocks(){
     while true
     do
     echo  "Which Shadowsocks server you want to uninstall?"
