@@ -217,10 +217,10 @@ pre_install(){
     char=`get_char`
     #Install necessary dependencies
     if check_sys packageManager yum; then
-        yum install -y wget unzip gzip curl
+        yum install -y wget unzip gzip curl nss
     elif check_sys packageManager apt; then
         apt-get -y update
-        apt-get install -y wget unzip gzip curl
+        apt-get install -y wget unzip gzip curl libnss3
     fi
     echo
 
@@ -279,7 +279,7 @@ config_shadowsocks(){
     "local_port":1080,
     "password":"${shadowsockspwd}",
     "method":"${shadowsockscipher}",
-    "timeout":600
+    "timeout":300
 }
 EOF
 }
