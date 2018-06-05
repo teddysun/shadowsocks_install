@@ -74,6 +74,7 @@ do_status(){
 
 do_restart(){
     do_stop
+    sleep 0.5
     do_start
 }
 
