@@ -29,13 +29,13 @@ if [ ! -d $PID_DIR ]; then
     mkdir -p $PID_DIR
     if [ $? -ne 0 ]; then
         echo "Creating PID directory $PID_DIR failed"
-        exit 1
+        RET_VAL=1
     fi
 fi
 
 if [ ! -f $CONF ]; then
     echo "$NAME config file $CONF not found"
-    exit 1
+    RET_VAL=1
 fi
 
 check_running() {
