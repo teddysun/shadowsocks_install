@@ -1,4 +1,6 @@
 #!/usr/bin/env bash
+PATH=/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin:/usr/local/sbin:~/bin
+export PATH
 #
 # Auto install Shadowsocks Server (all version)
 #
@@ -24,9 +26,6 @@
 # @Akkariiin  <https://github.com/Akkariiin>
 # 
 # Intro:  https://teddysun.com/486.html
-
-PATH=/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin:/usr/local/sbin:~/bin
-export PATH
 
 red='\033[0;31m'
 green='\033[0;32m'
@@ -269,14 +268,13 @@ centosversion(){
 
 autoconf_version(){
     if [ ! "$(command -v autoconf)" ]; then
-        echo -e "[${green}Info${plain}] Starting install autoconf..."
+        echo -e "[${green}Info${plain}] Starting install package autoconf"
         if check_sys packageManager yum; then
-            yum install -y autoconf > /dev/null 2>&1
+            yum install -y autoconf > /dev/null 2>&1 || echo -e "[${red}Error:${plain}] Failed to install autoconf"
         elif check_sys packageManager apt; then
             apt-get -y update > /dev/null 2>&1
-            apt-get -y install autoconf > /dev/null 2>&1
+            apt-get -y install autoconf > /dev/null 2>&1 || echo -e "[${red}Error:${plain}] Failed to install autoconf"
         fi
-        echo -e "[${green}Info${plain}] Install autoconf completed."
     fi
     local autoconf_ver=$(autoconf --version | grep autoconf | grep -oE "[0-9.]+")
     if version_ge ${autoconf_ver} 2.67; then
@@ -550,12 +548,12 @@ install_dependencies(){
     if check_sys packageManager yum; then
         echo -e "[${green}Info${plain}] Checking the EPEL repository..."
         if [ ! -f /etc/yum.repos.d/epel.repo ]; then
-            yum install -y -q epel-release
+            yum install -y epel-release > /dev/null 2>&1
         fi
         [ ! -f /etc/yum.repos.d/epel.repo ] && echo -e "[${red}Error${plain}] Install EPEL repository failed, please check it." && exit 1
-        [ ! "$(command -v yum-config-manager)" ] && yum install -y -q yum-utils
+        [ ! "$(command -v yum-config-manager)" ] && yum install -y yum-utils > /dev/null 2>&1
         if [ x"`yum-config-manager epel | grep -w enabled | awk '{print $3}'`" != x"True" ]; then
-            yum-config-manager --enable epel
+            yum-config-manager --enable epel > /dev/null 2>&1
         fi
         echo -e "[${green}Info${plain}] Checking the EPEL repository complete..."
 
@@ -1004,7 +1002,6 @@ install_shadowsocks_libev_obfs(){
             if [ ! "$(command -v autoconf268)" ]; then
                 echo -e "[${green}Info${plain}] Starting install autoconf268..."
                 yum install -y autoconf268 > /dev/null 2>&1 || echo -e "[${red}Error:${plain}] Failed to install autoconf268."
-                echo -e "[${green}Info${plain}] Install autoconf268 completed."
             fi
             # replace command autoreconf to autoreconf268
             sed -i 's/autoreconf/autoreconf268/' autogen.sh
@@ -1376,12 +1373,12 @@ uninstall_shadowsocks(){
 # Initialization step
 action=$1
 [ -z $1 ] && action=install
-case "$action" in
+case "${action}" in
     install|uninstall)
         ${action}_shadowsocks
         ;;
     *)
         echo "Arguments error! [${action}]"
-        echo "Usage: `basename $0` [install|uninstall]"
+        echo "Usage: $(basename $0) [install|uninstall]"
         ;;
 esac
