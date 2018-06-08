@@ -290,7 +290,7 @@ get_ip(){
     local IP=$( ip addr | egrep -o '[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}' | egrep -v "^192\.168|^172\.1[6-9]\.|^172\.2[0-9]\.|^172\.3[0-2]\.|^10\.|^127\.|^255\.|^0\." | head -n 1 )
     [ -z ${IP} ] && IP=$( wget -qO- -t1 -T2 ipv4.icanhazip.com )
     [ -z ${IP} ] && IP=$( wget -qO- -t1 -T2 ipinfo.io/ip )
-    [ ! -z ${IP} ] && echo ${IP} || echo
+    echo ${IP}
 }
 
 get_ipv6(){
@@ -390,7 +390,7 @@ download_files(){
 }
 
 get_char(){
-    SAVEDSTTY=`stty -g`
+    SAVEDSTTY=$(stty -g)
     stty -echo
     stty cbreak
     dd if=/dev/tty bs=1 count=1 2> /dev/null
@@ -402,8 +402,9 @@ get_char(){
 error_detect_depends(){
     local command=$1
     local depend=`echo "${command}" | awk '{print $4}'`
-    ${command}
-    if [ $? != 0 ]; then
+    echo -e "[${green}Info${plain}] Starting to install package ${depend}"
+    ${command} > /dev/null 2>&1
+    if [ $? -ne 0 ]; then
         echo -e "[${red}Error${plain}] Failed to install ${red}${depend}${plain}"
         echo "Please visit: https://teddysun.com/486.html and contact."
         exit 1
@@ -770,7 +771,7 @@ install_prepare_obfs(){
 }
 
 install_prepare_libev_obfs(){
-    if autoconf_version; then
+    if autoconf_version || centosversion 6; then
         while true
         do
         echo -e "Do you want install simple-obfs for ${software[${selected}-1]}? [y/n]"
@@ -816,7 +817,7 @@ install_prepare_libev_obfs(){
             done
         fi
     else
-        echo -e "[${yellow}Warning${plain}] autoconf version is less than 2.67, simple-obfs for ${software[${selected}-1]} installation has been skipped"
+        echo -e "[${green}Info${plain}] autoconf version is less than 2.67, simple-obfs for ${software[${selected}-1]} installation has been skipped"
     fi
 }
 
@@ -997,8 +998,20 @@ install_shadowsocks_libev_obfs(){
     if [ "${libev_obfs}" == "y" ] || [ "${libev_obfs}" == "Y" ]; then
         cd ${cur_dir}
         git clone https://github.com/shadowsocks/simple-obfs.git
-        cd simple-obfs
+        [ -d simple-obfs ] && cd simple-obfs || echo -e "[${red}Error:${plain}] Failed to git clone simple-obfs."
         git submodule update --init --recursive
+        if centosversion 6; then
+            if [ ! "$(command -v autoconf268)" ]; then
+                echo -e "[${green}Info${plain}] Starting install autoconf268..."
+                yum install -y autoconf268 > /dev/null 2>&1 || echo -e "[${red}Error:${plain}] Failed to install autoconf268."
+                echo -e "[${green}Info${plain}] Install autoconf268 completed."
+            fi
+            # replace command autoreconf to autoreconf268
+            sed -i 's/autoreconf/autoreconf268/' autogen.sh
+            # replace #include <ev.h> to #include <libev/ev.h>
+            sed -i 's@^#include <ev.h>@#include <libev/ev.h>@' src/local.h
+            sed -i 's@^#include <ev.h>@#include <libev/ev.h>@' src/server.h
+        fi
         ./autogen.sh
         ./configure --disable-documentation
         make
