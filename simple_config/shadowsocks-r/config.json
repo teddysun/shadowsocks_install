@@ -1,0 +1,23 @@
+{
+    "server":"0.0.0.0",
+    "server_ipv6": "[::]",
+    "local_address":"127.0.0.1",
+    "local_port":1080,
+    "port_password":{
+        "9000":"password0",
+        "9001":"password1",
+        "9002":"password2",
+        "9003":"password3",
+        "9004":"password4"
+    },
+    "timeout":300,
+    "method":"aes-256-cfb",
+    "protocol": "auth_chain_a",
+    "protocol_param": "",
+    "obfs": "http_simple_compatible",
+    "obfs_param": "",
+    "redirect": "",
+    "dns_ipv6": false,
+    "fast_open": false,
+    "workers": 1
+}

@@ -1,0 +1,15 @@
+{
+    "server":"0.0.0.0",
+    "local_address":"127.0.0.1",
+    "local_port":1080,
+    "port_password":{
+         "9000":"password0",
+         "9001":"password1",
+         "9002":"password2",
+         "9003":"password3",
+         "9004":"password4"
+    },
+    "timeout":300,
+    "method":"aes-256-gcm",
+    "fast_open": false
+}
