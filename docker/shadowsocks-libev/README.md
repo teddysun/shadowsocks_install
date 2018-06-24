@@ -36,7 +36,8 @@ You **must create a configuration file**  `/etc/shadowsocks-libev/config.json` i
 }
 ```
 
-and if you want to enable **simple-obfs**, configuration file `/etc/shadowsocks-libev/config.json` sample like below£º
+and if you want to enable **simple-obfs**, configuration file `/etc/shadowsocks-libev/config.json` sample:
+
 
 ```
 {
