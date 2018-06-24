@@ -36,6 +36,23 @@ You **must create a configuration file**  `/etc/shadowsocks-libev/config.json` i
 }
 ```
 
+and if you want to enable **simple-obfs**, configuration file `/etc/shadowsocks-libev/config.json` sample like below£º
+
+```
+{
+    "server":"0.0.0.0",
+    "server_port":9000,
+    "password":"password0",
+    "timeout":300,
+    "method":"aes-256-gcm",
+    "fast_open":true,
+    "nameserver":"8.8.8.8",
+    "mode":"tcp_and_udp",
+    "plugin":"obfs-server",
+    "plugin_opts":"obfs=tls"
+}
+```
+
 This container with sample configuration `/etc/shadowsocks-libev/config.json`
 There is an example to start a container that listens on `9000` (both TCP and UDP):
 
