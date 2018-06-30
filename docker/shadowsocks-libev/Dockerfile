@@ -6,10 +6,10 @@
 FROM debian:stretch
 MAINTAINER Teddysun <i@teddysun.com>
 
-RUN set -ex; \
-    && printf "deb http://deb.debian.org/debian stretch-backports main" > /etc/apt/sources.list.d/stretch-backports.list; \
-    && apt-get update; \
-    && apt-get -t stretch-backports install -y --no-install-recommends shadowsocks-libev simple-obfs; \
+RUN set -ex \
+    && printf "deb http://deb.debian.org/debian stretch-backports main" > /etc/apt/sources.list.d/stretch-backports.list \
+    && apt-get update \
+    && apt-get -t stretch-backports install -y --no-install-recommends shadowsocks-libev simple-obfs \
     && rm -rf /var/lib/apt/lists/*
 
 COPY ./config_sample.json /etc/shadowsocks-libev/config.json
