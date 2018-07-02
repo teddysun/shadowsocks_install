@@ -4,7 +4,7 @@
 # https://github.com/shadowsocksrr/shadowsocksr
 
 FROM debian:stretch
-MAINTAINER Teddysun <i@teddysun.com>
+LABEL maintainer="Teddysun <i@teddysun.com>"
 
 RUN set -ex \
     && apt-get update \
@@ -21,4 +21,4 @@ VOLUME /etc/shadowsocks-r
 
 USER nobody
 
-CMD [ "/bin/bash", "-c", "/usr/local/shadowsocks/server.py -c /etc/shadowsocks-r/config.json" ]
+CMD [ "/usr/local/shadowsocks/server.py", "-c", "/etc/shadowsocks-r/config.json" ]

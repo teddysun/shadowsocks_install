@@ -4,7 +4,7 @@
 # https://github.com/shadowsocks/shadowsocks-libev
 
 FROM debian:stretch
-MAINTAINER Teddysun <i@teddysun.com>
+LABEL maintainer="Teddysun <i@teddysun.com>"
 
 RUN set -ex \
     && printf "deb http://deb.debian.org/debian stretch-backports main" > /etc/apt/sources.list.d/stretch-backports.list \
@@ -17,4 +17,4 @@ VOLUME /etc/shadowsocks-libev
 
 USER nobody
 
-CMD [ "/bin/bash", "-c", "/usr/bin/ss-server -c /etc/shadowsocks-libev/config.json" ]
+CMD [ "ss-server", "-c", "/etc/shadowsocks-libev/config.json" ]
