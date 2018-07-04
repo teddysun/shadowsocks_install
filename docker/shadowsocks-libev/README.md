@@ -16,7 +16,14 @@ If you need to install docker by yourself, follow the [official installation gui
 $ docker pull teddysun/shadowsocks-libev
 ```
 
+or pull image based *alpine*
+
+```bash
+$ docker pull teddysun/shadowsocks-libev:alpine
+```
+
 This pulls the latest release of shadowsocks-libev.
+
 It can be found at [Docker Hub][5].
 
 ## Start a container
