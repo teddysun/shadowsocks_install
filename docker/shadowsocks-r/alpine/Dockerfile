@@ -1,7 +1,7 @@
-# Dockerfile for shadowsocks-libev based alpine
+# Dockerfile for ShadowsocksR based alpine
 # Copyright (C) 2018 Teddysun <i@teddysun.com>
 # Reference URL:
-# https://github.com/shadowsocks/shadowsocks-libev
+# https://github.com/shadowsocksrr/shadowsocksr
 
 FROM python:3.6-alpine
 LABEL maintainer="Teddysun <i@teddysun.com>"
