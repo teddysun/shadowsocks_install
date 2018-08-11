@@ -24,6 +24,7 @@ $ docker pull teddysun/shadowsocks-r:alpine
 
 
 This pulls the latest release of shadowsocks-r.
+
 It can be found at [Docker Hub][5].
 
 ## Start a container
@@ -52,6 +53,7 @@ You **must create a configuration file**  `/etc/shadowsocks-r/config.json` in ho
 ```
 
 This container with sample configuration `/etc/shadowsocks-r/config.json`
+
 There is an example to start a container that listens on `9000` (both TCP and UDP):
 
 ```bash
