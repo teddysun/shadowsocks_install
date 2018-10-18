@@ -332,6 +332,7 @@ download() {
             echo -e "[${green}Info${plain}] ${filename} download completed..."
         else
             echo -e "[${red}Error${plain}] Failed to download ${filename}, please download it to ${cur_dir} directory manually and try again."
+            echo -e "download link: ${2}"
             exit 1
         fi
     fi
@@ -340,6 +341,12 @@ download() {
 # Download latest shadowsocks-libev
 download_files(){
     cd ${cur_dir}
+
+    echo -e "start the download list:"
+    echo -e "${shadowsocks_libev_ver}.tar.gz : ${download_link}"
+    echo -e "${libsodium_file}.tar.gz : ${libsodium_url}"
+    echo -e "${mbedtls_file}-gpl.tgz : ${mbedtls_url}"
+    echo -e "${libsodium_file}.tar.gz : ${init_script_link}"
 
     download "${shadowsocks_libev_ver}.tar.gz" "${download_link}"
     download "${libsodium_file}.tar.gz" "${libsodium_url}"
