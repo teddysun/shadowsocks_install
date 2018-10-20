@@ -15,8 +15,8 @@ cur_dir=`pwd`
 libsodium_file="libsodium-1.0.16"
 libsodium_url="https://github.com/jedisct1/libsodium/releases/download/1.0.16/libsodium-1.0.16.tar.gz"
 
-mbedtls_file="mbedtls-2.12.0"
-mbedtls_url="https://tls.mbed.org/download/mbedtls-2.12.0-gpl.tgz"
+mbedtls_file="mbedtls-2.13.0"
+mbedtls_url="https://tls.mbed.org/download/mbedtls-2.13.0-gpl.tgz"
 
 # Stream Ciphers
 ciphers=(
@@ -142,7 +142,7 @@ check_sys(){
     if [[ -f /etc/redhat-release ]]; then
         release="centos"
         systemPackage="yum"
-    elif grep -Eqi "debian" /etc/issue; then
+    elif grep -Eqi "debian|raspbian" /etc/issue; then
         release="debian"
         systemPackage="apt"
     elif grep -Eqi "ubuntu" /etc/issue; then
