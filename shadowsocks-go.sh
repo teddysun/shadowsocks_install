@@ -230,27 +230,27 @@ pre_install(){
 download_files(){
     cd ${cur_dir}
     if is_64bit; then
-        if ! wget --no-check-certificate -c https://dl.lamp.sh/shadowsocks/shadowsocks-server-linux64-1.2.1.gz; then
-            echo -e "[${red}Error${plain}] Failed to download shadowsocks-server-linux64-1.2.1.gz"
+        if ! wget --no-check-certificate -c https://dl.lamp.sh/shadowsocks/shadowsocks-server-linux64-1.2.2.gz; then
+            echo -e "[${red}Error${plain}] Failed to download shadowsocks-server-linux64-1.2.2.gz"
             exit 1
         fi
-        gzip -d shadowsocks-server-linux64-1.2.1.gz
+        gzip -d shadowsocks-server-linux64-1.2.2.gz
         if [ $? -ne 0 ]; then
-            echo -e "[${red}Error${plain}] Decompress shadowsocks-server-linux64-1.2.1.gz failed"
+            echo -e "[${red}Error${plain}] Decompress shadowsocks-server-linux64-1.2.2.gz failed"
             exit 1
         fi
-        mv -f shadowsocks-server-linux64-1.2.1 /usr/bin/shadowsocks-server
+        mv -f shadowsocks-server-linux64-1.2.2 /usr/bin/shadowsocks-server
     else
-        if ! wget --no-check-certificate -c https://dl.lamp.sh/shadowsocks/shadowsocks-server-linux32-1.2.1.gz; then
-            echo -e "[${red}Error${plain}] Failed to download shadowsocks-server-linux32-1.2.1.gz"
+        if ! wget --no-check-certificate -c https://dl.lamp.sh/shadowsocks/shadowsocks-server-linux32-1.2.2.gz; then
+            echo -e "[${red}Error${plain}] Failed to download shadowsocks-server-linux32-1.2.2.gz"
             exit 1
         fi
-        gzip -d shadowsocks-server-linux32-1.2.1.gz
+        gzip -d shadowsocks-server-linux32-1.2.2.gz
         if [ $? -ne 0 ]; then
-            echo -e "[${red}Error${plain}] Decompress shadowsocks-server-linux32-1.2.1.gz failed"
+            echo -e "[${red}Error${plain}] Decompress shadowsocks-server-linux32-1.2.2.gz failed"
             exit 1
         fi
-        mv -f shadowsocks-server-linux32-1.2.1 /usr/bin/shadowsocks-server
+        mv -f shadowsocks-server-linux32-1.2.2 /usr/bin/shadowsocks-server
     fi
 
     # Download start script
