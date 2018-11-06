@@ -226,7 +226,7 @@ debianversion(){
 pre_install(){
     # Check OS system
     if ! check_sys packageManager apt; then
-        echo -e "[${red}Error${plain}] Your OS is not supported to run it, please change OS to Debian/Ubuntu and try again."
+        echo -e "[${red}Error${plain}] Your OS is not supported to run this script, Please change OS to Debian/Ubuntu or try our other scripts."
         exit 1
     fi
 
@@ -279,7 +279,7 @@ pre_install(){
             break
         fi
     fi
-    echo -e "[${red}Error${plain}] Please enter a correct number [1-65535]"
+    echo -e "[${red}Error${plain}] Please enter a port number (Recommended 80 or 443) [1-65535]"
     done
 
     # Set shadowsocks config stream ciphers
@@ -400,10 +400,8 @@ config_shadowsocks(){
     "server_port":${shadowsocksport},
     "password":"${shadowsockspwd}",
     "timeout":300,
-    "user":"nobody",
     "method":"${shadowsockscipher}",
     "fast_open":${fast_open},
-    "nameserver":"8.8.8.8",
     "mode":"tcp_and_udp"
 }
 EOF
@@ -449,7 +447,7 @@ install_shadowsocks(){
     echo -e "Your Password         : \033[41;37m ${shadowsockspwd} \033[0m"
     echo -e "Your Encryption Method: \033[41;37m ${shadowsockscipher} \033[0m"
     echo
-    echo "Welcome to visit:https://teddysun.com/358.html"
+    echo "If you need further assistance please visit : https://teddysun.com/358.html"
     echo "Enjoy it!"
     echo
 }
