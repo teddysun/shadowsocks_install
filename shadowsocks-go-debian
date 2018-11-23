@@ -70,7 +70,7 @@ do_start() {
         echo "$NAME (pid $PID) is already running..."
         return 0
     fi
-    $DAEMON -c $CONF 2>&1 > /dev/null &
+    $DAEMON -u -c $CONF 2>&1 > /dev/null &
     PID=$!
     echo $PID > $PID_FILE
     sleep 0.3
