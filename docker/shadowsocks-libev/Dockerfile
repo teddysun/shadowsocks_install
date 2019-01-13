@@ -1,5 +1,5 @@
 # Dockerfile for shadowsocks-libev
-# Copyright (C) 2018 Teddysun <i@teddysun.com>
+# Copyright (C) 2018 - 2019 Teddysun <i@teddysun.com>
 # Reference URL:
 # https://github.com/shadowsocks/shadowsocks-libev
 
