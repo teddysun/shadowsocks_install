@@ -6,7 +6,7 @@
 FROM alpine:latest
 LABEL maintainer="Teddysun <i@teddysun.com>"
 
-ENV LIBEV_VER 3.2.4
+ENV LIBEV_VER 3.2.5
 ENV LIBEV_NAME shadowsocks-libev-${LIBEV_VER}
 ENV LIBEV_RELEASE https://github.com/shadowsocks/shadowsocks-libev/releases/download/v${LIBEV_VER}/${LIBEV_NAME}.tar.gz
 
