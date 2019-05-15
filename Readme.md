@@ -1,4 +1,3 @@
-![Shadowsocks]
 # Auto install Shadowsocks Server
 
 shadowsocks.sh
