@@ -3,6 +3,8 @@
 [shadowsocks-libev][1] is a lightweight secured socks5 proxy for embedded devices and low end boxes.
 It is a port of [shadowsocks][2] created by @clowwindy maintained by @madeye and @linusyang.
 
+Based on alpine with latest version [shadowsocks-libev](https://github.com/shadowsocks/shadowsocks-libev/releases) and [simple-obfs](https://github.com/shadowsocks/simple-obfs/releases) and [v2ray-plugin](https://github.com/shadowsocks/v2ray-plugin/releases).
+
 Docker images are built for quick deployment in various computing cloud providers.
 For more information on docker and containerization technologies, refer to [official document][3].
 
