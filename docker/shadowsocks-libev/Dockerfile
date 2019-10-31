@@ -2,6 +2,8 @@
 # Copyright (C) 2018 - 2019 Teddysun <i@teddysun.com>
 # Reference URL:
 # https://github.com/shadowsocks/shadowsocks-libev
+# https://github.com/shadowsocks/simple-obfs
+# https://github.com/shadowsocks/v2ray-plugin
 
 FROM golang:alpine AS builder
 RUN set -ex \
@@ -9,11 +11,11 @@ RUN set -ex \
 	&& apk add --no-cache git build-base \
 	&& mkdir -p /go/src/github.com/shadowsocks \
 	&& cd /go/src/github.com/shadowsocks \
-    && git clone https://github.com/shadowsocks/v2ray-plugin.git \
-    && cd v2ray-plugin \
-    && git checkout ${V2RAY_PLUGIN_VER} \
-    && go get -d \
-    && go build
+	&& git clone https://github.com/shadowsocks/v2ray-plugin.git \
+	&& cd v2ray-plugin \
+	&& git checkout ${V2RAY_PLUGIN_VER} \
+	&& go get -d \
+	&& go build
 
 FROM alpine:latest
 LABEL maintainer="Teddysun <i@teddysun.com>"
