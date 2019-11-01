@@ -1,11 +1,13 @@
 ## Shadowsocks-libev Docker Image by Teddysun
 
 [shadowsocks-libev][1] is a lightweight secured socks5 proxy for embedded devices and low end boxes.
+
 It is a port of [shadowsocks][2] created by @clowwindy maintained by @madeye and @linusyang.
 
 Based on alpine with latest version [shadowsocks-libev](https://github.com/shadowsocks/shadowsocks-libev/releases) and [simple-obfs](https://github.com/shadowsocks/simple-obfs/releases) and [v2ray-plugin](https://github.com/shadowsocks/v2ray-plugin/releases).
 
 Docker images are built for quick deployment in various computing cloud providers.
+
 For more information on docker and containerization technologies, refer to [official document][3].
 
 ## Prepare the host
@@ -86,7 +88,7 @@ This container with sample configuration `/etc/shadowsocks-libev/config.json`
 There is an example to start a container that listens on `9000` (both TCP and UDP):
 
 ```bash
-$ docker run -d -p 9000:9000 -p 9000:9000/udp --name ss-libev -v /etc/shadowsocks-libev:/etc/shadowsocks-libev teddysun/shadowsocks-libev
+$ docker run -d -p 9000:9000 -p 9000:9000/udp --name ss-libev --restart=always -v /etc/shadowsocks-libev:/etc/shadowsocks-libev teddysun/shadowsocks-libev
 ```
 
 **Warning**: The port number must be same as configuration and opened in firewall.

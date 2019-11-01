@@ -1,9 +1,11 @@
 ## Shadowsocks-go Docker Image by Teddysun
 
 [Shadowsocks-go][1] is a lightweight tunnel proxy which can help you get through firewalls.
+
 It is a port of [Shadowsocks][2] created by @cyfdecyf.
 
 Docker images are built for quick deployment in various computing cloud providers.
+
 For more information on docker and containerization technologies, refer to [official document][3].
 
 ## Prepare the host
@@ -22,7 +24,13 @@ It can be found at [Docker Hub][5].
 
 ## Start a container
 
-You **must create a configuration file**  `/etc/shadowsocks-go/config.json` in host at first, and sample:
+You **must create a configuration file**  `/etc/shadowsocks-go/config.json` in host at first:
+
+```
+$ mkdir -p /etc/shadowsocks-go
+```
+
+A sample in JSON like below:
 
 ```
 {
@@ -40,10 +48,10 @@ This container with sample configuration `/etc/shadowsocks-go/config.json`
 There is an example to start a container that listens on `9000` (both TCP and UDP):
 
 ```bash
-$ docker run -d -p 9000:9000 -p 9000:9000/udp --name ss-go -v /etc/shadowsocks-go:/etc/shadowsocks-go teddysun/shadowsocks-go
+$ docker run -d -p 9000:9000 -p 9000:9000/udp --name ss-go --restart=always -v /etc/shadowsocks-go:/etc/shadowsocks-go teddysun/shadowsocks-go
 ```
 
-**Note**: The port number must be same as configuration.
+**Warning**: The port number must be same as configuration and opened in firewall.
 
 [1]: https://github.com/shadowsocks/shadowsocks-go
 [2]: https://shadowsocks.org/en/index.html
