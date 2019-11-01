@@ -1,9 +1,11 @@
 ## ShadowsocksR Docker Image by Teddysun
 
 [shadowsocksr][1] is a lightweight secured socks5 proxy for embedded devices and low end boxes.
+
 It is a port of [shadowsocks][2] created by @clowwindy maintained by @breakwa11 and @Akkariiin.
 
 Docker images are built for quick deployment in various computing cloud providers.
+
 For more information on docker and containerization technologies, refer to [official document][3].
 
 ## Prepare the host
