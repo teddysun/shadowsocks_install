@@ -6,9 +6,8 @@
 FROM python:3.7-alpine
 LABEL maintainer="Teddysun <i@teddysun.com>"
 
-RUN runDeps="tar libsodium-dev openssl" \
-	set -ex \
-	&& apk add --no-cache ${runDeps} \
+RUN set -ex \
+	&& apk add --no-cache tar libsodium-dev openssl \
 	&& wget -O /tmp/shadowsocksr-3.2.2.tar.gz https://github.com/shadowsocksrr/shadowsocksr/archive/3.2.2.tar.gz \
 	&& tar zxf /tmp/shadowsocksr-3.2.2.tar.gz -C /tmp \
 	&& mv /tmp/shadowsocksr-3.2.2/shadowsocks /usr/local/ \
