@@ -50,7 +50,7 @@ This container with sample configuration `/etc/shadowsocks-python/config.json`
 There is an example to start a container that listens on `9000` (both TCP and UDP):
 
 ```bash
-$ docker run -d -p 9000:9000 -p 9000:9000/udp --name ss -v /etc/shadowsocks-python:/etc/shadowsocks-python teddysun/shadowsocks-python
+$ docker run -d -p 9000:9000 -p 9000:9000/udp --name ss --restart=always -v /etc/shadowsocks-python:/etc/shadowsocks-python teddysun/shadowsocks-python
 ```
 
 **Warning**: The port number must be same as configuration and opened in firewall.

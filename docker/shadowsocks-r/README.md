@@ -58,7 +58,7 @@ This container with sample configuration `/etc/shadowsocks-r/config.json`
 There is an example to start a container that listens on `9000` (both TCP and UDP):
 
 ```bash
-$ docker run -d -p 9000:9000 -p 9000:9000/udp --name ssr -v /etc/shadowsocks-r:/etc/shadowsocks-r teddysun/shadowsocks-r
+$ docker run -d -p 9000:9000 -p 9000:9000/udp --name ssr --restart=always -v /etc/shadowsocks-r:/etc/shadowsocks-r teddysun/shadowsocks-r
 ```
 
 **Warning**: The port number must be same as configuration and opened in firewall.
