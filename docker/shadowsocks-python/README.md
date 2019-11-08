@@ -1,9 +1,11 @@
 ## Shadowsocks-Python Docker Image by Teddysun
 
 [Shadowsocks][1] is a lightweight secured socks5 proxy for embedded devices and low end boxes.
+
 It is a port of [Shadowsocks][2] created by @clowwindy .
 
 Docker images are built for quick deployment in various computing cloud providers.
+
 For more information on docker and containerization technologies, refer to [official document][3].
 
 ## Prepare the host
@@ -22,7 +24,13 @@ It can be found at [Docker Hub][5].
 
 ## Start a container
 
-You **must create a configuration file**  `/etc/shadowsocks-python/config.json` in host at first, and sample:
+You **must create a configuration file**  `/etc/shadowsocks-python/config.json` in host at first:
+
+```
+$ mkdir -p /etc/shadowsocks-python
+```
+
+A sample in JSON like below:
 
 ```
 {
@@ -42,10 +50,10 @@ This container with sample configuration `/etc/shadowsocks-python/config.json`
 There is an example to start a container that listens on `9000` (both TCP and UDP):
 
 ```bash
-$ docker run -d -p 9000:9000 -p 9000:9000/udp --name ss -v /etc/shadowsocks-python:/etc/shadowsocks-python teddysun/shadowsocks-python
+$ docker run -d -p 9000:9000 -p 9000:9000/udp --name ss --restart=always -v /etc/shadowsocks-python:/etc/shadowsocks-python teddysun/shadowsocks-python
 ```
 
-**Note**: The port number must be same as configuration.
+**Warning**: The port number must be same as configuration and opened in firewall.
 
 [1]: https://github.com/shadowsocks/shadowsocks/tree/master
 [2]: https://shadowsocks.org/en/index.html
