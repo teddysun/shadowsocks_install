@@ -4,7 +4,7 @@
 
 It is a port of [shadowsocks][2] created by @clowwindy maintained by @madeye and @linusyang.
 
-Based on alpine with latest version [shadowsocks-libev](https://github.com/shadowsocks/shadowsocks-libev/releases) and [simple-obfs](https://github.com/shadowsocks/simple-obfs/releases) and [v2ray-plugin](https://github.com/shadowsocks/v2ray-plugin/releases).
+Based on alpine with latest version [shadowsocks-libev](https://github.com/shadowsocks/shadowsocks-libev) and [simple-obfs](https://github.com/shadowsocks/simple-obfs) and [v2ray-plugin](https://github.com/shadowsocks/v2ray-plugin).
 
 Docker images are built for quick deployment in various computing cloud providers.
 
