@@ -5,7 +5,7 @@
 
 FROM --platform=$TARGETPLATFORM golang:alpine AS builder
 RUN set -ex \
-	&& apk add --no-cache git \
+	&& apk add --no-cache git build-base \
 	&& go get -u -v github.com/shadowsocks/shadowsocks-go/cmd/shadowsocks-server
 
 FROM --platform=$TARGETPLATFORM alpine:latest

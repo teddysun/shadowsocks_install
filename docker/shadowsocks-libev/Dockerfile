@@ -1,17 +1,16 @@
 # Dockerfile for shadowsocks-libev based alpine
-# Copyright (C) 2018 - 2019 Teddysun <i@teddysun.com>
+# Copyright (C) 2018 - 2020 Teddysun <i@teddysun.com>
 # Reference URL:
 # https://github.com/shadowsocks/shadowsocks-libev
 # https://github.com/shadowsocks/simple-obfs
 # https://github.com/shadowsocks/v2ray-plugin
-# https://github.com/teddysun/v2ray-plugin # for upgrade v2ray-core to latest version
 
 FROM golang:alpine AS builder
 RUN set -ex \
-	&& apk add --no-cache git \
+	&& apk add --no-cache git build-base \
 	&& mkdir -p /go/src/github.com/shadowsocks \
 	&& cd /go/src/github.com/shadowsocks \
-	&& git clone https://github.com/teddysun/v2ray-plugin.git \
+	&& git clone https://github.com/shadowsocks/v2ray-plugin.git \
 	&& cd v2ray-plugin \
 	&& go get -d \
 	&& go build -o /go/bin/v2ray-plugin

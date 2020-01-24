@@ -1,11 +1,11 @@
 # Dockerfile for Shadowsocks-go based alpine
-# Copyright (C) 2018 - 2019 Teddysun <i@teddysun.com>
+# Copyright (C) 2018 - 2020 Teddysun <i@teddysun.com>
 # Reference URL:
 # https://github.com/shadowsocks/shadowsocks-go
 
 FROM golang:alpine AS builder
 RUN set -ex \
-	&& apk add --no-cache git \
+	&& apk add --no-cache git build-base \
 	&& go get -u -v github.com/shadowsocks/shadowsocks-go/cmd/shadowsocks-server
 
 FROM alpine:latest

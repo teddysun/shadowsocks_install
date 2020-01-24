@@ -7,7 +7,7 @@
 
 FROM --platform=$TARGETPLATFORM golang:alpine AS builder
 RUN set -ex \
-	&& apk add --no-cache git \
+	&& apk add --no-cache git build-base \
 	&& mkdir -p /go/src/github.com/shadowsocks \
 	&& cd /go/src/github.com/shadowsocks \
 	&& git clone https://github.com/shadowsocks/v2ray-plugin.git \
