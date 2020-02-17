@@ -5,43 +5,24 @@
 # https://github.com/shadowsocks/simple-obfs
 # https://github.com/shadowsocks/v2ray-plugin
 
-FROM golang:alpine AS builder
-RUN set -ex \
-	&& apk add --no-cache git build-base \
-	&& mkdir -p /go/src/github.com/shadowsocks \
-	&& cd /go/src/github.com/shadowsocks \
-	&& git clone https://github.com/shadowsocks/v2ray-plugin.git \
-	&& cd v2ray-plugin \
-	&& go get -d \
-	&& go build -o /go/bin/v2ray-plugin
-
 FROM alpine:latest
 LABEL maintainer="Teddysun <i@teddysun.com>"
 
-RUN runDeps="\
-		git \
-		build-base \
-		c-ares-dev \
-		autoconf \
-		automake \
-		libev-dev \
-		libtool \
-		libsodium-dev \
-		linux-headers \
-		mbedtls-dev \
-		pcre-dev \
-	"; \
-	set -ex \
+WORKDIR /root
+COPY v2ray-plugin.sh /root/v2ray-plugin.sh
+COPY config_sample.json /etc/shadowsocks-libev/config.json
+RUN set -ex \
+	&& runDeps="git build-base c-ares-dev autoconf automake libev-dev libtool libsodium-dev linux-headers mbedtls-dev pcre-dev" \
 	&& apk add --no-cache --virtual .build-deps ${runDeps} \
-	&& mkdir -p /tmp/obfs \
-	&& cd /tmp/obfs \
+	&& mkdir -p /root/obfs \
+	&& cd /root/obfs \
 	&& git clone --depth=1 https://github.com/shadowsocks/simple-obfs.git . \
 	&& git submodule update --init --recursive \
 	&& ./autogen.sh \
 	&& ./configure --prefix=/usr --disable-documentation \
 	&& make install \
-	&& mkdir -p /tmp/libev \
-	&& cd /tmp/libev \
+	&& mkdir -p /root/libev \
+	&& cd /root/libev \
 	&& git clone --depth=1 https://github.com/shadowsocks/shadowsocks-libev.git . \
 	&& git submodule update --init --recursive \
 	&& ./autogen.sh \
@@ -56,13 +37,12 @@ RUN runDeps="\
 		| xargs -r apk info --installed \
 		| sort -u) \
 	&& apk del .build-deps \
-	&& cd /tmp \
-	&& rm -rf /tmp/obfs /tmp/libev
+	&& cd /root \
+	&& rm -rf /root/obfs /root/libev \
+	&& chmod +x /root/v2ray-plugin.sh \
+	&& /root/v2ray-plugin.sh \
+	&& rm -f /root/v2ray-plugin.sh
 
-COPY --from=builder /go/bin/v2ray-plugin /usr/bin
-COPY config_sample.json /etc/shadowsocks-libev/config.json
 VOLUME /etc/shadowsocks-libev
-
 ENV TZ=Asia/Shanghai
-
 CMD [ "ss-server", "-c", "/etc/shadowsocks-libev/config.json" ]
