@@ -38,7 +38,6 @@ for ARCH in ${ARCHS[@]}; do
         echo "Building v2ray-plugin_linux_${ARCH}"
         env CGO_ENABLED=0 GOOS=linux GOARCH=${ARCH} go build -v -ldflags "${LDFLAGS}" -gcflags "${GCFLAGS}" -o ${cur_dir}/v2ray-plugin_linux_${ARCH}
     fi
-    echo "Build v2ray-plugin_linux_${ARCH} completed"
 done
 
 # clean up
