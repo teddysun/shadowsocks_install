@@ -3,16 +3,19 @@
 # Reference URL:
 # https://github.com/shadowsocks/shadowsocks-go
 
-FROM golang:alpine AS builder
-RUN set -ex \
-	&& apk add --no-cache git build-base \
-	&& go get -u -v github.com/shadowsocks/shadowsocks-go/cmd/shadowsocks-server
-
 FROM alpine:latest
 LABEL maintainer="Teddysun <i@teddysun.com>"
 
-COPY --from=builder /go/bin/shadowsocks-server /usr/bin
+WORKDIR /root
+COPY shadowsocks-go.sh /root/shadowsocks-go.sh
 COPY config_sample.json /etc/shadowsocks-go/config.json
+RUN set -ex \
+	&& apk add --no-cache tzdata \
+	&& chmod +x /root/shadowsocks-go.sh \
+	&& /root/shadowsocks-go.sh \
+	&& rm -fv /root/shadowsocks-go.sh
+
+ENV TZ=Asia/Shanghai
 VOLUME /etc/shadowsocks-go
 
 CMD [ "shadowsocks-server", "-c", "/etc/shadowsocks-go/config.json" ]
