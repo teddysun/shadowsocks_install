@@ -10,13 +10,33 @@ export PATH
 #===================================================================#
 
 # Current folder
-cur_dir=`pwd`
+cur_dir=$(pwd)
 
-libsodium_file="libsodium-stable"
-libsodium_url="https://download.libsodium.org/libsodium/releases/LATEST.tar.gz"
+libsodium_file='libsodium-stable'
+libsodium_url='https://download.libsodium.org/libsodium/releases/LATEST.tar.gz'
 
-mbedtls_file="mbedtls-2.16.4"
-mbedtls_url="https://tls.mbed.org/download/mbedtls-2.16.4-gpl.tgz"
+# Keep this line so in case we got a network interrupted or something,
+# the script will not run with an empty variable.
+### I would like to suggest the owner of this repo using dependency check tools provided by GitHub eventually.
+mbedtls_file='mbedtls-2.16.6'
+
+# This function was wroten with reference to
+# https://github.com/v2fly/fhs-install-v2ray/blob/e917483e9a18a363b15bccf688e9ed9432a745e3/install-release.sh#L231-LL240
+fetch_latest_mbedtls_version(){
+    TMP_FILE="$(mktemp)"
+    if ! curl -s -o "$TMP_FILE" 'https://api.github.com/repos/ARMmbed/mbedtls/releases/latest'; then
+        rm "$TMP_FILE"
+        echo 'error: Failed to get release list, please check your network.'
+        exit 1
+    fi
+    mbedtls_file="$(sed 'y/,/\n/' "$TMP_FILE" | grep 'tag_name' | awk -F '"' '{print $4}')"
+    rm "$TMP_FILE"
+}
+fetch_latest_mbedtls_version
+
+# The source code are available in both an Apache 2.0 licensed version (their primary open source license) and in a GPL 2.0 licensed version.
+### I can't see there is any reason to stay on the code which is under GPL license.
+mbedtls_url='https://tls.mbed.org/download/'"$mbedtls_file"'-apache.tgz'
 
 # Stream Ciphers
 ciphers=(
@@ -58,14 +78,14 @@ disable_selinux(){
 
 get_ip(){
     local IP=$( ip addr | egrep -o '[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}' | egrep -v "^192\.168|^172\.1[6-9]\.|^172\.2[0-9]\.|^172\.3[0-2]\.|^10\.|^127\.|^255\.|^0\." | head -n 1 )
-    [ -z ${IP} ] && IP=$( wget -qO- -t1 -T2 ipv4.icanhazip.com )
-    [ -z ${IP} ] && IP=$( wget -qO- -t1 -T2 ipinfo.io/ip )
-    [ ! -z ${IP} ] && echo ${IP} || echo
+    [ -z "${IP}" ] && IP=$( wget -qO- -t1 -T2 ipv4.icanhazip.com )
+    [ -z "${IP}" ] && IP=$( wget -qO- -t1 -T2 ipinfo.io/ip )
+    [ ! -z "${IP}" ] && echo "${IP}" || echo
 }
 
 get_ipv6(){
     local ipv6=$(wget -qO- -t1 -T2 ipv6.icanhazip.com)
-    if [ -z ${ipv6} ]; then
+    if [ -z "${ipv6}" ]; then
         return 1
     else
         return 0
@@ -73,19 +93,19 @@ get_ipv6(){
 }
 
 get_char(){
-    SAVEDSTTY=`stty -g`
+    SAVEDSTTY=$(stty -g)
     stty -echo
     stty cbreak
     dd if=/dev/tty bs=1 count=1 2> /dev/null
     stty -raw
     stty echo
-    stty $SAVEDSTTY
+    stty "$SAVEDSTTY"
 }
 
 get_latest_version(){
     ver=$(wget --no-check-certificate -qO- https://api.github.com/repos/shadowsocks/shadowsocks-libev/releases/latest | grep 'tag_name' | cut -d\" -f4)
-    [ -z ${ver} ] && echo "Error: Get shadowsocks-libev latest version failed" && exit 1
-    shadowsocks_libev_ver="shadowsocks-libev-$(echo ${ver} | sed -e 's/^[a-zA-Z]//g')"
+    [ -z "${ver}" ] && echo "Error: Get shadowsocks-libev latest version failed" && exit 1
+    shadowsocks_libev_ver="shadowsocks-libev-$(echo "${ver}" | sed -e 's/^[a-zA-Z]//g')"
     download_link="https://github.com/shadowsocks/shadowsocks-libev/releases/download/${ver}/${shadowsocks_libev_ver}.tar.gz"
     init_script_link="https://raw.githubusercontent.com/teddysun/shadowsocks_install/master/shadowsocks-libev-debian"
 }
@@ -109,7 +129,7 @@ check_version(){
     if [ $? -eq 0 ]; then
         installed_ver=$(ss-server -h | grep shadowsocks-libev | cut -d' ' -f2)
         get_latest_version
-        latest_ver=$(echo ${ver} | sed -e 's/^[a-zA-Z]//g')
+        latest_ver=$(echo "${ver}" | sed -e 's/^[a-zA-Z]//g')
         if [ "${latest_ver}" == "${installed_ver}" ]; then
             return 0
         else
@@ -183,7 +203,7 @@ version_gt(){
 
 check_kernel_version(){
     local kernel_version=$(uname -r | cut -d- -f1)
-    if version_gt ${kernel_version} 3.7.0; then
+    if version_gt "${kernel_version}" 3.7.0; then
         return 0
     else
         return 1
@@ -211,7 +231,7 @@ debianversion(){
     if check_sys sysRelease debian;then
         local version=$( get_opsy )
         local code=${1}
-        local main_ver=$( echo ${version} | sed 's/[^0-9]//g')
+        local main_ver=$( echo "${version}" | sed 's/[^0-9]//g')
         if [ "${main_ver}" == "${code}" ];then
             return 0
         else
@@ -268,9 +288,9 @@ pre_install(){
     echo -e "Please enter a port for shadowsocks-libev [1-65535]"
     read -p "(Default port: ${dport}):" shadowsocksport
     [ -z "$shadowsocksport" ] && shadowsocksport=${dport}
-    expr ${shadowsocksport} + 1 &>/dev/null
+    expr "${shadowsocksport}" + 1 &>/dev/null
     if [ $? -eq 0 ]; then
-        if [ ${shadowsocksport} -ge 1 ] && [ ${shadowsocksport} -le 65535 ] && [ ${shadowsocksport:0:1} != 0 ]; then
+        if [ "${shadowsocksport}" -ge 1 ] && [ "${shadowsocksport}" -le 65535 ] && [ "${shadowsocksport:0:1}" != 0 ]; then
             echo
             echo "---------------------------"
             echo "port = ${shadowsocksport}"
@@ -312,7 +332,7 @@ pre_install(){
 
     echo
     echo "Press any key to start...or press Ctrl+C to cancel"
-    char=`get_char`
+    char=$(get_char)
 
     # Update System
     apt-get -y update
@@ -322,12 +342,12 @@ pre_install(){
 
 download() {
     local filename=${1}
-    local cur_dir=`pwd`
-    if [ -s ${filename} ]; then
+    local cur_dir=$(pwd)
+    if [ -s "${filename}" ]; then
         echo -e "[${green}Info${plain}] ${filename} [found]"
     else
         echo -e "[${green}Info${plain}] ${filename} not found, download now..."
-        wget --no-check-certificate -cq -t3 -T60 -O ${1} ${2}
+        wget --no-check-certificate -cq -t3 -T60 -O "${1}" "${2}"
         if [ $? -eq 0 ]; then
             echo -e "[${green}Info${plain}] ${filename} download completed..."
         else
@@ -339,19 +359,19 @@ download() {
 
 # Download latest shadowsocks-libev
 download_files(){
-    cd ${cur_dir}
+    cd "${cur_dir}" || exit
 
     download "${shadowsocks_libev_ver}.tar.gz" "${download_link}"
     download "${libsodium_file}.tar.gz" "${libsodium_url}"
-    download "${mbedtls_file}-gpl.tgz" "${mbedtls_url}"
+    download "${mbedtls_file}-apache.tgz" "${mbedtls_url}"
     download "/etc/init.d/shadowsocks" "${init_script_link}"
 }
 
 install_libsodium() {
     if [ ! -f /usr/lib/libsodium.a ]; then
-        cd ${cur_dir}
+        cd "${cur_dir}" || exit
         tar zxf ${libsodium_file}.tar.gz
-        cd ${libsodium_file}
+        cd ${libsodium_file} || exit
         ./configure --prefix=/usr && make && make install
         if [ $? -ne 0 ]; then
             echo -e "[${red}Error${plain}] ${libsodium_file} install failed."
@@ -364,9 +384,9 @@ install_libsodium() {
 
 install_mbedtls() {
     if [ ! -f /usr/lib/libmbedtls.a ]; then
-        cd ${cur_dir}
-        tar xf ${mbedtls_file}-gpl.tgz
-        cd ${mbedtls_file}
+        cd "${cur_dir}" || exit
+        tar xf "${mbedtls_file}"-apache.tgz
+        cd "${mbedtls_file}" || exit
         make SHARED=1 CFLAGS=-fPIC
         make DESTDIR=/usr install
         if [ $? -ne 0 ]; then
@@ -415,9 +435,9 @@ install_shadowsocks(){
     install_mbedtls
 
     ldconfig
-    cd ${cur_dir}
-    tar zxf ${shadowsocks_libev_ver}.tar.gz
-    cd ${shadowsocks_libev_ver}
+    cd "${cur_dir}" || exit
+    tar zxf "${shadowsocks_libev_ver}".tar.gz
+    cd "${shadowsocks_libev_ver}" || exit
     ./configure --disable-documentation
     make && make install
     if [ $? -eq 0 ]; then
@@ -436,10 +456,10 @@ install_shadowsocks(){
         exit 1
     fi
 
-    cd ${cur_dir}
-    rm -rf ${shadowsocks_libev_ver} ${shadowsocks_libev_ver}.tar.gz
+    cd "${cur_dir}" || exit
+    rm -rf "${shadowsocks_libev_ver}" "${shadowsocks_libev_ver}".tar.gz
     rm -rf ${libsodium_file} ${libsodium_file}.tar.gz
-    rm -rf ${mbedtls_file} ${mbedtls_file}-gpl.tgz
+    rm -rf "${mbedtls_file}" "${mbedtls_file}"-apache.tgz
 
     clear
     echo
@@ -470,7 +490,7 @@ uninstall_shadowsocks_libev(){
     printf "Are you sure uninstall Shadowsocks-libev? (y/n)"
     printf "\n"
     read -p "(Default: n):" answer
-    [ -z ${answer} ] && answer="n"
+    [ -z "${answer}" ] && answer="n"
 
     if [ "${answer}" == "y" ] || [ "${answer}" == "Y" ]; then
         ps -ef | grep -v grep | grep -i "ss-server" > /dev/null 2>&1
@@ -509,13 +529,13 @@ uninstall_shadowsocks_libev(){
 
 # Initialization step
 action=$1
-[ -z $1 ] && action=install
+[ -z "$1" ] && action=install
 case "$action" in
     install|uninstall)
         ${action}_shadowsocks_libev
         ;;
     *)
         echo "Arguments error! [${action}]"
-        echo "Usage: `basename $0` [install|uninstall]"
+        echo "Usage: $(basename "$0") [install|uninstall]"
         ;;
 esac
