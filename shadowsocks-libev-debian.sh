@@ -15,27 +15,8 @@ cur_dir=$(pwd)
 libsodium_file='libsodium-stable'
 libsodium_url='https://download.libsodium.org/libsodium/releases/LATEST.tar.gz'
 
-# Keep this line so in case we got a network interrupted or something,
-# the script will not run with an empty variable.
-### I would like to suggest the owner of this repo using dependency check tools provided by GitHub eventually.
-mbedtls_file='mbedtls-2.16.6'
-
-# This function was wroten with reference to
-# https://github.com/v2fly/fhs-install-v2ray/blob/e917483e9a18a363b15bccf688e9ed9432a745e3/install-release.sh#L231-LL240
-fetch_latest_mbedtls_version(){
-    TMP_FILE="$(mktemp)"
-    if ! curl -s -o "$TMP_FILE" 'https://api.github.com/repos/ARMmbed/mbedtls/releases/latest'; then
-        rm "$TMP_FILE"
-        echo 'error: Failed to get release list, please check your network.'
-        exit 1
-    fi
-    mbedtls_file="$(sed 'y/,/\n/' "$TMP_FILE" | grep 'tag_name' | awk -F '"' '{print $4}')"
-    rm "$TMP_FILE"
-}
-fetch_latest_mbedtls_version
-
-# The source code are available in both an Apache 2.0 licensed version (their primary open source license) and in a GPL 2.0 licensed version.
-### I can't see there is any reason to stay on the code which is under GPL license.
+mbedtls_file=$(wget --no-check-certificate -qO- https://api.github.com/repos/ARMmbed/mbedtls/releases/latest | grep 'tag_name' | cut -d\" -f4)
+[ -z "${mbedtls_file}" ] && mbedtls_file='mbedtls-2.16.6'
 mbedtls_url='https://tls.mbed.org/download/'"$mbedtls_file"'-apache.tgz'
 
 # Stream Ciphers
