@@ -451,12 +451,6 @@ config_firewall(){
 
 config_shadowsocks(){
 
-if check_kernel_version && check_kernel_headers; then
-    fast_open='true'
-else
-    fast_open='false'
-fi
-
 if   [ "${selected}" == '1' ]; then
     if [ ! -d "$(dirname ${shadowsocks_python_config})" ]; then
         mkdir -p $(dirname ${shadowsocks_python_config})
@@ -470,7 +464,7 @@ if   [ "${selected}" == '1' ]; then
     "password":"${shadowsockspwd}",
     "timeout":300,
     "method":"${shadowsockscipher}",
-    "fast_open":${fast_open}
+    "fast_open":false
 }
 EOF
 elif [ "${selected}" == '2' ]; then
@@ -493,7 +487,7 @@ elif [ "${selected}" == '2' ]; then
     "obfs_param":"",
     "redirect":"",
     "dns_ipv6":false,
-    "fast_open":${fast_open},
+    "fast_open":false,
     "workers":1
 }
 EOF
@@ -530,7 +524,7 @@ elif [ "${selected}" == '4' ]; then
     "timeout":300,
     "user":"nobody",
     "method":"${shadowsockscipher}",
-    "fast_open":${fast_open},
+    "fast_open":false,
     "nameserver":"1.0.0.1",
     "mode":"tcp_and_udp",
     "plugin":"obfs-server",
@@ -546,7 +540,7 @@ EOF
     "timeout":300,
     "user":"nobody",
     "method":"${shadowsockscipher}",
-    "fast_open":${fast_open},
+    "fast_open":false,
     "nameserver":"1.0.0.1",
     "mode":"tcp_and_udp"
 }
