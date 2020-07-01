@@ -44,8 +44,8 @@ libsodium_file='libsodium-stable'
 libsodium_url='https://download.libsodium.org/libsodium/releases/LATEST.tar.gz'
 
 mbedtls_file=$($(type -P wget) -qO- https://api.github.com/repos/ARMmbed/mbedtls/releases/latest | grep 'tag_name' | cut -d\" -f4)
-[[ -z "${mbedtls_file}" ]] && mbedtls_file='mbedtls-2.16.6'
-mbedtls_url='https://tls.mbed.org/download/'"$mbedtls_file"'-apache.tgz'
+[[ -z "${mbedtls_file}" ]] && mbedtls_file='mbedtls-2.23.0'
+mbedtls_url='https://github.com/ARMmbed/mbedtls/archive/'"$mbedtls_file"'.tar.gz'
 
 shadowsocks_python_file='shadowsocks-master'
 shadowsocks_python_url='https://github.com/shadowsocks/shadowsocks/archive/master.zip'
@@ -166,10 +166,10 @@ func_decision_with_TRUE_or_FALSE_as_default_value(){
     arg_1=$(echo "$1" | tr '[:upper:]' '[:lower:]')
     while true
     do
-    if [[ "x$arg_1" = "xtrue" ]]; then
+    if [[ x"$arg_1" = x'true' ]]; then
         read -rp '(default: y):' tmp_var_user_input
         [[ -z "$tmp_var_user_input" ]] && tmp_var_user_input='y'
-    elif [[ "x$arg_1" = "xfalse" ]]; then
+    elif [[ x"$arg_1" = x'false' ]]; then
         read -rp '(default: n):' tmp_var_user_input
         [[ -z "$tmp_var_user_input" ]] && tmp_var_user_input='n'
     else
@@ -907,8 +907,8 @@ install_mbedtls(){
     local upgrade_indicator=$(( upgrade_args & 1 ))  # [$upgrade_args] bitwise AND [binary(001)]
     if [[ ! -f /usr/lib/libmbedtls.a ]] || [[ $upgrade_indicator -eq 1 ]]; then
         cd "${cur_dir}" || exit
-        download "${mbedtls_file}-apache.tgz" "${mbedtls_url}"
-        tar xf "${mbedtls_file}"-apache.tgz
+        download "${mbedtls_file}.tar.gz" "${mbedtls_url}"
+        tar xf "${mbedtls_file}.tar.gz"
         cd "${mbedtls_file}" || exit
         make SHARED=1 CFLAGS=-fPIC
         if ! make DESTDIR=/usr install; then
@@ -1212,7 +1212,7 @@ install_cleanup(){
     cd "${cur_dir}" || exit
     rm -rf simple-obfs
     rm -rf ${libsodium_file} ${libsodium_file}.tar.gz
-    rm -rf "${mbedtls_file}" "${mbedtls_file}"-apache.tgz
+    rm -rf "${mbedtls_file}" "${mbedtls_file}.tar.gz"
     rm -rf ${shadowsocks_python_file} ${shadowsocks_python_file}.zip
     rm -rf ${shadowsocks_r_file} ${shadowsocks_r_file}.tar.gz
     rm -rf ${shadowsocks_go_file_64}.gz ${shadowsocks_go_file_32}.gz
