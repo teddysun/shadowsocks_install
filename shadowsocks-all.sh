@@ -908,8 +908,12 @@ install_mbedtls(){
     if [[ ! -f /usr/lib/libmbedtls.a ]] || [[ $upgrade_indicator -eq 1 ]]; then
         cd "${cur_dir}" || exit
         download "${mbedtls_file}.tar.gz" "${mbedtls_url}"
-        tar xf "${mbedtls_file}.tar.gz"
-        cd "${mbedtls_file}" || exit
+        ## If it is necessary to extract source code into current directory:
+        # tmp_dir_4_mbedtls="$(mktemp -dup "${cur_dir}")"
+        tmp_dir_4_mbedtls="$(mktemp -du)"
+        mkdir -p "$tmp_dir_4_mbedtls" && \
+        tar -xf "${mbedtls_file}.tar.gz" --strip-components=1 -C "$tmp_dir_4_mbedtls"
+        cd "$tmp_dir_4_mbedtls" || exit
         make SHARED=1 CFLAGS=-fPIC
         if ! make DESTDIR=/usr install; then
             echo -e "[${red}Error${plain}] ${mbedtls_file} install failed."
