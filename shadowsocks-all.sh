@@ -608,8 +608,8 @@ install_select(){
         hint="${software[$i-1]}"
         echo -e "${green}${i}${plain}) ${hint}"
     done
-    read -p "Please enter a number (Default ${software[0]}):" selected
-    [ -z "${selected}" ] && selected='1'
+    read -p "Please enter a number (Default ${software[3]}):" selected
+    [ -z "${selected}" ] && selected='4'
     case "${selected}" in
         1|2|3|4)
         echo
