@@ -40,7 +40,7 @@ software=(Shadowsocks-Python ShadowsocksR Shadowsocks-Go Shadowsocks-libev)
 libsodium_file='libsodium-stable'
 libsodium_url='https://download.libsodium.org/libsodium/releases/LATEST.tar.gz'
 
-mbedtls_file=$(wget --no-check-certificate -qO- https://api.github.com/repos/ARMmbed/mbedtls/releases/latest | grep 'tag_name' | cut -d\" -f4)
+mbedtls_file=$($(type -P wget) -qO- https://api.github.com/repos/ARMmbed/mbedtls/releases/latest | grep 'tag_name' | cut -d\" -f4)
 [ -z "${mbedtls_file}" ] && mbedtls_file='mbedtls-2.16.6'
 mbedtls_url='https://tls.mbed.org/download/'"$mbedtls_file"'-apache.tgz'
 
@@ -303,7 +303,7 @@ get_ipv6(){
 }
 
 get_libev_ver(){
-    libev_ver=$(wget --no-check-certificate -qO- https://api.github.com/repos/shadowsocks/shadowsocks-libev/releases/latest | grep 'tag_name' | cut -d\" -f4)
+    libev_ver=$($(type -P wget) -qO- https://api.github.com/repos/shadowsocks/shadowsocks-libev/releases/latest | grep 'tag_name' | cut -d\" -f4)
     [ -z "${libev_ver}" ] && echo -e "[${red}Error${plain}] Get shadowsocks-libev latest version failed" && exit 1
 }
 
@@ -346,7 +346,7 @@ download(){
         echo "${filename} [found]"
     else
         echo "${filename} not found, download now..."
-        wget --no-check-certificate -c -t3 -T60 -O "${1}" "${2}"
+        $(type -P wget) -c -t3 -T60 -O "${1}" "${2}"
         if [ $? -ne 0 ]; then
             echo -e "[${red}Error${plain}] Download ${filename} failed."
             exit 1
