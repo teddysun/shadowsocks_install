@@ -15,8 +15,7 @@ cur_dir=$(pwd)
 libsodium_file='libsodium-stable'
 libsodium_url='https://download.libsodium.org/libsodium/releases/LATEST.tar.gz'
 
-mbedtls_file=$(wget --no-check-certificate -qO- https://api.github.com/repos/ARMmbed/mbedtls/releases/latest | grep 'tag_name' | cut -d\" -f4)
-[ -z "${mbedtls_file}" ] && mbedtls_file='mbedtls-2.16.6'
+mbedtls_file='mbedtls-2.16.6'
 mbedtls_url='https://tls.mbed.org/download/'"$mbedtls_file"'-apache.tgz'
 
 # Stream Ciphers
