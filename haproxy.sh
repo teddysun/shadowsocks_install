@@ -125,7 +125,7 @@ pre_install(){
     while true
     do
     echo -e "Please enter a port for haproxy and Shadowsocks server [1-65535]"
-    read -p "(Default port: 8989):" haproxyport
+    read -rp "(Default port: 8989):" haproxyport
     [[ -z "${haproxyport}" ]] && haproxyport="8989"
     expr ${haproxyport} + 0 &>/dev/null
     if [[ $? -eq 0 ]]; then
@@ -148,7 +148,7 @@ pre_install(){
     while :
     do
     echo -e "Please enter your Shadowsocks server's IPv4 address for haproxy"
-    read -p "(IPv4 is):" haproxyip
+    read -rp "(IPv4 is):" haproxyip
     valid_ip ${haproxyip}
     if [[ $? -eq 0 ]]; then
         echo

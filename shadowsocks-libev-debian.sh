@@ -254,7 +254,7 @@ pre_install(){
 
     # Set shadowsocks-libev config password
     echo "Please input password for shadowsocks-libev:"
-    read -p "(Default password: teddysun.com):" shadowsockspwd
+    read -rp "(Default password: teddysun.com):" shadowsockspwd
     [[ -z "${shadowsockspwd}" ]] && shadowsockspwd="teddysun.com"
     echo
     echo "---------------------------"
@@ -267,7 +267,7 @@ pre_install(){
     do
     dport=$(shuf -i 9000-19999 -n 1)
     echo -e "Please enter a port for shadowsocks-libev [1-65535]"
-    read -p "(Default port: ${dport}):" shadowsocksport
+    read -rp "(Default port: ${dport}):" shadowsocksport
     [[ -z "$shadowsocksport" ]] && shadowsocksport=${dport}
     expr "${shadowsocksport}" + 1 &>/dev/null
     if [[ $? -eq 0 ]]; then
@@ -291,7 +291,7 @@ pre_install(){
         hint="${ciphers[$i-1]}"
         echo -e "${green}${i}${plain}) ${hint}"
     done
-    read -p "Which cipher you'd select(Default: ${ciphers[0]}):" pick
+    read -rp "Which cipher you'd select(Default: ${ciphers[0]}):" pick
     [[ -z "$pick" ]] && pick=1
     expr ${pick} + 1 &>/dev/null
     if [[ $? -ne 0 ]]; then
@@ -464,7 +464,7 @@ uninstall_shadowsocks_libev(){
     print_info
     printf "Are you sure uninstall Shadowsocks-libev? (y/n)"
     printf "\n"
-    read -p "(Default: n):" answer
+    read -rp "(Default: n):" answer
     [[ -z "${answer}" ]] && answer="n"
 
     if [[ "${answer}" == "y" ]] || [[ "${answer}" == "Y" ]]; then

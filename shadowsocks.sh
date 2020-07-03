@@ -163,7 +163,7 @@ pre_install(){
     fi
     # Set shadowsocks config password
     echo "Please enter password for shadowsocks-python"
-    read -p "(Default password: teddysun.com):" shadowsockspwd
+    read -rp "(Default password: teddysun.com):" shadowsockspwd
     [[ -z "${shadowsockspwd}" ]] && shadowsockspwd="teddysun.com"
     echo
     echo "---------------------------"
@@ -175,7 +175,7 @@ pre_install(){
     do
     dport=$(shuf -i 9000-19999 -n 1)
     echo "Please enter a port for shadowsocks-python [1-65535]"
-    read -p "(Default port: ${dport}):" shadowsocksport
+    read -rp "(Default port: ${dport}):" shadowsocksport
     [[ -z "$shadowsocksport" ]] && shadowsocksport=${dport}
     expr ${shadowsocksport} + 1 &>/dev/null
     if [[ $? -eq 0 ]]; then
@@ -199,7 +199,7 @@ pre_install(){
         hint="${ciphers[$i-1]}"
         echo -e "${green}${i}${plain}) ${hint}"
     done
-    read -p "Which cipher you'd select(Default: ${ciphers[0]}):" pick
+    read -rp "Which cipher you'd select(Default: ${ciphers[0]}):" pick
     [[ -z "$pick" ]] && pick=1
     expr ${pick} + 1 &>/dev/null
     if [[ $? -ne 0 ]]; then
@@ -373,7 +373,7 @@ install_cleanup(){
 uninstall_shadowsocks(){
     printf "Are you sure uninstall Shadowsocks? (y/n) "
     printf "\n"
-    read -p "(Default: n):" answer
+    read -rp "(Default: n):" answer
     [[ -z ${answer} ]] && answer="n"
     if [[ "${answer}" == "y" ]] || [[ "${answer}" == "Y" ]]; then
         ps -ef | grep -v grep | grep -i "ssserver" > /dev/null 2>&1
