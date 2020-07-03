@@ -29,7 +29,7 @@ check_sys() {
     local release=''
     local systemPackage=''
 
-    if [ -f /etc/redhat-release ]; then
+    if [[ -f /etc/redhat-release ]]; then
         release="centos"
         systemPackage="yum"
     elif cat /etc/issue | grep -Eqi "debian"; then
@@ -52,14 +52,14 @@ check_sys() {
         systemPackage="yum"
     fi
 
-    if [ ${checkType} == "sysRelease" ]; then
-        if [ "$value" == "$release" ]; then
+    if [[ ${checkType} == "sysRelease" ]]; then
+        if [[ "$value" == "$release" ]]; then
             return 0
         else
             return 1
         fi
-    elif [ ${checkType} == "packageManager" ]; then
-        if [ "$value" == "$systemPackage" ]; then
+    elif [[ ${checkType} == "packageManager" ]]; then
+        if [[ "$value" == "$systemPackage" ]]; then
             return 0
         else
             return 1
@@ -76,7 +76,7 @@ install_check() {
 }
 
 disable_selinux(){
-    if [ -s /etc/selinux/config ] && grep 'SELINUX=enforcing' /etc/selinux/config; then
+    if [[ -s /etc/selinux/config ]] && grep 'SELINUX=enforcing' /etc/selinux/config; then
         sed -i 's/SELINUX=enforcing/SELINUX=disabled/g' /etc/selinux/config
         setenforce 0
     fi
@@ -98,9 +98,9 @@ valid_ip(){
 
 get_ip(){
     local IP=$( ip addr | egrep -o '[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}' | egrep -v "^192\.168|^172\.1[6-9]\.|^172\.2[0-9]\.|^172\.3[0-2]\.|^10\.|^127\.|^255\.|^0\." | head -n 1 )
-    [ -z ${IP} ] && IP=$( wget -qO- -t1 -T2 ipv4.icanhazip.com )
-    [ -z ${IP} ] && IP=$( wget -qO- -t1 -T2 ipinfo.io/ip )
-    [ ! -z ${IP} ] && echo ${IP} || echo
+    [[ -z ${IP} ]] && IP=$( wget -qO- -t1 -T2 ipv4.icanhazip.com )
+    [[ -z ${IP} ]] && IP=$( wget -qO- -t1 -T2 ipinfo.io/ip )
+    [[ ! -z ${IP} ]] && echo ${IP} || echo
 }
 
 get_char(){
@@ -126,10 +126,10 @@ pre_install(){
     do
     echo -e "Please enter a port for haproxy and Shadowsocks server [1-65535]"
     read -p "(Default port: 8989):" haproxyport
-    [ -z "${haproxyport}" ] && haproxyport="8989"
+    [[ -z "${haproxyport}" ]] && haproxyport="8989"
     expr ${haproxyport} + 0 &>/dev/null
-    if [ $? -eq 0 ]; then
-        if [ ${haproxyport} -ge 1 ] && [ ${haproxyport} -le 65535 ]; then
+    if [[ $? -eq 0 ]]; then
+        if [[ ${haproxyport} -ge 1 ]] && [[ ${haproxyport} -le 65535 ]]; then
             echo
             echo "---------------------------"
             echo "port = ${haproxyport}"
@@ -150,7 +150,7 @@ pre_install(){
     echo -e "Please enter your Shadowsocks server's IPv4 address for haproxy"
     read -p "(IPv4 is):" haproxyip
     valid_ip ${haproxyip}
-    if [ $? -eq 0 ]; then
+    if [[ $? -eq 0 ]]; then
         echo
         echo "---------------------------"
         echo "IP = ${haproxyip}"
@@ -177,7 +177,7 @@ config_haproxy(){
         echo "nameserver 8.8.4.4" >> /etc/resolv.conf
     fi
 
-    if [ -f /etc/haproxy/haproxy.cfg ]; then
+    if [[ -f /etc/haproxy/haproxy.cfg ]]; then
         cp -p /etc/haproxy/haproxy.cfg /etc/haproxy/haproxy.cfg.bak
     fi
 
@@ -216,7 +216,7 @@ install(){
         apt-get install -y haproxy
     fi
 
-    if [ -d /etc/haproxy ]; then
+    if [[ -d /etc/haproxy ]]; then
         echo "haproxy install success."
 
         echo "Config haproxy start..."
@@ -232,7 +232,7 @@ install(){
 
         # Start haproxy
         service haproxy start
-        if [ $? -eq 0 ]; then
+        if [[ $? -eq 0 ]]; then
             echo "haproxy start success..."
         else
             echo "haproxy start failure..."

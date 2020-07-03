@@ -54,7 +54,7 @@ plain='\033[0m'
 
 # Disable selinux
 disable_selinux(){
-    if [ -s /etc/selinux/config ] && grep 'SELINUX=enforcing' /etc/selinux/config; then
+    if [[ -s /etc/selinux/config ]] && grep 'SELINUX=enforcing' /etc/selinux/config; then
         sed -i 's/SELINUX=enforcing/SELINUX=disabled/g' /etc/selinux/config
         setenforce 0
     fi
@@ -92,13 +92,13 @@ check_sys(){
     fi
 
     if [[ "${checkType}" == "sysRelease" ]]; then
-        if [ "${value}" == "${release}" ]; then
+        if [[ "${value}" == "${release}" ]]; then
             return 0
         else
             return 1
         fi
     elif [[ "${checkType}" == "packageManager" ]]; then
-        if [ "${value}" == "${systemPackage}" ]; then
+        if [[ "${value}" == "${systemPackage}" ]]; then
             return 0
         else
             return 1
@@ -121,7 +121,7 @@ centosversion(){
         local code=$1
         local version="$(getversion)"
         local main_ver=${version%%.*}
-        if [ "$main_ver" == "$code" ]; then
+        if [[ "$main_ver" == "$code" ]]; then
             return 0
         else
             return 1
@@ -134,9 +134,9 @@ centosversion(){
 # Get public IP address
 get_ip(){
     local IP=$( ip addr | egrep -o '[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}' | egrep -v "^192\.168|^172\.1[6-9]\.|^172\.2[0-9]\.|^172\.3[0-2]\.|^10\.|^127\.|^255\.|^0\." | head -n 1 )
-    [ -z ${IP} ] && IP=$( wget -qO- -t1 -T2 ipv4.icanhazip.com )
-    [ -z ${IP} ] && IP=$( wget -qO- -t1 -T2 ipinfo.io/ip )
-    [ ! -z ${IP} ] && echo ${IP} || echo
+    [[ -z ${IP} ]] && IP=$( wget -qO- -t1 -T2 ipv4.icanhazip.com )
+    [[ -z ${IP} ]] && IP=$( wget -qO- -t1 -T2 ipinfo.io/ip )
+    [[ ! -z ${IP} ]] && echo ${IP} || echo
 }
 
 get_char(){
@@ -164,7 +164,7 @@ pre_install(){
     # Set shadowsocks config password
     echo "Please enter password for shadowsocks-python"
     read -p "(Default password: teddysun.com):" shadowsockspwd
-    [ -z "${shadowsockspwd}" ] && shadowsockspwd="teddysun.com"
+    [[ -z "${shadowsockspwd}" ]] && shadowsockspwd="teddysun.com"
     echo
     echo "---------------------------"
     echo "password = ${shadowsockspwd}"
@@ -176,10 +176,10 @@ pre_install(){
     dport=$(shuf -i 9000-19999 -n 1)
     echo "Please enter a port for shadowsocks-python [1-65535]"
     read -p "(Default port: ${dport}):" shadowsocksport
-    [ -z "$shadowsocksport" ] && shadowsocksport=${dport}
+    [[ -z "$shadowsocksport" ]] && shadowsocksport=${dport}
     expr ${shadowsocksport} + 1 &>/dev/null
-    if [ $? -eq 0 ]; then
-        if [ ${shadowsocksport} -ge 1 ] && [ ${shadowsocksport} -le 65535 ] && [ ${shadowsocksport:0:1} != 0 ]; then
+    if [[ $? -eq 0 ]]; then
+        if [[ ${shadowsocksport} -ge 1 ]] && [[ ${shadowsocksport} -le 65535 ]] && [[ ${shadowsocksport:0:1} != 0 ]]; then
             echo
             echo "---------------------------"
             echo "port = ${shadowsocksport}"
@@ -200,9 +200,9 @@ pre_install(){
         echo -e "${green}${i}${plain}) ${hint}"
     done
     read -p "Which cipher you'd select(Default: ${ciphers[0]}):" pick
-    [ -z "$pick" ] && pick=1
+    [[ -z "$pick" ]] && pick=1
     expr ${pick} + 1 &>/dev/null
-    if [ $? -ne 0 ]; then
+    if [[ $? -ne 0 ]]; then
         echo -e "[${red}Error${plain}] Please enter a number"
         continue
     fi
@@ -279,9 +279,9 @@ firewall_set(){
     echo -e "[${green}Info${plain}] firewall set start..."
     if centosversion 6; then
         /etc/init.d/iptables status > /dev/null 2>&1
-        if [ $? -eq 0 ]; then
+        if [[ $? -eq 0 ]]; then
             iptables -L -n | grep -i ${shadowsocksport} > /dev/null 2>&1
-            if [ $? -ne 0 ]; then
+            if [[ $? -ne 0 ]]; then
                 iptables -I INPUT -m state --state NEW -m tcp -p tcp --dport ${shadowsocksport} -j ACCEPT
                 iptables -I INPUT -m state --state NEW -m udp -p udp --dport ${shadowsocksport} -j ACCEPT
                 /etc/init.d/iptables save
@@ -294,7 +294,7 @@ firewall_set(){
         fi
     elif centosversion 7; then
         systemctl status firewalld > /dev/null 2>&1
-        if [ $? -eq 0 ]; then
+        if [[ $? -eq 0 ]]; then
             default_zone=$(firewall-cmd --get-default-zone)
             firewall-cmd --permanent --zone=${default_zone} --add-port=${shadowsocksport}/tcp
             firewall-cmd --permanent --zone=${default_zone} --add-port=${shadowsocksport}/udp
@@ -309,12 +309,12 @@ firewall_set(){
 # Install Shadowsocks
 install(){
     # Install libsodium
-    if [ ! -f /usr/lib/libsodium.a ]; then
+    if [[ ! -f /usr/lib/libsodium.a ]]; then
         cd ${cur_dir}
         tar zxf ${libsodium_file}.tar.gz
         cd ${libsodium_file}
         ./configure --prefix=/usr && make && make install
-        if [ $? -ne 0 ]; then
+        if [[ $? -ne 0 ]]; then
             echo -e "[${red}Error${plain}] libsodium install failed!"
             install_cleanup
             exit 1
@@ -325,7 +325,7 @@ install(){
     # Install Shadowsocks
     cd ${cur_dir}
     unzip -q shadowsocks-master.zip
-    if [ $? -ne 0 ];then
+    if [[ $? -ne 0 ]];then
         echo -e "[${red}Error${plain}] unzip shadowsocks-master.zip failed! please check unzip command."
         install_cleanup
         exit 1
@@ -334,7 +334,7 @@ install(){
     cd ${cur_dir}/shadowsocks-master
     python setup.py install --record /usr/local/shadowsocks_install.log
 
-    if [ -f /usr/bin/ssserver ] || [ -f /usr/local/bin/ssserver ]; then
+    if [[ -f /usr/bin/ssserver ]] || [[ -f /usr/local/bin/ssserver ]]; then
         chmod +x /etc/init.d/shadowsocks
         if check_sys packageManager yum; then
             chkconfig --add shadowsocks
@@ -374,10 +374,10 @@ uninstall_shadowsocks(){
     printf "Are you sure uninstall Shadowsocks? (y/n) "
     printf "\n"
     read -p "(Default: n):" answer
-    [ -z ${answer} ] && answer="n"
-    if [ "${answer}" == "y" ] || [ "${answer}" == "Y" ]; then
+    [[ -z ${answer} ]] && answer="n"
+    if [[ "${answer}" == "y" ]] || [[ "${answer}" == "Y" ]]; then
         ps -ef | grep -v grep | grep -i "ssserver" > /dev/null 2>&1
-        if [ $? -eq 0 ]; then
+        if [[ $? -eq 0 ]]; then
             /etc/init.d/shadowsocks stop
         fi
         if check_sys packageManager yum; then
@@ -390,7 +390,7 @@ uninstall_shadowsocks(){
         rm -f /var/run/shadowsocks.pid
         rm -f /etc/init.d/shadowsocks
         rm -f /var/log/shadowsocks.log
-        if [ -f /usr/local/shadowsocks_install.log ]; then
+        if [[ -f /usr/local/shadowsocks_install.log ]]; then
             cat /usr/local/shadowsocks_install.log | xargs rm -rf
         fi
         echo "Shadowsocks uninstall success!"
@@ -416,7 +416,7 @@ install_shadowsocks(){
 
 # Initialization step
 action=$1
-[ -z $1 ] && action=install
+[[ -z $1 ]] && action=install
 case "$action" in
     install|uninstall)
         ${action}_shadowsocks
