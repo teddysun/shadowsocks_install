@@ -16,8 +16,8 @@ libsodium_file='libsodium-stable'
 libsodium_url='https://download.libsodium.org/libsodium/releases/LATEST.tar.gz'
 
 mbedtls_file=$(wget --no-check-certificate -qO- https://api.github.com/repos/ARMmbed/mbedtls/releases/latest | grep 'tag_name' | cut -d\" -f4)
-[[ -z "${mbedtls_file}" ]] && mbedtls_file='mbedtls-2.16.6'
-mbedtls_url='https://tls.mbed.org/download/'"$mbedtls_file"'-apache.tgz'
+[[ -z "${mbedtls_file}" ]] && mbedtls_file='mbedtls-2.23.0'
+mbedtls_url='https://github.com/ARMmbed/mbedtls/archive/'"$mbedtls_file"'.tar.gz'
 
 # Stream Ciphers
 ciphers=(
@@ -106,8 +106,7 @@ check_installed(){
 }
 
 check_version(){
-    check_installed "ss-server"
-    if [[ $? -eq 0 ]]; then
+    if check_installed "ss-server"; then
         installed_ver=$(ss-server -h | grep shadowsocks-libev | cut -d' ' -f2)
         get_latest_version
         latest_ver=$(echo "${ver}" | sed -e 's/^[a-zA-Z]//g')
@@ -241,8 +240,7 @@ pre_install(){
         echo -e "Installed version: ${red}${installed_ver}${plain}"
         echo -e "Latest version: ${red}${latest_ver}${plain}"
         echo -e "[${green}Info${plain}] Upgrade shadowsocks libev to latest version..."
-        ps -ef | grep -v grep | grep -i "ss-server" > /dev/null 2>&1
-        if [[ $? -eq 0 ]]; then
+        if ps -ef | grep -v grep | grep -i "ss-server" > /dev/null 2>&1; then
             /etc/init.d/shadowsocks stop
         fi
     elif [[ ${status} -eq 2 ]]; then
@@ -269,8 +267,7 @@ pre_install(){
     echo -e "Please enter a port for shadowsocks-libev [1-65535]"
     read -rp "(Default port: ${dport}):" shadowsocksport
     [[ -z "$shadowsocksport" ]] && shadowsocksport=${dport}
-    expr "${shadowsocksport}" + 1 &>/dev/null
-    if [[ $? -eq 0 ]]; then
+    if expr "${shadowsocksport}" + 1 &>/dev/null; then
         if [[ "${shadowsocksport}" -ge 1 ]] && [[ "${shadowsocksport}" -le 65535 ]] && [[ "${shadowsocksport:0:1}" != 0 ]]; then
             echo
             echo "---------------------------"
@@ -293,8 +290,7 @@ pre_install(){
     done
     read -rp "Which cipher you'd select(Default: ${ciphers[0]}):" pick
     [[ -z "$pick" ]] && pick=1
-    expr ${pick} + 1 &>/dev/null
-    if [[ $? -ne 0 ]]; then
+    if ! expr ${pick} + 1 &>/dev/null; then
         echo -e "[${red}Error${plain}] Please enter a number"
         continue
     fi
@@ -328,8 +324,7 @@ download() {
         echo -e "[${green}Info${plain}] ${filename} [found]"
     else
         echo -e "[${green}Info${plain}] ${filename} not found, download now..."
-        wget --no-check-certificate -cq -t3 -T60 -O "${1}" "${2}"
-        if [[ $? -eq 0 ]]; then
+        if wget --no-check-certificate -cq -t3 -T60 -O "${1}" "${2}"; then
             echo -e "[${green}Info${plain}] ${filename} download completed..."
         else
             echo -e "[${red}Error${plain}] Failed to download ${filename}, please download it to ${cur_dir} directory manually and try again."
@@ -344,7 +339,7 @@ download_files(){
 
     download "${shadowsocks_libev_ver}.tar.gz" "${download_link}"
     download "${libsodium_file}.tar.gz" "${libsodium_url}"
-    download "${mbedtls_file}-apache.tgz" "${mbedtls_url}"
+    download "${mbedtls_file}.tar.gz" "${mbedtls_url}"
     download "/etc/init.d/shadowsocks" "${init_script_link}"
 }
 
@@ -353,8 +348,7 @@ install_libsodium() {
         cd "${cur_dir}" || exit
         tar zxf ${libsodium_file}.tar.gz
         cd ${libsodium_file} || exit
-        ./configure --prefix=/usr && make && make install
-        if [[ $? -ne 0 ]]; then
+        if ! ./configure --prefix=/usr && make && make install; then
             echo -e "[${red}Error${plain}] ${libsodium_file} install failed."
             exit 1
         fi
@@ -366,11 +360,10 @@ install_libsodium() {
 install_mbedtls() {
     if [[ ! -f /usr/lib/libmbedtls.a ]]; then
         cd "${cur_dir}" || exit
-        tar xf "${mbedtls_file}"-apache.tgz
+        tar xf "${mbedtls_file}.tar.gz"
         cd "${mbedtls_file}" || exit
         make SHARED=1 CFLAGS=-fPIC
-        make DESTDIR=/usr install
-        if [[ $? -ne 0 ]]; then
+        if ! make DESTDIR=/usr install; then
             echo -e "[${red}Error${plain}] ${mbedtls_file} install failed."
             exit 1
         fi
@@ -414,13 +407,11 @@ install_shadowsocks(){
     tar zxf "${shadowsocks_libev_ver}".tar.gz
     cd "${shadowsocks_libev_ver}" || exit
     ./configure --disable-documentation
-    make && make install
-    if [[ $? -eq 0 ]]; then
+    if make && make install; then
         chmod +x /etc/init.d/shadowsocks
         update-rc.d -f shadowsocks defaults
         # Start shadowsocks
-        /etc/init.d/shadowsocks start
-        if [[ $? -eq 0 ]]; then
+        if /etc/init.d/shadowsocks start; then
             echo -e "[${green}Info${plain}] Shadowsocks-libev start success!"
         else
             echo -e "[${yellow}Warning${plain}] Shadowsocks-libev start failure!"
@@ -434,7 +425,7 @@ install_shadowsocks(){
     cd "${cur_dir}" || exit
     rm -rf "${shadowsocks_libev_ver}" "${shadowsocks_libev_ver}".tar.gz
     rm -rf ${libsodium_file} ${libsodium_file}.tar.gz
-    rm -rf "${mbedtls_file}" "${mbedtls_file}"-apache.tgz
+    rm -rf "${mbedtls_file}" "${mbedtls_file}.tar.gz"
 
     clear
     echo
@@ -468,8 +459,7 @@ uninstall_shadowsocks_libev(){
     [[ -z "${answer}" ]] && answer="n"
 
     if [[ "${answer}" == "y" ]] || [[ "${answer}" == "Y" ]]; then
-        ps -ef | grep -v grep | grep -i "ss-server" > /dev/null 2>&1
-        if [[ $? -eq 0 ]]; then
+        if ps -ef | grep -v grep | grep -i "ss-server" > /dev/null 2>&1; then
             /etc/init.d/shadowsocks stop
         fi
         update-rc.d -f shadowsocks remove
