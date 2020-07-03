@@ -908,9 +908,9 @@ install_mbedtls(){
     if [[ ! -f /usr/lib/libmbedtls.a ]] || [[ $upgrade_indicator -eq 1 ]]; then
         cd "${cur_dir}" || exit
         download "${mbedtls_file}.tar.gz" "${mbedtls_url}"
-        ## If it is necessary to extract source code into current directory:
-        # tmp_dir_4_mbedtls="$(mktemp -dup "${cur_dir}")"
-        tmp_dir_4_mbedtls="$(mktemp -du)"
+        # If it is necessary to extract source code into current directory:
+        tmp_dir_4_mbedtls="$(mktemp -dup "${cur_dir}")"
+        # tmp_dir_4_mbedtls="$(mktemp -du)"
         mkdir -p "$tmp_dir_4_mbedtls" && \
         tar -xf "${mbedtls_file}.tar.gz" --strip-components=1 -C "$tmp_dir_4_mbedtls"
         cd "$tmp_dir_4_mbedtls" || exit
@@ -1214,13 +1214,13 @@ install_main(){
 
 install_cleanup(){
     cd "${cur_dir}" || exit
-    rm -rf simple-obfs
-    rm -rf ${libsodium_file} ${libsodium_file}.tar.gz
-    rm -rf "${mbedtls_file}" "${mbedtls_file}.tar.gz"
-    rm -rf ${shadowsocks_python_file} ${shadowsocks_python_file}.zip
-    rm -rf ${shadowsocks_r_file} ${shadowsocks_r_file}.tar.gz
-    rm -rf ${shadowsocks_go_file_64}.gz ${shadowsocks_go_file_32}.gz
-    rm -rf "${shadowsocks_libev_file}" "${shadowsocks_libev_file}".tar.gz
+    rm -rf 'simple-obfs'
+    rm -rf "$libsodium_file" "${libsodium_file}.tar.gz"
+    rm -rf "$mbedtls_file" "$tmp_dir_4_mbedtls" "${mbedtls_file}.tar.gz"
+    rm -rf "$shadowsocks_python_file" "${shadowsocks_python_file}.zip"
+    rm -rf "$shadowsocks_r_file" "${shadowsocks_r_file}.tar.gz"
+    rm -rf "${shadowsocks_go_file_64}.gz" "${shadowsocks_go_file_32}.gz"
+    rm -rf "$shadowsocks_libev_file" "${shadowsocks_libev_file}.tar.gz"
 }
 
 install_shadowsocks(){

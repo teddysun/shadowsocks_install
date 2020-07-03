@@ -377,9 +377,9 @@ install_libsodium() {
 install_mbedtls() {
     if [[ ! -f /usr/lib/libmbedtls.a ]]; then
         cd "${cur_dir}" || exit
-        ## If it is necessary to extract source code into current directory:
-        # tmp_dir_4_mbedtls="$(mktemp -dup "${cur_dir}")"
-        tmp_dir_4_mbedtls="$(mktemp -du)"
+        # If it is necessary to extract source code into current directory:
+        tmp_dir_4_mbedtls="$(mktemp -dup "${cur_dir}")"
+        # tmp_dir_4_mbedtls="$(mktemp -du)"
         mkdir -p "$tmp_dir_4_mbedtls" && \
         tar -xf "${mbedtls_file}.tar.gz" --strip-components=1 -C "$tmp_dir_4_mbedtls"
         cd "$tmp_dir_4_mbedtls" || exit
@@ -474,9 +474,9 @@ install_shadowsocks(){
     fi
 
     cd "${cur_dir}" || exit
-    rm -rf "${shadowsocks_libev_ver}" "${shadowsocks_libev_ver}".tar.gz
-    rm -rf ${libsodium_file} ${libsodium_file}.tar.gz
-    rm -rf "${mbedtls_file}" "${mbedtls_file}.tar.gz"
+    rm -rf "$shadowsocks_libev_ver" "${shadowsocks_libev_ver}.tar.gz"
+    rm -rf "$libsodium_file" "${libsodium_file}.tar.gz"
+    rm -rf "$mbedtls_file" "$tmp_dir_4_mbedtls" "${mbedtls_file}.tar.gz"
 
     clear
     echo
