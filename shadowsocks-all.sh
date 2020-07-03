@@ -37,6 +37,9 @@ plain='\033[0m'
 cur_dir=$( pwd )
 software=(Shadowsocks-Python ShadowsocksR Shadowsocks-Go Shadowsocks-libev)
 
+# For the usage of this variable, please refer to Function `install_prepare_upgrade_args()`
+upgrade_args=0  # binay(000)
+
 libsodium_file='libsodium-stable'
 libsodium_url='https://download.libsodium.org/libsodium/releases/LATEST.tar.gz'
 
@@ -157,6 +160,42 @@ tls1.2_ticket_fastauth_compatible
 obfs_libev=(http tls)
 # initialization parameter
 libev_obfs=''
+
+func_decision_with_TRUE_or_FALSE_as_default_value(){
+    local arg_1
+    arg_1=$(echo "$1" | tr '[:upper:]' '[:lower:]')
+    while true
+    do
+    if [[ "x$arg_1" = "xtrue" ]]; then
+        read -rp '(default: y):' tmp_var_user_input
+        [[ -z "$tmp_var_user_input" ]] && tmp_var_user_input='y'
+    elif [[ "x$arg_1" = "xfalse" ]]; then
+        read -rp '(default: n):' tmp_var_user_input
+        [[ -z "$tmp_var_user_input" ]] && tmp_var_user_input='n'
+    else
+        exit 1
+    fi
+    local_var_user_decision_boolean=$(echo "$tmp_var_user_input" | tr '[:upper:]' '[:lower:]')
+
+    case "${local_var_user_decision_boolean}" in
+        y|n)
+        echo
+        echo "You choose = ${local_var_user_decision_boolean}"
+        echo
+        break
+        ;;
+        *)
+        echo -e "[${red}Error${plain}] Please only enter [y/n]"
+        ;;
+    esac
+    done
+
+    if [[ "${local_var_user_decision_boolean}" == 'y' ]]; then
+        return 0
+    else
+        return 1
+    fi
+}
 
 disable_selinux(){
     if [[ -s /etc/selinux/config ]] && grep 'SELINUX=enforcing' /etc/selinux/config; then
@@ -763,25 +802,9 @@ install_prepare_obfs(){
 
 install_prepare_libev_obfs(){
     if autoconf_version || centosversion 6; then
-        while true
-        do
         echo -e "Do you want install simple-obfs for ${software[${selected}-1]}? [y/n]"
-        read -p '(default: n):' libev_obfs
-        [[ -z "$libev_obfs" ]] && libev_obfs=n
-        case "${libev_obfs}" in
-            y|Y|n|N)
-            echo
-            echo "You choose = ${libev_obfs}"
-            echo
-            break
-            ;;
-            *)
-            echo -e "[${red}Error${plain}] Please only enter [y/n]"
-            ;;
-        esac
-        done
-
-        if [[ "${libev_obfs}" == 'y' ]] || [[ "${libev_obfs}" == 'Y' ]]; then
+        # Option to `install simple-obfs` is set to FALSE by default but is explicitly specified as TRUE by the user.
+        if func_decision_with_TRUE_or_FALSE_as_default_value 'false'; then
             while true
             do
             echo -e 'Please select obfs for simple-obfs:'
@@ -811,8 +834,37 @@ install_prepare_libev_obfs(){
     fi
 }
 
-install_prepare(){
+#######################################
+# $upgrade_args is used to generate $upgrade_indicator in all the dependencies installation functions.
+# Its value follows the following rules:
+# binary(100) - Indicate script to only upgrade shadowsocks, is currently reserved for future change.
+# binary(010) - Indicate script to only upgrade libsodium
+# binary(001) - Indicate script to only upgrade mbedtls
+#######################################
+install_prepare_upgrade_args(){
 
+    local default_boolean_value_4_dependencies='false'
+    ## echo -e "[${green}Info${plain}] Do you want this script to upgrade and overwrite existing shadowsocks installation?"
+    ## echo
+    ## echo -e "[${yellow}Warning${plain}] Please be noticed that all changes you have previously made to the configuration file will be lost!"
+    ## # Option to `upgrade shadowsocks` is set to FALSE by default but is explicitly specified as TRUE by the user.
+    ## if func_decision_with_TRUE_or_FALSE_as_default_value 'false'; then
+    ##     upgrade_args=$(( upgrade_args | 4 ))  # [$upgrade_args] bitwise OR [binary(100)]
+    ##     default_boolean_value_4_dependencies='true'
+    ## fi
+
+    # Option to `upgrade dependencies` is set to TRUE by default if the user choose to upgrade shadowsocks.
+    echo -e "[${green}Info${plain}] Do you want this script to upgrade and overwrite existing libsodium dependency?"
+    if func_decision_with_TRUE_or_FALSE_as_default_value "$default_boolean_value_4_dependencies"; then
+        upgrade_args=$(( upgrade_args | 2 ))  # [$upgrade_args] bitwise OR [binary(010)]
+    fi
+    echo -e "[${green}Info${plain}] Do you want this script to upgrade and overwrite existing mbedtls dependency?"
+    if func_decision_with_TRUE_or_FALSE_as_default_value "$default_boolean_value_4_dependencies"; then
+        upgrade_args=$(( upgrade_args | 1 ))  # [$upgrade_args] bitwise OR [binary(001)]
+    fi
+}
+
+install_prepare(){
     if  [[ "${selected}" == '1' || "${selected}" == '3' || "${selected}" == '4' ]]; then
         install_prepare_password
         install_prepare_port
@@ -827,15 +879,16 @@ install_prepare(){
         install_prepare_protocol
         install_prepare_obfs
     fi
+    install_prepare_upgrade_args
 
     echo
     echo 'Press any key to start...or Press Ctrl+C to cancel'
     char=$(get_char)
-
 }
 
 install_libsodium(){
-    if [[ ! -f /usr/lib/libsodium.a ]]; then
+    local upgrade_indicator=$(( upgrade_args & 2 ))  # [$upgrade_args] bitwise AND [binary(010)]
+    if [[ ! -f /usr/lib/libsodium.a ]] || [[ $upgrade_indicator -eq 2 ]]; then
         cd "${cur_dir}" || exit
         download "${libsodium_file}.tar.gz" "${libsodium_url}"
         tar zxf ${libsodium_file}.tar.gz
@@ -851,7 +904,8 @@ install_libsodium(){
 }
 
 install_mbedtls(){
-    if [[ ! -f /usr/lib/libmbedtls.a ]]; then
+    local upgrade_indicator=$(( upgrade_args & 1 ))  # [$upgrade_args] bitwise AND [binary(001)]
+    if [[ ! -f /usr/lib/libmbedtls.a ]] || [[ $upgrade_indicator -eq 1 ]]; then
         cd "${cur_dir}" || exit
         download "${mbedtls_file}-apache.tgz" "${mbedtls_url}"
         tar xf "${mbedtls_file}"-apache.tgz
