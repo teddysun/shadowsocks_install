@@ -6,7 +6,7 @@
 
 It is a port of [shadowsocks][2] created by @zonyitoo.
 
-Based on alpine with latest version [shadowsocks-libev](https://github.com/shadowsocks/shadowsocks-libev) and [simple-obfs](https://github.com/shadowsocks/simple-obfs) and [v2ray-plugin](https://github.com/teddysun/v2ray-plugin) ( based [v2ray-core](https://github.com/v2fly/v2ray-core) v4.32.0 ).
+Based on alpine with latest version [shadowsocks-rust](https://github.com/shadowsocks/shadowsocks-rust) and [simple-obfs](https://github.com/shadowsocks/simple-obfs) and [v2ray-plugin](https://github.com/teddysun/v2ray-plugin) ( based [v2ray-core](https://github.com/v2fly/v2ray-core) v4.32.0 ).
 
 Docker images are built for quick deployment in various computing cloud providers.
 
