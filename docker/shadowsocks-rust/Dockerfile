@@ -27,7 +27,7 @@ RUN set -ex \
 	&& cp -pv target/release/ssserver /root/bin \
 	&& cp -pv target/release/ssurl /root/bin
 
-FROM alpine:latest
+FROM alpine:edge
 LABEL maintainer="Teddysun <i@teddysun.com>"
 
 COPY --from=builder /root/bin/obfs-local /usr/bin/
