@@ -1,0 +1,59 @@
+# Dockerfile for shadowsocks-rust based alpine
+# Copyright (C) 2020 Teddysun <i@teddysun.com>
+# Reference URL:
+# https://github.com/shadowsocks/shadowsocks-rust
+# https://github.com/shadowsocks/simple-obfs
+# https://github.com/shadowsocks/v2ray-plugin
+
+FROM alpine:edge AS builder
+
+RUN set -ex \
+	&& runDeps="git build-base c-ares-dev autoconf automake libev-dev libtool libsodium-dev linux-headers mbedtls-dev pcre-dev openssl-dev cargo" \
+	&& apk add --no-cache --virtual .build-deps ${runDeps} \
+	&& mkdir -p /root/obfs \
+	&& cd /root/obfs \
+	&& git clone --depth=1 https://github.com/shadowsocks/simple-obfs.git . \
+	&& git submodule update --init --recursive \
+	&& ./autogen.sh \
+	&& ./configure --prefix=/root --disable-documentation \
+	&& make install \
+	&& mkdir -p /root/rust \
+	&& cd /root/rust \
+	&& VERSION=$(wget --no-check-certificate -qO- https://api.github.com/repos/shadowsocks/shadowsocks-rust/releases/latest | grep 'tag_name' | cut -d\" -f4) \
+	&& git clone -b ${VERSION} --depth=1 https://github.com/shadowsocks/shadowsocks-rust.git . \
+	&& cargo build --release --features "aes-pmac-siv local-redir" \
+	&& cp -pv target/release/sslocal /root/bin \
+	&& cp -pv target/release/ssmanager /root/bin \
+	&& cp -pv target/release/ssserver /root/bin \
+	&& cp -pv target/release/ssurl /root/bin
+
+FROM alpine:latest
+LABEL maintainer="Teddysun <i@teddysun.com>"
+
+COPY --from=builder /root/bin/obfs-local /usr/bin/
+COPY --from=builder /root/bin/obfs-server /usr/bin/
+COPY --from=builder /root/bin/sslocal /usr/bin/
+COPY --from=builder /root/bin/ssmanager /usr/bin/
+COPY --from=builder /root/bin/ssserver /usr/bin/
+COPY --from=builder /root/bin/ssurl /usr/bin/
+COPY v2ray-plugin.sh /root/v2ray-plugin.sh
+COPY config_sample.json /etc/shadowsocks-rust/config.json
+
+WORKDIR /root
+RUN set -ex \
+	&& apk add --no-cache \
+		tzdata \
+		rng-tools \
+		ca-certificates \
+		libgcc \
+		$(scanelf --needed --nobanner /usr/bin/ss* \
+		| awk '{ gsub(/,/, "\nso:", $2); print "so:" $2 }' \
+		| xargs -r apk info --installed \
+		| sort -u) \
+	&& chmod +x /root/v2ray-plugin.sh \
+	&& /root/v2ray-plugin.sh \
+	&& rm -f /root/v2ray-plugin.sh
+
+VOLUME /etc/shadowsocks-rust
+ENV TZ=Asia/Shanghai
+CMD [ "/usr/bin/ssserver", "-c", "/etc/shadowsocks-rust/config.json" ]
