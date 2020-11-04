@@ -43,7 +43,6 @@ A sample in JSON like below:
     "password":"password0",
     "timeout":300,
     "method":"aes-256-gcm",
-    "fast_open":true,
     "nameserver":"8.8.8.8",
     "mode":"tcp_and_udp"
 }
@@ -58,7 +57,6 @@ If you want to enable **simple-obfs**, a sample in JSON like below:
     "password":"password0",
     "timeout":300,
     "method":"aes-256-gcm",
-    "fast_open":true,
     "nameserver":"8.8.8.8",
     "mode":"tcp_and_udp",
     "plugin":"obfs-server",
@@ -75,7 +73,6 @@ If you want to enable **v2ray-plugin**, a sample in JSON like below:
     "password":"password0",
     "timeout":300,
     "method":"aes-256-gcm",
-    "fast_open":true,
     "nameserver":"8.8.8.8",
     "mode":"tcp_and_udp",
     "plugin":"v2ray-plugin",
