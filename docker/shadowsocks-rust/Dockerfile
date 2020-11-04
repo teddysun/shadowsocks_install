@@ -21,7 +21,7 @@ RUN set -ex \
 	&& cd /root/rust \
 	&& VERSION=$(wget --no-check-certificate -qO- https://api.github.com/repos/shadowsocks/shadowsocks-rust/releases/latest | grep 'tag_name' | cut -d\" -f4) \
 	&& git clone -b ${VERSION} --depth=1 https://github.com/shadowsocks/shadowsocks-rust.git . \
-	&& cargo build --release --features "aes-pmac-siv local-redir" \
+	&& cargo build --release --features "aes-pmac-siv local-redir" --verbose \
 	&& cp -pv target/release/sslocal /root/bin \
 	&& cp -pv target/release/ssmanager /root/bin \
 	&& cp -pv target/release/ssserver /root/bin \
@@ -46,7 +46,7 @@ RUN set -ex \
 		rng-tools \
 		ca-certificates \
 		libgcc \
-		$(scanelf --needed --nobanner /usr/bin/ss* \
+		$(scanelf --needed --nobanner /usr/bin/obfs-* /usr/bin/ss* \
 		| awk '{ gsub(/,/, "\nso:", $2); print "so:" $2 }' \
 		| xargs -r apk info --installed \
 		| sort -u) \
