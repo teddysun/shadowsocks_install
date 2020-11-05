@@ -26,7 +26,7 @@ RUN set -ex \
 	&& cd /root \
 	&& chmod +x /root/shadowsocks-rust-alpine.sh \
 	&& /root/shadowsocks-rust-alpine.sh "${TARGETPLATFORM}" \
-	&& rm -f /root/shadowsocks-rust-alpine.sh
+	&& rm -f /root/shadowsocks-rust-alpine.sh \
 	&& apk add --no-cache \
 		tzdata \
 		rng-tools \
