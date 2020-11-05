@@ -5,8 +5,11 @@
 # https://github.com/shadowsocks/simple-obfs
 # https://github.com/shadowsocks/v2ray-plugin
 
-FROM alpine:edge AS builder
+FROM alpine:edge
 
+WORKDIR /root
+COPY v2ray-plugin.sh /root/v2ray-plugin.sh
+COPY config_sample.json /etc/shadowsocks-rust/config.json
 RUN set -ex \
 	&& runDeps="git build-base c-ares-dev autoconf automake libev-dev libtool libsodium-dev linux-headers mbedtls-dev pcre-dev openssl-dev cargo" \
 	&& apk add --no-cache --virtual .build-deps ${runDeps} \
@@ -15,32 +18,17 @@ RUN set -ex \
 	&& git clone --depth=1 https://github.com/shadowsocks/simple-obfs.git . \
 	&& git submodule update --init --recursive \
 	&& ./autogen.sh \
-	&& ./configure --prefix=/root --disable-documentation \
+	&& ./configure --prefix=/usr --disable-documentation \
 	&& make install \
 	&& mkdir -p /root/rust \
 	&& cd /root/rust \
 	&& VERSION=$(wget --no-check-certificate -qO- https://api.github.com/repos/shadowsocks/shadowsocks-rust/releases/latest | grep 'tag_name' | cut -d\" -f4) \
 	&& git clone -b ${VERSION} --depth=1 https://github.com/shadowsocks/shadowsocks-rust.git . \
 	&& cargo build --release --features "aes-pmac-siv local-redir" --verbose \
-	&& cp -pv target/release/sslocal /root/bin \
-	&& cp -pv target/release/ssmanager /root/bin \
-	&& cp -pv target/release/ssserver /root/bin \
-	&& cp -pv target/release/ssurl /root/bin
-
-FROM alpine:edge
-LABEL maintainer="Teddysun <i@teddysun.com>"
-
-COPY --from=builder /root/bin/obfs-local /usr/bin/
-COPY --from=builder /root/bin/obfs-server /usr/bin/
-COPY --from=builder /root/bin/sslocal /usr/bin/
-COPY --from=builder /root/bin/ssmanager /usr/bin/
-COPY --from=builder /root/bin/ssserver /usr/bin/
-COPY --from=builder /root/bin/ssurl /usr/bin/
-COPY v2ray-plugin.sh /root/v2ray-plugin.sh
-COPY config_sample.json /etc/shadowsocks-rust/config.json
-
-WORKDIR /root
-RUN set -ex \
+	&& cp -pv target/release/sslocal /usr/bin \
+	&& cp -pv target/release/ssmanager /usr/bin \
+	&& cp -pv target/release/ssserver /usr/bin \
+	&& cp -pv target/release/ssurl /usr/bin \
 	&& apk add --no-cache \
 		tzdata \
 		rng-tools \
@@ -50,6 +38,9 @@ RUN set -ex \
 		| awk '{ gsub(/,/, "\nso:", $2); print "so:" $2 }' \
 		| xargs -r apk info --installed \
 		| sort -u) \
+	&& apk del .build-deps \
+	&& cd /root \
+	&& rm -rf /root/obfs /root/rust \
 	&& chmod +x /root/v2ray-plugin.sh \
 	&& /root/v2ray-plugin.sh \
 	&& rm -f /root/v2ray-plugin.sh

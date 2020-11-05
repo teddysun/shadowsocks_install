@@ -5,7 +5,7 @@
 # https://github.com/shadowsocks/simple-obfs
 # https://github.com/shadowsocks/v2ray-plugin
 
-FROM --platform=${TARGETPLATFORM} alpine:edge AS builder
+FROM --platform=${TARGETPLATFORM} alpine:edge
 LABEL maintainer="Teddysun <i@teddysun.com>"
 
 ARG TARGETPLATFORM
