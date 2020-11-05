@@ -21,10 +21,10 @@ else
             ARCH="x86_64-unknown-linux-gnu"
             ;;
         linux/arm/v6)
-            ARCH="arm-unknown-linux-gnueabihf"
+            ARCH=""
             ;;
         linux/arm/v7)
-            ARCH=""
+            ARCH="arm-unknown-linux-gnueabihf"
             ;;
         linux/arm64|linux/arm64/v8)
             ARCH="aarch64-unknown-linux-gnu"
