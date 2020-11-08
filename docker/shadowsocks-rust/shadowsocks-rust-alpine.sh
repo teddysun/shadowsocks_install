@@ -21,7 +21,7 @@ else
             ARCH="x86_64-unknown-linux-musl"
             ;;
         linux/arm/v6)
-            ARCH="arm-unknown-linux-musleabihf"
+            ARCH="arm-unknown-linux-musleabi"
             ;;
         linux/arm/v7)
             ARCH="arm-unknown-linux-musleabihf"
