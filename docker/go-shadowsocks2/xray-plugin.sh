@@ -5,8 +5,7 @@
 # Copyright (C) 2019 - 2021 Teddysun <i@teddysun.com>
 #
 # Reference URL:
-# https://github.com/shadowsocks/v2ray-plugin
-# https://github.com/teddysun/v2ray-plugin
+# https://github.com/teddysun/xray-plugin
 
 PLATFORM=$1
 if [ -z "$PLATFORM" ]; then
@@ -40,12 +39,12 @@ else
     esac
 fi
 [ -z "${ARCH}" ] && echo "Error: Not supported OS Architecture" && exit 1
-# Download v2ray-plugin binary file
-V2RAY_PLUGIN_FILE="v2ray-plugin_linux_${ARCH}"
-echo "Downloading v2ray-plugin binary file: ${V2RAY_PLUGIN_FILE}"
-wget -O /usr/bin/v2ray-plugin https://dl.lamp.sh/files/${V2RAY_PLUGIN_FILE} > /dev/null 2>&1
+# Download xray-plugin binary file
+XRAY_PLUGIN_FILE="xray-plugin_linux_${ARCH}"
+echo "Downloading xray-plugin binary file: ${XRAY_PLUGIN_FILE}"
+wget -O /usr/bin/xray-plugin https://dl.lamp.sh/files/${XRAY_PLUGIN_FILE} > /dev/null 2>&1
 if [ $? -ne 0 ]; then
-    echo "Error: Failed to download v2ray-plugin binary file: ${V2RAY_PLUGIN_FILE}" && exit 1
+    echo "Error: Failed to download xray-plugin binary file: ${XRAY_PLUGIN_FILE}" && exit 1
 fi
-chmod +x /usr/bin/v2ray-plugin
-echo "Download v2ray-plugin binary file: ${V2RAY_PLUGIN_FILE} completed"
+chmod +x /usr/bin/xray-plugin
+echo "Download xray-plugin binary file: ${XRAY_PLUGIN_FILE} completed"

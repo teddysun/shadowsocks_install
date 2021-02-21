@@ -2,7 +2,7 @@
 
 [go-shadowsocks2][1] is a fresh implementation of Shadowsocks in Go which can help you get through firewalls.
 
-Based on alpine with latest version [go-shadowsocks2][1] and [v2ray-plugin][6].
+Based on alpine with latest version [go-shadowsocks2][1] and [v2ray-plugin][6] + [xray-plugin][7].
 
 Docker images are built for quick deployment in various computing cloud providers.
 
@@ -26,10 +26,14 @@ It can be found at [Docker Hub][5].
 
 You **must set environment variable** at first.
 
-- `SERVER_PORT`: Server listening on port, defaults to `9000`;
-- `METHOD`: Encryption method to use, available ciphers: `AEAD_AES_128_GCM`, `AEAD_AES_256_GCM`, `AEAD_CHACHA20_POLY1305`, defaults to `AEAD_CHACHA20_POLY1305`;
-- `PASSWORD`: Your own password, defaults to `teddysun.com`;
-- `ARGS`: Additional arguments, for example: `-plugin v2ray-plugin -plugin-opts "server"`. For more `v2ray-plugin` configrations please visit v2ray-plugin [usage][7].
+- `SERVER_PORT`: Server listening on port, default  `9000`;
+- `METHOD`: Encryption method to use, available ciphers: `AEAD_AES_128_GCM`, `AEAD_AES_256_GCM`, `AEAD_CHACHA20_POLY1305`, default `AEAD_CHACHA20_POLY1305`;
+- `PASSWORD`: Your own password, default `teddysun.com`;
+- `ARGS`: Additional arguments, for example: `-plugin v2ray-plugin -plugin-opts "server"` or `-plugin xray-plugin -plugin-opts "server"`. 
+
+For more `v2ray-plugin` configrations please visit v2ray-plugin [usage][8].
+
+For more `xray-plugin` configrations please visit xray-plugin [usage][9].
 
 **1.** There is an example to start a container with default environment variables:
 
@@ -43,10 +47,16 @@ $ docker run -d -p 9000:9000 -p 9000:9000/udp --name go-ss --restart=always tedd
 $ docker run -d -p 8989:8989 -p 8989:8989/udp --name go-ss --restart=always -e SERVER_PORT=8989 -e METHOD=AEAD_AES_256_GCM -e PASSWORD=password00 teddysun/go-shadowsocks2
 ```
 
-**3.** There is an example to start a container that listen on port `8989`, using `AEAD_AES_256_GCM` AEAD cipher with password `password00` and supported SIP003 plugins:
+**3.** There is an example to start a container that listen on port `8989`, using `AEAD_AES_256_GCM` AEAD cipher with password `password00` and supported SIP003 plugins `v2ray-plugin` over websocket (HTTP):
 
 ```bash
 $ docker run -d -p 8989:8989 -p 8989:8989/udp --name go-ss --restart=always -e SERVER_PORT=8989 -e METHOD=AEAD_AES_256_GCM -e PASSWORD=password00 -e ARGS="-plugin v2ray-plugin -plugin-opts "server"" teddysun/go-shadowsocks2
+```
+
+**4.** There is an example to start a container that listen on port `8989`, using `AEAD_AES_256_GCM` AEAD cipher with password `password00` and supported SIP003 plugins `xray-plugin` over websocket (HTTP):
+
+```bash
+$ docker run -d -p 8989:8989 -p 8989:8989/udp --name go-ss --restart=always -e SERVER_PORT=8989 -e METHOD=AEAD_AES_256_GCM -e PASSWORD=password00 -e ARGS="-plugin xray-plugin -plugin-opts "server"" teddysun/go-shadowsocks2
 ```
 
 **Warning**: The port number must be opened in firewall.
@@ -56,5 +66,7 @@ $ docker run -d -p 8989:8989 -p 8989:8989/udp --name go-ss --restart=always -e S
 [3]: https://docs.docker.com/
 [4]: https://docs.docker.com/install/
 [5]: https://hub.docker.com/r/teddysun/go-shadowsocks2/
-[6]: https://github.com/shadowsocks/v2ray-plugin
-[7]: https://github.com/shadowsocks/v2ray-plugin#usage
+[6]: https://github.com/teddysun/v2ray-plugin
+[7]: https://github.com/teddysun/xray-plugin
+[8]: https://github.com/teddysun/v2ray-plugin#usage
+[9]: https://github.com/teddysun/xray-plugin#usage
