@@ -1,15 +1,18 @@
 # Dockerfile for shadowsocks-libev based alpine
-# Copyright (C) 2018 - 2020 Teddysun <i@teddysun.com>
+# Copyright (C) 2018 - 2021 Teddysun <i@teddysun.com>
 # Reference URL:
 # https://github.com/shadowsocks/shadowsocks-libev
 # https://github.com/shadowsocks/simple-obfs
 # https://github.com/shadowsocks/v2ray-plugin
+# https://github.com/teddysun/v2ray-plugin
+# https://github.com/teddysun/xray-plugin
 
 FROM alpine:latest
 LABEL maintainer="Teddysun <i@teddysun.com>"
 
 WORKDIR /root
 COPY v2ray-plugin.sh /root/v2ray-plugin.sh
+COPY xray-plugin.sh /root/xray-plugin.sh
 COPY config_sample.json /etc/shadowsocks-libev/config.json
 RUN set -ex \
 	&& runDeps="git build-base c-ares-dev autoconf automake libev-dev libtool libsodium-dev linux-headers mbedtls-dev pcre-dev" \
@@ -39,9 +42,10 @@ RUN set -ex \
 	&& apk del .build-deps \
 	&& cd /root \
 	&& rm -rf /root/obfs /root/libev \
-	&& chmod +x /root/v2ray-plugin.sh \
+	&& chmod +x /root/v2ray-plugin.sh /root/xray-plugin.sh \
 	&& /root/v2ray-plugin.sh \
-	&& rm -f /root/v2ray-plugin.sh
+	&& /root/xray-plugin.sh \
+	&& rm -f /root/v2ray-plugin.sh /root/xray-plugin.sh
 
 VOLUME /etc/shadowsocks-libev
 ENV TZ=Asia/Shanghai
