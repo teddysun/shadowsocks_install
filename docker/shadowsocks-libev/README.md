@@ -4,7 +4,7 @@
 
 It is a port of [shadowsocks][2] created by @clowwindy maintained by @madeye and @linusyang.
 
-Based on alpine with latest version [shadowsocks-libev](https://github.com/shadowsocks/shadowsocks-libev) and [simple-obfs](https://github.com/shadowsocks/simple-obfs) and [v2ray-plugin](https://github.com/shadowsocks/v2ray-plugin).
+Based on alpine with latest version [shadowsocks-libev](https://github.com/shadowsocks/shadowsocks-libev) and [simple-obfs](https://github.com/shadowsocks/simple-obfs), [v2ray-plugin](https://github.com/teddysun/v2ray-plugin), [xray-plugin](https://github.com/teddysun/xray-plugin).
 
 Docker images are built for quick deployment in various computing cloud providers.
 
@@ -81,7 +81,26 @@ If you want to enable **v2ray-plugin**, a sample in JSON like below:
 }
 ```
 
-For more v2ray-plugin configrations please visit [v2ray-plugin usage][6].
+If you want to enable **xray-plugin**, a sample in JSON like below:
+
+```
+{
+    "server":"0.0.0.0",
+    "server_port":9000,
+    "password":"password0",
+    "timeout":300,
+    "method":"aes-256-gcm",
+    "fast_open":true,
+    "nameserver":"8.8.8.8",
+    "mode":"tcp_and_udp",
+    "plugin":"xray-plugin",
+    "plugin_opts":"server"
+}
+```
+
+For more `v2ray-plugin` configrations please visit v2ray-plugin [usage][6].
+
+For more `xray-plugin` configrations please visit xray-plugin [usage][7].
 
 This container with sample configuration `/etc/shadowsocks-libev/config.json`
 
@@ -99,3 +118,4 @@ $ docker run -d -p 9000:9000 -p 9000:9000/udp --name ss-libev --restart=always -
 [4]: https://docs.docker.com/install/
 [5]: https://hub.docker.com/r/teddysun/shadowsocks-libev/
 [6]: https://github.com/shadowsocks/v2ray-plugin#usage
+[7]: https://github.com/teddysun/xray-plugin#usage
