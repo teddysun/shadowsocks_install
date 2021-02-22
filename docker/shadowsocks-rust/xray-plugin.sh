@@ -1,6 +1,6 @@
 #!/bin/sh
 #
-# This is a Shell script for shadowsocks-libev supported SIP003 plugins based alpine with Docker image
+# This is a Shell script for shadowsocks-rust supported SIP003 plugins based alpine with Docker image
 # 
 # Copyright (C) 2019 - 2021 Teddysun <i@teddysun.com>
 #

@@ -96,9 +96,9 @@ If you want to enable **xray-plugin**, a sample in JSON like below:
 }
 ```
 
-For more `v2ray-plugin` configrations please visit [v2ray-plugin usage][6].
+For more `v2ray-plugin` configrations please visit v2ray-plugin [usage][6].
 
-For more `xray-plugin` configrations please visit [xray-plugin usage][7].
+For more `xray-plugin` configrations please visit xray-plugin [usage][7].
 
 This container with sample configuration `/etc/shadowsocks-rust/config.json`
 
