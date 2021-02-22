@@ -1,14 +1,17 @@
 # Dockerfile for shadowsocks-rust based alpine
-# Copyright (C) 2020 Teddysun <i@teddysun.com>
+# Copyright (C) 2020 - 2021 Teddysun <i@teddysun.com>
 # Reference URL:
 # https://github.com/shadowsocks/shadowsocks-rust
 # https://github.com/shadowsocks/simple-obfs
 # https://github.com/shadowsocks/v2ray-plugin
+# https://github.com/teddysun/v2ray-plugin
+# https://github.com/teddysun/xray-plugin
 
 FROM alpine:edge
 
 WORKDIR /root
 COPY v2ray-plugin.sh /root/v2ray-plugin.sh
+COPY xray-plugin.sh /root/xray-plugin.sh
 COPY config_sample.json /etc/shadowsocks-rust/config.json
 RUN set -ex \
 	&& runDeps="git build-base c-ares-dev autoconf automake libev-dev libtool libsodium-dev linux-headers mbedtls-dev pcre-dev openssl-dev cargo" \
@@ -41,8 +44,9 @@ RUN set -ex \
 	&& apk del .build-deps \
 	&& cd /root \
 	&& rm -rf /root/obfs /root/rust \
-	&& chmod +x /root/v2ray-plugin.sh \
+	&& chmod +x /root/v2ray-plugin.sh /root/xray-plugin.sh \
 	&& /root/v2ray-plugin.sh \
+	&& /root/xray-plugin.sh \
 	&& rm -f /root/v2ray-plugin.sh
 
 VOLUME /etc/shadowsocks-rust

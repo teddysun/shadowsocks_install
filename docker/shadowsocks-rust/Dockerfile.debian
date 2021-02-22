@@ -1,9 +1,11 @@
 # Dockerfile for shadowsocks-rust based debian
-# Copyright (C) 2020 Teddysun <i@teddysun.com>
+# Copyright (C) 2020 - 2021 Teddysun <i@teddysun.com>
 # Reference URL:
 # https://github.com/shadowsocks/shadowsocks-rust
 # https://github.com/shadowsocks/simple-obfs
 # https://github.com/shadowsocks/v2ray-plugin
+# https://github.com/teddysun/v2ray-plugin
+# https://github.com/teddysun/xray-plugin
 
 FROM --platform=${TARGETPLATFORM} debian:buster-slim
 LABEL maintainer="Teddysun <i@teddysun.com>"
@@ -11,6 +13,7 @@ LABEL maintainer="Teddysun <i@teddysun.com>"
 ARG TARGETPLATFORM
 WORKDIR /root
 COPY v2ray-plugin.sh /root/v2ray-plugin.sh
+COPY xray-plugin.sh /root/xray-plugin.sh
 COPY shadowsocks-rust-debian.sh /root/shadowsocks-rust-debian.sh
 COPY config_sample.json /etc/shadowsocks-rust/config.json
 RUN set -ex \
@@ -28,9 +31,10 @@ RUN set -ex \
 	&& chmod +x /root/shadowsocks-rust-debian.sh \
 	&& /root/shadowsocks-rust-debian.sh "${TARGETPLATFORM}" \
 	&& rm -f /root/shadowsocks-rust-debian.sh \
-	&& chmod +x /root/v2ray-plugin.sh \
+	&& chmod +x /root/v2ray-plugin.sh /root/xray-plugin.sh \
 	&& /root/v2ray-plugin.sh "${TARGETPLATFORM}" \
-	&& rm -f /root/v2ray-plugin.sh \
+	&& /root/xray-plugin.sh "${TARGETPLATFORM}" \
+	&& rm -f /root/v2ray-plugin.sh /root/xray-plugin.sh \
 	&& apt-get -y remove build-essential git autoconf libtool libssl-dev libpcre3-dev automake \
 	&& apt-get -y autoremove \
 	&& apt-get -y clean \
