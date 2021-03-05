@@ -29,7 +29,7 @@ else
             ARCH="arm-unknown-linux-musleabihf"
             ;;
         linux/arm64|linux/arm64/v8)
-            ARCH=""
+            ARCH="aarch64-unknown-linux-musl"
             ;;
         linux/ppc64le)
             ARCH=""
