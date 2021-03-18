@@ -2,7 +2,6 @@
 # Copyright (C) 2020 - 2021 Teddysun <i@teddysun.com>
 # Reference URL:
 # https://github.com/shadowsocks/shadowsocks-rust
-# https://github.com/shadowsocks/simple-obfs
 # https://github.com/shadowsocks/v2ray-plugin
 # https://github.com/teddysun/v2ray-plugin
 # https://github.com/teddysun/xray-plugin
@@ -18,16 +17,7 @@ COPY shadowsocks-rust-debian.sh /root/shadowsocks-rust-debian.sh
 COPY config_sample.json /etc/shadowsocks-rust/config.json
 RUN set -ex \
 	&& apt-get update \
-	&& apt-get install -y --no-install-recommends wget git ca-certificates xz-utils build-essential autoconf libtool libssl-dev libpcre3-dev libev-dev automake \
-	&& mkdir -p /root/obfs \
-	&& cd /root/obfs \
-	&& git clone --depth=1 https://github.com/shadowsocks/simple-obfs.git . \
-	&& git submodule update --init --recursive \
-	&& ./autogen.sh \
-	&& ./configure --prefix=/usr --disable-documentation \
-	&& make install \
-	&& cd /root \
-	&& rm -rf /root/obfs \
+	&& apt-get install -y --no-install-recommends wget ca-certificates xz-utils \
 	&& chmod +x /root/shadowsocks-rust-debian.sh \
 	&& /root/shadowsocks-rust-debian.sh "${TARGETPLATFORM}" \
 	&& rm -f /root/shadowsocks-rust-debian.sh \
@@ -35,7 +25,6 @@ RUN set -ex \
 	&& /root/v2ray-plugin.sh "${TARGETPLATFORM}" \
 	&& /root/xray-plugin.sh "${TARGETPLATFORM}" \
 	&& rm -f /root/v2ray-plugin.sh /root/xray-plugin.sh \
-	&& apt-get -y remove build-essential git autoconf libtool libssl-dev libpcre3-dev automake \
 	&& apt-get -y autoremove \
 	&& apt-get -y clean \
 	&& rm -rf /var/lib/apt/lists/*

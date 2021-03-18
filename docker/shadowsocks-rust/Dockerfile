@@ -2,7 +2,6 @@
 # Copyright (C) 2020 - 2021 Teddysun <i@teddysun.com>
 # Reference URL:
 # https://github.com/shadowsocks/shadowsocks-rust
-# https://github.com/shadowsocks/simple-obfs
 # https://github.com/shadowsocks/v2ray-plugin
 # https://github.com/teddysun/v2ray-plugin
 # https://github.com/teddysun/xray-plugin
@@ -16,13 +15,6 @@ COPY config_sample.json /etc/shadowsocks-rust/config.json
 RUN set -ex \
 	&& runDeps="git build-base c-ares-dev autoconf automake libev-dev libtool libsodium-dev linux-headers mbedtls-dev pcre-dev openssl-dev cargo" \
 	&& apk add --no-cache --virtual .build-deps ${runDeps} \
-	&& mkdir -p /root/obfs \
-	&& cd /root/obfs \
-	&& git clone --depth=1 https://github.com/shadowsocks/simple-obfs.git . \
-	&& git submodule update --init --recursive \
-	&& ./autogen.sh \
-	&& ./configure --prefix=/usr --disable-documentation \
-	&& make install \
 	&& mkdir -p /root/rust \
 	&& cd /root/rust \
 	&& VERSION=$(wget --no-check-certificate -qO- https://api.github.com/repos/shadowsocks/shadowsocks-rust/releases/latest | grep 'tag_name' | cut -d\" -f4) \
@@ -37,17 +29,17 @@ RUN set -ex \
 		rng-tools \
 		ca-certificates \
 		libgcc \
-		$(scanelf --needed --nobanner /usr/bin/obfs-* /usr/bin/ss* \
+		$(scanelf --needed --nobanner /usr/bin/ss* \
 		| awk '{ gsub(/,/, "\nso:", $2); print "so:" $2 }' \
 		| xargs -r apk info --installed \
 		| sort -u) \
 	&& apk del .build-deps \
 	&& cd /root \
-	&& rm -rf /root/obfs /root/rust \
+	&& rm -rf /root/rust \
 	&& chmod +x /root/v2ray-plugin.sh /root/xray-plugin.sh \
 	&& /root/v2ray-plugin.sh \
 	&& /root/xray-plugin.sh \
-	&& rm -f /root/v2ray-plugin.sh
+	&& rm -f /root/v2ray-plugin.sh /root/xray-plugin.sh
 
 VOLUME /etc/shadowsocks-rust
 ENV TZ=Asia/Shanghai

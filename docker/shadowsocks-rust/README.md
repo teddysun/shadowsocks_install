@@ -6,7 +6,7 @@
 
 It is a port of [shadowsocks][2] created by [@zonyitoo](https://github.com/zonyitoo).
 
-Based on alpine with latest version [shadowsocks-rust](https://github.com/shadowsocks/shadowsocks-rust) and [simple-obfs](https://github.com/shadowsocks/simple-obfs), [v2ray-plugin](https://github.com/teddysun/v2ray-plugin), [xray-plugin](https://github.com/teddysun/xray-plugin).
+Based on alpine with latest version [shadowsocks-rust](https://github.com/shadowsocks/shadowsocks-rust) and [v2ray-plugin](https://github.com/teddysun/v2ray-plugin), [xray-plugin](https://github.com/teddysun/xray-plugin).
 
 Docker images are built for quick deployment in various computing cloud providers.
 
@@ -45,22 +45,6 @@ A sample in JSON like below:
     "method":"aes-256-gcm",
     "nameserver":"8.8.8.8",
     "mode":"tcp_and_udp"
-}
-```
-
-If you want to enable **simple-obfs**, a sample in JSON like below:
-
-```
-{
-    "server":"0.0.0.0",
-    "server_port":9000,
-    "password":"password0",
-    "timeout":300,
-    "method":"aes-256-gcm",
-    "nameserver":"8.8.8.8",
-    "mode":"tcp_and_udp",
-    "plugin":"obfs-server",
-    "plugin_opts":"obfs=tls"
 }
 ```
 
