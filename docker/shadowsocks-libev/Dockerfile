@@ -2,7 +2,6 @@
 # Copyright (C) 2018 - 2021 Teddysun <i@teddysun.com>
 # Reference URL:
 # https://github.com/shadowsocks/shadowsocks-libev
-# https://github.com/shadowsocks/simple-obfs
 # https://github.com/shadowsocks/v2ray-plugin
 # https://github.com/teddysun/v2ray-plugin
 # https://github.com/teddysun/xray-plugin
@@ -17,13 +16,6 @@ COPY config_sample.json /etc/shadowsocks-libev/config.json
 RUN set -ex \
 	&& runDeps="git build-base c-ares-dev autoconf automake libev-dev libtool libsodium-dev linux-headers mbedtls-dev pcre-dev" \
 	&& apk add --no-cache --virtual .build-deps ${runDeps} \
-	&& mkdir -p /root/obfs \
-	&& cd /root/obfs \
-	&& git clone --depth=1 https://github.com/shadowsocks/simple-obfs.git . \
-	&& git submodule update --init --recursive \
-	&& ./autogen.sh \
-	&& ./configure --prefix=/usr --disable-documentation \
-	&& make install \
 	&& mkdir -p /root/libev \
 	&& cd /root/libev \
 	&& git clone --depth=1 https://github.com/shadowsocks/shadowsocks-libev.git . \
@@ -41,7 +33,7 @@ RUN set -ex \
 		| sort -u) \
 	&& apk del .build-deps \
 	&& cd /root \
-	&& rm -rf /root/obfs /root/libev \
+	&& rm -rf /root/libev \
 	&& chmod +x /root/v2ray-plugin.sh /root/xray-plugin.sh \
 	&& /root/v2ray-plugin.sh \
 	&& /root/xray-plugin.sh \
