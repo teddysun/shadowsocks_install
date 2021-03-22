@@ -75,13 +75,13 @@ check_sys(){
     fi
 
     if [[ "${checkType}" == "sysRelease" ]]; then
-        if [ "${value}" == "${release}" ]; then
+        if [[ "${value}" == "${release}" ]]; then
             return 0
         else
             return 1
         fi
     elif [[ "${checkType}" == "packageManager" ]]; then
-        if [ "${value}" == "${systemPackage}" ]; then
+        if [[ "${value}" == "${systemPackage}" ]]; then
             return 0
         else
             return 1
@@ -104,7 +104,7 @@ centosversion(){
         local code=$1
         local version="$(getversion)"
         local main_ver=${version%%.*}
-        if [ "$main_ver" == "$code" ]; then
+        if [[ "$main_ver" == "$code" ]]; then
             return 0
         else
             return 1
@@ -116,7 +116,7 @@ centosversion(){
 
 # is 64bit or not
 is_64bit(){
-    if [ `getconf WORD_BIT` = '32' ] && [ `getconf LONG_BIT` = '64' ] ; then
+    if [[ `getconf WORD_BIT` = '32' ]] && [[ `getconf LONG_BIT` = '64' ]] ; then
         return 0
     else
         return 1
@@ -125,17 +125,17 @@ is_64bit(){
 
 # Disable selinux
 disable_selinux(){
-    if [ -s /etc/selinux/config ] && grep 'SELINUX=enforcing' /etc/selinux/config; then
+    if [[ -s /etc/selinux/config ]] && grep 'SELINUX=enforcing' /etc/selinux/config; then
         sed -i 's/SELINUX=enforcing/SELINUX=disabled/g' /etc/selinux/config
         setenforce 0
     fi
 }
 
 get_ip(){
-    local IP=$( ip addr | egrep -o '[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}' | egrep -v "^192\.168|^172\.1[6-9]\.|^172\.2[0-9]\.|^172\.3[0-2]\.|^10\.|^127\.|^255\.|^0\." | head -n 1 )
-    [ -z ${IP} ] && IP=$( wget -qO- -t1 -T2 ipv4.icanhazip.com )
-    [ -z ${IP} ] && IP=$( wget -qO- -t1 -T2 ipinfo.io/ip )
-    [ ! -z ${IP} ] && echo ${IP} || echo
+    local IP=$( ip addr | grep -E -o '[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}' | grep -E -v "^192\.168|^172\.1[6-9]\.|^172\.2[0-9]\.|^172\.3[0-2]\.|^10\.|^127\.|^255\.|^0\." | head -n 1 )
+    [[ -z ${IP} ]] && IP=$( wget -qO- -t1 -T2 ipv4.icanhazip.com )
+    [[ -z ${IP} ]] && IP=$( wget -qO- -t1 -T2 ipinfo.io/ip )
+    [[ ! -z ${IP} ]] && echo ${IP} || echo
 }
 
 get_char(){
@@ -156,8 +156,8 @@ pre_install(){
     fi
     # Set shadowsocks-go config password
     echo "Please enter password for shadowsocks-go:"
-    read -p "(Default password: teddysun.com):" shadowsockspwd
-    [ -z "${shadowsockspwd}" ] && shadowsockspwd="teddysun.com"
+    read -rp "(Default password: teddysun.com):" shadowsockspwd
+    [[ -z "${shadowsockspwd}" ]] && shadowsockspwd="teddysun.com"
     echo
     echo "---------------------------"
     echo "password = ${shadowsockspwd}"
@@ -168,11 +168,11 @@ pre_install(){
     do
     dport=$(shuf -i 9000-19999 -n 1)
     echo -e "Please enter a port for shadowsocks-go [1-65535]"
-    read -p "(Default port: ${dport}):" shadowsocksport
-    [ -z "${shadowsocksport}" ] && shadowsocksport=${dport}
+    read -rp "(Default port: ${dport}):" shadowsocksport
+    [[ -z "${shadowsocksport}" ]] && shadowsocksport=${dport}
     expr ${shadowsocksport} + 1 &>/dev/null
-    if [ $? -eq 0 ]; then
-        if [ ${shadowsocksport} -ge 1 ] && [ ${shadowsocksport} -le 65535 ] && [ ${shadowsocksport:0:1} != 0 ]; then
+    if [[ $? -eq 0 ]]; then
+        if [[ ${shadowsocksport} -ge 1 ]] && [[ ${shadowsocksport} -le 65535 ]] && [[ ${shadowsocksport:0:1} != 0 ]]; then
             echo
             echo "---------------------------"
             echo "port = ${shadowsocksport}"
@@ -192,10 +192,10 @@ pre_install(){
         hint="${ciphers[$i-1]}"
         echo -e "${green}${i}${plain}) ${hint}"
     done
-    read -p "Which cipher you'd select(Default: ${ciphers[0]}):" pick
-    [ -z "$pick" ] && pick=1
+    read -rp "Which cipher you'd select(Default: ${ciphers[0]}):" pick
+    [[ -z "$pick" ]] && pick=1
     expr ${pick} + 1 &>/dev/null
-    if [ $? -ne 0 ]; then
+    if [[ $? -ne 0 ]]; then
         echo -e "[${red}Error${plain}] Please enter a number"
         continue
     fi
@@ -235,7 +235,7 @@ download_files(){
             exit 1
         fi
         gzip -d shadowsocks-server-linux64-1.2.2.gz
-        if [ $? -ne 0 ]; then
+        if [[ $? -ne 0 ]]; then
             echo -e "[${red}Error${plain}] Decompress shadowsocks-server-linux64-1.2.2.gz failed"
             exit 1
         fi
@@ -246,7 +246,7 @@ download_files(){
             exit 1
         fi
         gzip -d shadowsocks-server-linux32-1.2.2.gz
-        if [ $? -ne 0 ]; then
+        if [[ $? -ne 0 ]]; then
             echo -e "[${red}Error${plain}] Decompress shadowsocks-server-linux32-1.2.2.gz failed"
             exit 1
         fi
@@ -269,7 +269,7 @@ download_files(){
 
 # Config shadowsocks
 config_shadowsocks(){
-    if [ ! -d /etc/shadowsocks ]; then
+    if [[ ! -d /etc/shadowsocks ]]; then
         mkdir -p /etc/shadowsocks
     fi
     cat > /etc/shadowsocks/config.json<<-EOF
@@ -289,9 +289,9 @@ firewall_set(){
     echo -e "[${green}Info${plain}] firewall set start..."
     if centosversion 6; then
         /etc/init.d/iptables status > /dev/null 2>&1
-        if [ $? -eq 0 ]; then
+        if [[ $? -eq 0 ]]; then
             iptables -L -n | grep -i ${shadowsocksport} > /dev/null 2>&1
-            if [ $? -ne 0 ]; then
+            if [[ $? -ne 0 ]]; then
                 iptables -I INPUT -m state --state NEW -m tcp -p tcp --dport ${shadowsocksport} -j ACCEPT
                 iptables -I INPUT -m state --state NEW -m udp -p udp --dport ${shadowsocksport} -j ACCEPT
                 /etc/init.d/iptables save
@@ -304,7 +304,7 @@ firewall_set(){
         fi
     elif centosversion 7; then
         systemctl status firewalld > /dev/null 2>&1
-        if [ $? -eq 0 ]; then
+        if [[ $? -eq 0 ]]; then
             default_zone=$(firewall-cmd --get-default-zone)
             firewall-cmd --permanent --zone=${default_zone} --add-port=${shadowsocksport}/tcp
             firewall-cmd --permanent --zone=${default_zone} --add-port=${shadowsocksport}/udp
@@ -319,7 +319,7 @@ firewall_set(){
 # Install Shadowsocks-go
 install(){
 
-    if [ -f /usr/bin/shadowsocks-server ]; then
+    if [[ -f /usr/bin/shadowsocks-server ]]; then
         echo "Shadowsocks-go server install success!"
         chmod +x /usr/bin/shadowsocks-server
         chmod +x /etc/init.d/shadowsocks
@@ -332,7 +332,7 @@ install(){
         fi
 
         /etc/init.d/shadowsocks start
-        if [ $? -ne 0 ]; then
+        if [[ $? -ne 0 ]]; then
             echo -e "[${red}Error${plain}] Shadowsocks-go server start failed!"
         fi
     else
@@ -358,11 +358,11 @@ install(){
 uninstall_shadowsocks_go(){
     printf "Are you sure uninstall shadowsocks-go? (y/n) "
     printf "\n"
-    read -p "(Default: n):" answer
-    [ -z ${answer} ] && answer="n"
-    if [ "${answer}" == "y" ] || [ "${answer}" == "Y" ]; then
+    read -rp "(Default: n):" answer
+    [[ -z ${answer} ]] && answer="n"
+    if [[ "${answer}" == "y" ]] || [[ "${answer}" == "Y" ]]; then
         ps -ef | grep -v grep | grep -i "shadowsocks-server" > /dev/null 2>&1
-        if [ $? -eq 0 ]; then
+        if [[ $? -eq 0 ]]; then
             /etc/init.d/shadowsocks stop
         fi
         if check_sys packageManager yum; then
@@ -397,7 +397,7 @@ install_shadowsocks_go(){
 
 # Initialization step
 action=$1
-[ -z $1 ] && action=install
+[[ -z $1 ]] && action=install
 case "$action" in
     install|uninstall)
         ${action}_shadowsocks_go
