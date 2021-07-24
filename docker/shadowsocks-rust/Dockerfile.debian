@@ -6,7 +6,7 @@
 # https://github.com/teddysun/v2ray-plugin
 # https://github.com/teddysun/xray-plugin
 
-FROM --platform=${TARGETPLATFORM} debian:buster-slim
+FROM --platform=${TARGETPLATFORM} debian:bullseye-slim
 LABEL maintainer="Teddysun <i@teddysun.com>"
 
 ARG TARGETPLATFORM
