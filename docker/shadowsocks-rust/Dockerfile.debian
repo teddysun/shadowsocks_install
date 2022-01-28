@@ -31,4 +31,4 @@ RUN set -ex \
 
 VOLUME /etc/shadowsocks-rust
 ENV TZ=Asia/Shanghai
-CMD [ "/usr/bin/ssserver", "-c", "/etc/shadowsocks-rust/config.json" ]
+CMD [ "/usr/bin/ssserver", "--log-without-time", "-c", "/etc/shadowsocks-rust/config.json" ]
