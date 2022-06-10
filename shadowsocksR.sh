@@ -19,8 +19,8 @@ echo "# Github: https://github.com/shadowsocksr/shadowsocksr      #"
 echo "#############################################################"
 echo
 
-libsodium_file="libsodium-1.0.18"
-libsodium_url="https://github.com/jedisct1/libsodium/releases/download/1.0.18-RELEASE/libsodium-1.0.18.tar.gz"
+libsodium_file="libsodium-1.0.17"
+libsodium_url="https://github.com/jedisct1/libsodium/releases/download/1.0.17/libsodium-1.0.17.tar.gz"
 shadowsocks_r_file="shadowsocksr-3.2.2"
 shadowsocks_r_url="https://github.com/shadowsocksrr/shadowsocksr/archive/3.2.2.tar.gz"
 
@@ -86,7 +86,7 @@ plain='\033[0m'
 
 # Disable selinux
 disable_selinux(){
-    if [ -s /etc/selinux/config ] && grep 'SELINUX=enforcing' /etc/selinux/config; then
+    if [[ -s /etc/selinux/config ]] && grep 'SELINUX=enforcing' /etc/selinux/config; then
         sed -i 's/SELINUX=enforcing/SELINUX=disabled/g' /etc/selinux/config
         setenforce 0
     fi
@@ -124,13 +124,13 @@ check_sys(){
     fi
 
     if [[ "${checkType}" == "sysRelease" ]]; then
-        if [ "${value}" == "${release}" ]; then
+        if [[ "${value}" == "${release}" ]]; then
             return 0
         else
             return 1
         fi
     elif [[ "${checkType}" == "packageManager" ]]; then
-        if [ "${value}" == "${systemPackage}" ]; then
+        if [[ "${value}" == "${systemPackage}" ]]; then
             return 0
         else
             return 1
@@ -153,7 +153,7 @@ centosversion(){
         local code=$1
         local version="$(getversion)"
         local main_ver=${version%%.*}
-        if [ "$main_ver" == "$code" ]; then
+        if [[ "$main_ver" == "$code" ]]; then
             return 0
         else
             return 1
@@ -165,10 +165,10 @@ centosversion(){
 
 # Get public IP address
 get_ip(){
-    local IP=$( ip addr | egrep -o '[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}' | egrep -v "^192\.168|^172\.1[6-9]\.|^172\.2[0-9]\.|^172\.3[0-2]\.|^10\.|^127\.|^255\.|^0\." | head -n 1 )
-    [ -z ${IP} ] && IP=$( wget -qO- -t1 -T2 ipv4.icanhazip.com )
-    [ -z ${IP} ] && IP=$( wget -qO- -t1 -T2 ipinfo.io/ip )
-    [ ! -z ${IP} ] && echo ${IP} || echo
+    local IP=$( ip addr | grep -E -o '[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}' | grep -E -v "^192\.168|^172\.1[6-9]\.|^172\.2[0-9]\.|^172\.3[0-2]\.|^10\.|^127\.|^255\.|^0\." | head -n 1 )
+    [[ -z ${IP} ]] && IP=$( wget -qO- -t1 -T2 ipv4.icanhazip.com )
+    [[ -z ${IP} ]] && IP=$( wget -qO- -t1 -T2 ipinfo.io/ip )
+    [[ ! -z ${IP} ]] && echo ${IP} || echo
 }
 
 get_char(){
@@ -195,8 +195,8 @@ pre_install(){
     fi
     # Set ShadowsocksR config password
     echo "Please enter password for ShadowsocksR:"
-    read -p "(Default password: teddysun.com):" shadowsockspwd
-    [ -z "${shadowsockspwd}" ] && shadowsockspwd="teddysun.com"
+    read -rp "(Default password: teddysun.com):" shadowsockspwd
+    [[ -z "${shadowsockspwd}" ]] && shadowsockspwd="teddysun.com"
     echo
     echo "---------------------------"
     echo "password = ${shadowsockspwd}"
@@ -207,11 +207,11 @@ pre_install(){
     do
     dport=$(shuf -i 9000-19999 -n 1)
     echo -e "Please enter a port for ShadowsocksR [1-65535]"
-    read -p "(Default port: ${dport}):" shadowsocksport
-    [ -z "${shadowsocksport}" ] && shadowsocksport=${dport}
+    read -rp "(Default port: ${dport}):" shadowsocksport
+    [[ -z "${shadowsocksport}" ]] && shadowsocksport=${dport}
     expr ${shadowsocksport} + 1 &>/dev/null
-    if [ $? -eq 0 ]; then
-        if [ ${shadowsocksport} -ge 1 ] && [ ${shadowsocksport} -le 65535 ] && [ ${shadowsocksport:0:1} != 0 ]; then
+    if [[ $? -eq 0 ]]; then
+        if [[ ${shadowsocksport} -ge 1 ]] && [[ ${shadowsocksport} -le 65535 ]] && [[ ${shadowsocksport:0:1} != 0 ]]; then
             echo
             echo "---------------------------"
             echo "port = ${shadowsocksport}"
@@ -231,10 +231,10 @@ pre_install(){
         hint="${ciphers[$i-1]}"
         echo -e "${green}${i}${plain}) ${hint}"
     done
-    read -p "Which cipher you'd select(Default: ${ciphers[1]}):" pick
-    [ -z "$pick" ] && pick=2
+    read -rp "Which cipher you'd select(Default: ${ciphers[1]}):" pick
+    [[ -z "$pick" ]] && pick=2
     expr ${pick} + 1 &>/dev/null
-    if [ $? -ne 0 ]; then
+    if [[ $? -ne 0 ]]; then
         echo -e "[${red}Error${plain}] Please enter a number"
         continue
     fi
@@ -259,10 +259,10 @@ pre_install(){
         hint="${protocols[$i-1]}"
         echo -e "${green}${i}${plain}) ${hint}"
     done
-    read -p "Which protocol you'd select(Default: ${protocols[0]}):" protocol
-    [ -z "$protocol" ] && protocol=1
+    read -rp "Which protocol you'd select(Default: ${protocols[0]}):" protocol
+    [[ -z "$protocol" ]] && protocol=1
     expr ${protocol} + 1 &>/dev/null
-    if [ $? -ne 0 ]; then
+    if [[ $? -ne 0 ]]; then
         echo -e "[${red}Error${plain}] Input error, please input a number"
         continue
     fi
@@ -287,10 +287,10 @@ pre_install(){
         hint="${obfs[$i-1]}"
         echo -e "${green}${i}${plain}) ${hint}"
     done
-    read -p "Which obfs you'd select(Default: ${obfs[0]}):" r_obfs
-    [ -z "$r_obfs" ] && r_obfs=1
+    read -rp "Which obfs you'd select(Default: ${obfs[0]}):" r_obfs
+    [[ -z "$r_obfs" ]] && r_obfs=1
     expr ${r_obfs} + 1 &>/dev/null
-    if [ $? -ne 0 ]; then
+    if [[ $? -ne 0 ]]; then
         echo -e "[${red}Error${plain}] Input error, please input a number"
         continue
     fi
@@ -351,9 +351,9 @@ firewall_set(){
     echo -e "[${green}Info${plain}] firewall set start..."
     if centosversion 6; then
         /etc/init.d/iptables status > /dev/null 2>&1
-        if [ $? -eq 0 ]; then
+        if [[ $? -eq 0 ]]; then
             iptables -L -n | grep -i ${shadowsocksport} > /dev/null 2>&1
-            if [ $? -ne 0 ]; then
+            if [[ $? -ne 0 ]]; then
                 iptables -I INPUT -m state --state NEW -m tcp -p tcp --dport ${shadowsocksport} -j ACCEPT
                 iptables -I INPUT -m state --state NEW -m udp -p udp --dport ${shadowsocksport} -j ACCEPT
                 /etc/init.d/iptables save
@@ -366,7 +366,7 @@ firewall_set(){
         fi
     elif centosversion 7; then
         systemctl status firewalld > /dev/null 2>&1
-        if [ $? -eq 0 ]; then
+        if [[ $? -eq 0 ]]; then
             default_zone=$(firewall-cmd --get-default-zone)
             firewall-cmd --permanent --zone=${default_zone} --add-port=${shadowsocksport}/tcp
             firewall-cmd --permanent --zone=${default_zone} --add-port=${shadowsocksport}/udp
@@ -405,12 +405,12 @@ EOF
 # Install ShadowsocksR
 install(){
     # Install libsodium
-    if [ ! -f /usr/lib/libsodium.a ]; then
+    if [[ ! -f /usr/lib/libsodium.a ]]; then
         cd ${cur_dir}
         tar zxf ${libsodium_file}.tar.gz
         cd ${libsodium_file}
         ./configure --prefix=/usr && make && make install
-        if [ $? -ne 0 ]; then
+        if [[ $? -ne 0 ]]; then
             echo -e "[${red}Error${plain}] libsodium install failed!"
             install_cleanup
             exit 1
@@ -422,7 +422,7 @@ install(){
     cd ${cur_dir}
     tar zxf ${shadowsocks_r_file}.tar.gz
     mv ${shadowsocks_r_file}/shadowsocks /usr/local/
-    if [ -f /usr/local/shadowsocks/server.py ]; then
+    if [[ -f /usr/local/shadowsocks/server.py ]]; then
         chmod +x /etc/init.d/shadowsocks
         if check_sys packageManager yum; then
             chkconfig --add shadowsocks
@@ -463,11 +463,11 @@ install_cleanup(){
 uninstall_shadowsocksr(){
     printf "Are you sure uninstall ShadowsocksR? (y/n)"
     printf "\n"
-    read -p "(Default: n):" answer
-    [ -z ${answer} ] && answer="n"
-    if [ "${answer}" == "y" ] || [ "${answer}" == "Y" ]; then
+    read -rp "(Default: n):" answer
+    [[ -z ${answer} ]] && answer="n"
+    if [[ "${answer}" == "y" ]] || [[ "${answer}" == "Y" ]]; then
         /etc/init.d/shadowsocks status > /dev/null 2>&1
-        if [ $? -eq 0 ]; then
+        if [[ $? -eq 0 ]]; then
             /etc/init.d/shadowsocks stop
         fi
         if check_sys packageManager yum; then
@@ -502,7 +502,7 @@ install_shadowsocksr(){
 
 # Initialization step
 action=$1
-[ -z $1 ] && action=install
+[[ -z $1 ]] && action=install
 case "$action" in
     install|uninstall)
         ${action}_shadowsocksr
