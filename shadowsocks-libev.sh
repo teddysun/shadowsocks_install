@@ -15,8 +15,8 @@ cur_dir=$(pwd)
 libsodium_file='libsodium-1.0.18'
 libsodium_url='https://github.com/jedisct1/libsodium/releases/download/1.0.18-RELEASE/libsodium-1.0.18.tar.gz'
 
-mbedtls_file='mbedtls-2.16.6'
-mbedtls_url='https://tls.mbed.org/download/'"$mbedtls_file"'-apache.tgz'
+mbedtls_file='mbedtls-2.16.12'
+mbedtls_url='https://github.com/Mbed-TLS/mbedtls/archive/refs/tags/v2.16.12.tar.gz'
 
 # Stream Ciphers
 ciphers=(
@@ -360,7 +360,7 @@ download_files(){
 
     download "${shadowsocks_libev_ver}.tar.gz" "${download_link}"
     download "${libsodium_file}.tar.gz" "${libsodium_url}"
-    download "${mbedtls_file}-apache.tgz" "${mbedtls_url}"
+    download "${mbedtls_file}.tar.gz" "${mbedtls_url}"
     download "/etc/init.d/shadowsocks" "${init_script_link}"
 }
 
@@ -382,7 +382,7 @@ install_libsodium() {
 install_mbedtls() {
     if [ ! -f /usr/lib/libmbedtls.a ]; then
         cd "${cur_dir}" || exit
-        tar xf "${mbedtls_file}"-apache.tgz
+        tar zxf "${mbedtls_file}.tar.gz"
         cd "${mbedtls_file}" || exit
         make SHARED=1 CFLAGS=-fPIC
         make DESTDIR=/usr install
