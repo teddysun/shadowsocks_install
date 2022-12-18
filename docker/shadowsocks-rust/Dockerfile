@@ -19,10 +19,11 @@ RUN set -ex \
 	&& cd /root/rust \
 	&& VERSION=$(wget --no-check-certificate -qO- https://api.github.com/repos/shadowsocks/shadowsocks-rust/releases/latest | grep 'tag_name' | cut -d\" -f4) \
 	&& git clone -b ${VERSION} --depth=1 https://github.com/shadowsocks/shadowsocks-rust.git . \
-	&& cargo build --release --features "aes-pmac-siv local-redir" --verbose \
+	&& cargo build --release --features "local-tun local-redir stream-cipher aead-cipher-2022" --verbose \
 	&& cp -pv target/release/sslocal /usr/bin \
 	&& cp -pv target/release/ssmanager /usr/bin \
 	&& cp -pv target/release/ssserver /usr/bin \
+	&& cp -pv target/release/ssservice /usr/bin \
 	&& cp -pv target/release/ssurl /usr/bin \
 	&& apk add --no-cache \
 		tzdata \
@@ -43,4 +44,4 @@ RUN set -ex \
 
 VOLUME /etc/shadowsocks-rust
 ENV TZ=Asia/Shanghai
-CMD [ "/usr/bin/ssserver", "--log-without-time", "-c", "/etc/shadowsocks-rust/config.json" ]
+CMD [ "/usr/bin/ssservice", "server", "--log-without-time", "-c", "/etc/shadowsocks-rust/config.json" ]
