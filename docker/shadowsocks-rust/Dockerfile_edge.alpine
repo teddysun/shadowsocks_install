@@ -1,0 +1,26 @@
+# Dockerfile for shadowsocks-rust based alpine
+# Copyright (C) 2020 - 2024 Teddysun <i@teddysun.com>
+# Reference URL:
+# https://github.com/shadowsocks/shadowsocks-rust
+# https://github.com/shadowsocks/v2ray-plugin
+# https://github.com/teddysun/v2ray-plugin
+# https://github.com/teddysun/xray-plugin
+
+FROM alpine:edge
+LABEL maintainer="Teddysun <i@teddysun.com>"
+
+ARG TARGETPLATFORM
+WORKDIR /root
+COPY v2ray-plugin.sh /root/v2ray-plugin.sh
+COPY xray-plugin.sh /root/xray-plugin.sh
+COPY config_sample.json /etc/shadowsocks-rust/config.json
+RUN set -ex \
+	&& chmod +x /root/v2ray-plugin.sh /root/xray-plugin.sh \
+	&& apk add --no-cache tzdata rng-tools ca-certificates shadowsocks-rust \
+	&& /root/v2ray-plugin.sh "${TARGETPLATFORM}" \
+	&& /root/xray-plugin.sh "${TARGETPLATFORM}" \
+	&& rm -f /root/v2ray-plugin.sh /root/xray-plugin.sh
+
+VOLUME /etc/shadowsocks-rust
+ENV TZ=Asia/Shanghai
+CMD [ "/usr/bin/ssservice", "server", "--log-without-time", "-c", "/etc/shadowsocks-rust/config.json" ]
