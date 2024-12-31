@@ -1,9 +1,9 @@
 # Dockerfile for ShadowsocksR based alpine
-# Copyright (C) 2018 - 2019 Teddysun <i@teddysun.com>
+# Copyright (C) 2018 - 2024 Teddysun <i@teddysun.com>
 # Reference URL:
 # https://github.com/shadowsocksrr/shadowsocksr
 
-FROM python:3.7-alpine
+FROM python:3.9-alpine
 LABEL maintainer="Teddysun <i@teddysun.com>"
 
 RUN set -ex \

@@ -1,12 +1,12 @@
 # Dockerfile for shadowsocks-libev based alpine
-# Copyright (C) 2018 - 2021 Teddysun <i@teddysun.com>
+# Copyright (C) 2018 - 2024 Teddysun <i@teddysun.com>
 # Reference URL:
 # https://github.com/shadowsocks/shadowsocks-libev
 # https://github.com/shadowsocks/v2ray-plugin
 # https://github.com/teddysun/v2ray-plugin
 # https://github.com/teddysun/xray-plugin
 
-FROM --platform=${TARGETPLATFORM} alpine:latest
+FROM alpine:3.18
 LABEL maintainer="Teddysun <i@teddysun.com>"
 
 ARG TARGETPLATFORM
