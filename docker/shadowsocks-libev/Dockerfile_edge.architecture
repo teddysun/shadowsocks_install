@@ -1,0 +1,27 @@
+# Dockerfile for shadowsocks-libev based alpine
+# Copyright (C) 2018 - 2024 Teddysun <i@teddysun.com>
+# Reference URL:
+# https://github.com/shadowsocks/shadowsocks-libev
+# https://github.com/shadowsocks/v2ray-plugin
+# https://github.com/teddysun/v2ray-plugin
+# https://github.com/teddysun/xray-plugin
+
+FROM alpine:edge
+LABEL maintainer="Teddysun <i@teddysun.com>"
+
+ARG TARGETPLATFORM
+WORKDIR /root
+COPY v2ray-plugin.sh /root/v2ray-plugin.sh
+COPY xray-plugin.sh /root/xray-plugin.sh
+COPY config_sample.json /etc/shadowsocks-libev/config.json
+RUN set -ex \
+	&& echo "https://dl-cdn.alpinelinux.org/alpine/edge/testing/" >> /etc/apk/repositories \
+	&& apk add --no-cache tzdata rng-tools ca-certificates shadowsocks-libev \
+	&& chmod +x /root/v2ray-plugin.sh /root/xray-plugin.sh \
+	&& /root/v2ray-plugin.sh "${TARGETPLATFORM}" \
+	&& /root/xray-plugin.sh "${TARGETPLATFORM}" \
+	&& rm -f /root/v2ray-plugin.sh /root/xray-plugin.sh
+
+VOLUME /etc/shadowsocks-libev
+ENV TZ=Asia/Shanghai
+CMD [ "/usr/bin/ss-server", "-c", "/etc/shadowsocks-libev/config.json" ]
