@@ -1,12 +1,12 @@
 # Dockerfile for shadowsocks-libev based alpine
-# Copyright (C) 2018 - 2024 Teddysun <i@teddysun.com>
+# Copyright (C) 2018 - 2026 Teddysun <i@teddysun.com>
 # Reference URL:
 # https://github.com/shadowsocks/shadowsocks-libev
 # https://github.com/shadowsocks/v2ray-plugin
 # https://github.com/teddysun/v2ray-plugin
 # https://github.com/teddysun/xray-plugin
 
-FROM alpine:3.18
+FROM alpine:3.23
 LABEL maintainer="Teddysun <i@teddysun.com>"
 
 WORKDIR /root
@@ -14,15 +14,18 @@ COPY v2ray-plugin.sh /root/v2ray-plugin.sh
 COPY xray-plugin.sh /root/xray-plugin.sh
 COPY config_sample.json /etc/shadowsocks-libev/config.json
 RUN set -ex \
-	&& runDeps="git build-base c-ares-dev autoconf automake libev-dev libtool libsodium-dev linux-headers mbedtls-dev pcre-dev" \
+	&& runDeps="git build-base c-ares-dev cmake libcap libev-dev libtool libsodium-dev linux-headers mbedtls-dev pcre2-dev" \
 	&& apk add --no-cache --virtual .build-deps ${runDeps} \
 	&& mkdir -p /root/libev \
 	&& cd /root/libev \
 	&& git clone --depth=1 https://github.com/shadowsocks/shadowsocks-libev.git . \
 	&& git submodule update --init --recursive \
-	&& ./autogen.sh \
-	&& ./configure --prefix=/usr --disable-documentation \
+	&& mkdir -p build \
+	&& cd build \
+	&& cmake .. -DCMAKE_INSTALL_PREFIX=/usr -DBUILD_TESTING=OFF -DWITH_STATIC=OFF -DCMAKE_BUILD_TYPE=Release \
+	&& make -j$(getconf _NPROCESSORS_ONLN) \
 	&& make install \
+	&& ls /usr/bin/ss-* | xargs -n1 setcap cap_net_bind_service+ep \
 	&& apk add --no-cache \
 		tzdata \
 		rng-tools \
